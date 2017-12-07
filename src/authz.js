@@ -1,6 +1,6 @@
 const axios = require('axios')
 
-const baseUrl = process.env.AUTHORIZATION_URL || 'https://authorization'
+const baseUrl = process.env.AUTHORIZATION_URL || 'http://authorization'
 const maxRetries = 3
 
 module.exports = {
