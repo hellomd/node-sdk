@@ -38,7 +38,7 @@ module.exports = {
   detachRole: async (ctx, user, role) => {
     for(let i = 0; i <= maxRetries; i++) {
       try {
-        await axios.delete(`${baseUrl}/users/${user}/roles`, { role })
+        await axios.delete(`${baseUrl}/users/${user}/roles/${role}`)
         break
       } catch(err) {
         if (i == 3) {
