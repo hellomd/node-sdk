@@ -35,6 +35,19 @@ module.exports = {
     }
   },
 
+  detachRole: async (ctx, user, role) => {
+    for(let i = 0; i <= maxRetries; i++) {
+      try {
+        await axios.delete(`${baseUrl}/users/${user}/roles`, { role })
+        break
+      } catch(err) {
+        if (i == 3) {
+          ctx.throw(500, "Could not detach role")
+        }
+      }
+    }
+  },
+
   createRole: async (ctx, role) => {
     for(let i = 1; i <= maxRetries; i++) {
       try {
