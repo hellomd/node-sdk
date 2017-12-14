@@ -1,5 +1,6 @@
 const R = require('ramda')
 const winston = require('winston')
+const logmatic = require('./logmatic')
 
 const format = winston.format.combine(
   winston.format.timestamp(),
@@ -10,7 +11,7 @@ const logmaticEnabled = process.env.LOGMATIC_API_KEY && process.env.LOGMATIC_API
 
 const transports = R.reject(R.isNil)([
   new winston.transports.Console({format}),
-  logmaticEnabled ? new require('./logmatic')() : undefined,
+  logmaticEnabled ? new Logmatic() : undefined,
 ])
 
 const logger = winston.createLogger({transports})
