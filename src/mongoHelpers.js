@@ -8,9 +8,13 @@ const renameKeys = R.curry((keysMap, obj) =>
 const byId = R.compose(R.objOf('_id'), ObjectId)
 const fixId = renameKeys({ _id: 'id'})
 const set = R.objOf('$set')
+const pull = R.objOf('$pull')
+const push = R.objOf('$push')
 
 module.exports = {
   byId,
   set,
   fixId,
+  pull,
+  push,
 }

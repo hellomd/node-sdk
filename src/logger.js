@@ -1,17 +1,19 @@
+const R = require('ramda')
 const winston = require('winston')
-const Logmatic = require('./logmatic')
 
 const format = winston.format.combine(
   winston.format.timestamp(),
   winston.format.printf(info => `${info.timestamp} ${info.level}: ${info.message}`)
 )
 
-const logger = winston.createLogger({
-  transports: [
-    new winston.transports.Console({format}),
-    new Logmatic(),
-  ]
-})
+const logmaticEnabled = process.env.LOGMATIC_API_KEY && process.env.LOGMATIC_API_KEY !== ''
+
+const transports = R.reject(R.isNil)([
+  new winston.transports.Console({format}),
+  logmaticEnabled ? new require('./logmatic')() : undefined,
+])
+
+const logger = winston.createLogger({transports})
 
 const middleware = async (ctx, next) => {
   ctx.logger = logger

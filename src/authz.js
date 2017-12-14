@@ -1,9 +1,12 @@
-const axios = require('axios')
+const { axios, axiosMock } = require('./axios')
 
 const baseUrl = process.env.AUTHORIZATION_URL || 'http://authorization'
 const maxRetries = 3
 
 module.exports = {
+  onPermit: (userId, method, resource) =>
+    axiosMock.onHead(`${baseUrl}/users/${userId}/permissions/${method}/${resource}`),
+
   permit: async (ctx, method, resource) => {
     for(let i = 0; i <= maxRetries; i++) {
       try {
