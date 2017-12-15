@@ -25,6 +25,9 @@ module.exports = {
     }
   },
 
+  onAttachRole: (userId) =>
+    axiosMock.onPut(`${baseUrl}/users/${userId}/roles`),
+
   attachRole: async (ctx, user, role) => {
     for(let i = 0; i <= maxRetries; i++) {
       try {
@@ -38,6 +41,9 @@ module.exports = {
     }
   },
 
+  onDetachRole: (userId, role) =>
+    axiosMock.onDelete(`${baseUrl}/users/${userId}/roles/` + /partner_([a-z]|\d){24}_(member|admin)/g),
+
   detachRole: async (ctx, user, role) => {
     for(let i = 0; i <= maxRetries; i++) {
       try {
@@ -50,6 +56,9 @@ module.exports = {
       }
     }
   },
+
+  onCreateRole: () =>
+    axiosMock.onPost(`${baseUrl}/roles`),
 
   createRole: async (ctx, role) => {
     for(let i = 1; i <= maxRetries; i++) {
