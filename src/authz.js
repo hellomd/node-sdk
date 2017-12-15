@@ -42,7 +42,7 @@ module.exports = {
   },
 
   onDetachRole: (userId, role) =>
-    axiosMock.onDelete(`${baseUrl}/users/${userId}/roles/` + /partner_([a-z]|\d){24}_(member|admin)/g),
+    axiosMock.onDelete(`${baseUrl}/users/${userId}/roles/${role}`),
 
   detachRole: async (ctx, user, role) => {
     for(let i = 0; i <= maxRetries; i++) {
