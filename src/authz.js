@@ -3,46 +3,43 @@ const { axios, axiosMock } = require('./axios')
 const baseUrl = process.env.AUTHORIZATION_URL || 'http://authorization'
 const maxRetries = 3
 
-module.exports = {
-  onPermit: (userId, method, resource) =>
-    axiosMock.onHead(`${baseUrl}/users/${userId}/permissions/${method}/${resource}`),
+const errors = {
+  forbidden: 'Forbidden',
+  permitUnavailable: 'Could not check permission',
+  attachRoleUnavailable: 'Could not attach role',
+  detachRoleUnavailable: 'Could not detach role',
+  createRoleUnavailable: 'Could not create role',
+}
 
-  permit: async (ctx, method, resource) => {
+const api = {
+  permit: async (userId, method, resource) => {
     for(let i = 0; i <= maxRetries; i++) {
       try {
-        await axios.head(`${baseUrl}/users/${ctx.state.user.id}/permissions/${method}/${resource}`)
+        await axios.head(`${baseUrl}/users/${userId}/permissions/${method}/${resource}`)
         return true
       } catch(err) {
         if (err.response && err.response.status == 403) {
-          ctx.body = 'Forbidden'
-          ctx.status = 403
-          return false
+          throw(errors.forbidden)
         }
         if (i == 3) {
-          ctx.throw(500, "Could not check permission")
+          throw(errors.permitUnavailable)
         }
       }
     }
   },
 
-  onAttachRole: (userId) =>
-    axiosMock.onPut(`${baseUrl}/users/${userId}/roles`),
-
-  attachRole: async (ctx, user, role) => {
+  attachRole: async (user, role) => {
     for(let i = 0; i <= maxRetries; i++) {
       try {
         await axios.put(`${baseUrl}/users/${user}/roles`, { role })
         break
       } catch(err) {
         if (i == 3) {
-          ctx.throw(500, "Could not attach role")
+          throw(errors.attachRoleUnavailable)
         }
       }
     }
   },
-
-  onDetachRole: (userId, role) =>
-    axiosMock.onDelete(`${baseUrl}/users/${userId}/roles/${role}`),
 
   detachRole: async (ctx, user, role) => {
     for(let i = 0; i <= maxRetries; i++) {
@@ -51,25 +48,86 @@ module.exports = {
         break
       } catch(err) {
         if (i == 3) {
-          ctx.throw(500, "Could not detach role")
+          throw(errors.detachRoleUnavailable)
         }
       }
     }
   },
 
-  onCreateRole: () =>
-    axiosMock.onPost(`${baseUrl}/roles`),
-
-  createRole: async (ctx, role) => {
+  createRole: async role => {
     for(let i = 1; i <= maxRetries; i++) {
       try {
         await axios.post(baseUrl+'/roles', role)
         break
       } catch(err) {
         if (i == 3) {
-          ctx.throw(500, "Could not create role")
+          throw(errors.createRoleUnavailable)
         }
       }
     }
   }
+}
+
+const mocks = {
+  onPermit: (userId, method, resource) =>
+    axiosMock.onHead(`${baseUrl}/users/${userId}/permissions/${method}/${resource}`),
+
+  onAttachRole: userId =>
+    axiosMock.onPut(`${baseUrl}/users/${userId}/roles`),
+
+  onDetachRole: (userId, role) =>
+    axiosMock.onDelete(`${baseUrl}/users/${userId}/roles/${role}`),
+
+  onCreateRole: () =>
+    axiosMock.onPost(`${baseUrl}/roles`),
+}
+
+const koa = {
+  permit: async (ctx, method, resource) => {
+    try {
+      await api.permit(ctx.state.user.id, method, resource)
+      return true
+    } catch(err) {
+      if (err === errors.forbidden) {
+        ctx.body = errors.forbidden
+        ctx.status = 403
+        return false
+      }
+      ctx.throw(500, errors.permitUnavailable)
+    }
+  },
+
+  attachRole: async (ctx, user, role) => {
+    try {
+      await api.attachRole(user, role)
+      break
+    } catch(err) {
+      ctx.throw(500, err)
+    }
+  },
+
+  detachRole: async (ctx, user, role) => {
+    try {
+      await api.detachRole(user, role)
+      break
+    } catch(err) {
+      ctx.throw(500, err)
+    }
+  },
+
+  createRole: async (ctx, role) => {
+    try {
+      await api.createRole(user, role)
+      break
+    } catch(err) {
+      ctx.throw(500, err)
+    }
+  }
+}
+
+module.exports = {
+  api,
+  errors,
+  ...mocks,
+  ...koa,
 }
