@@ -1,6 +1,6 @@
 const R = require('ramda')
 const winston = require('winston')
-const logmatic = require('./logmatic')
+const Logmatic = require('./logmatic')
 
 const format = winston.format.combine(
   winston.format.timestamp(),
