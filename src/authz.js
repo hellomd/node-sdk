@@ -41,7 +41,7 @@ const api = {
     }
   },
 
-  detachRole: async (ctx, user, role) => {
+  detachRole: async (user, role) => {
     for(let i = 0; i <= maxRetries; i++) {
       try {
         await axios.delete(`${baseUrl}/users/${user}/roles/${role}`)
