@@ -100,7 +100,7 @@ const koa = {
   attachRole: async (ctx, user, role) => {
     try {
       await api.attachRole(user, role)
-      break
+      return
     } catch(err) {
       ctx.throw(500, err)
     }
@@ -109,7 +109,7 @@ const koa = {
   detachRole: async (ctx, user, role) => {
     try {
       await api.detachRole(user, role)
-      break
+      return
     } catch(err) {
       ctx.throw(500, err)
     }
@@ -118,7 +118,7 @@ const koa = {
   createRole: async (ctx, role) => {
     try {
       await api.createRole(user, role)
-      break
+      return
     } catch(err) {
       ctx.throw(500, err)
     }
