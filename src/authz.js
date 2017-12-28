@@ -117,7 +117,7 @@ const koa = {
 
   createRole: async (ctx, role) => {
     try {
-      await api.createRole(user, role)
+      await api.createRole(role)
       return
     } catch(err) {
       ctx.throw(500, err)
