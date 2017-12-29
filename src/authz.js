@@ -86,12 +86,9 @@ const koa = {
   permit: async (ctx, method, resource) => {
     try {
       await api.permit(ctx.state.user.id, method, resource)
-      return true
     } catch(err) {
       if (err === errors.forbidden) {
-        ctx.body = errors.forbidden
-        ctx.status = 403
-        return false
+        ctx.throw(403, errors.forbidden)
       }
       ctx.throw(500, errors.permitUnavailable)
     }
@@ -100,7 +97,6 @@ const koa = {
   attachRole: async (ctx, user, role) => {
     try {
       await api.attachRole(user, role)
-      return
     } catch(err) {
       ctx.throw(500, err)
     }
@@ -109,7 +105,6 @@ const koa = {
   detachRole: async (ctx, user, role) => {
     try {
       await api.detachRole(user, role)
-      return
     } catch(err) {
       ctx.throw(500, err)
     }
@@ -118,7 +113,6 @@ const koa = {
   createRole: async (ctx, role) => {
     try {
       await api.createRole(role)
-      return
     } catch(err) {
       ctx.throw(500, err)
     }

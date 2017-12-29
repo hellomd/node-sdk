@@ -9,14 +9,10 @@ validate.validators.ref = function(value, options, key, attributes) {
 
 const koaValidate = async (ctx, data, constraints)  =>  {
   const errors = validate(data, constraints)
-  
-  if (errors) {
-    ctx.status = 422
-    ctx.body = errors
-    return false
-  }
 
-  return true
+  if (errors) {
+    ctx.throw(422, 'Unprocessable Entity', { errors })
+  }
 }
 
 module.exports = {

@@ -4,7 +4,9 @@ if (process.env.SENTRY_DSN && process.env.SENTRY_DSN !== '') {
   Raven.config().install()
 
   module.exports = err => {
-    Raven.captureException(err)
+    if (!err.status || err.status > 499) {
+      Raven.captureException(err)
+    }
   }
 } else {
   module.exports = err => {
