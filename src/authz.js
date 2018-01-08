@@ -65,7 +65,21 @@ const api = {
         }
       }
     }
-  }
+  },
+
+  updateRole: async (roleName, permissions) => {
+    for(let i = 0; i <= maxRetries; i++) {
+      try {
+        await axios.put(`${baseUrl}/roles/${roleName}`, { "permissions": permissions })
+        break
+      } catch(err) {
+        if (i == 3) {
+          throw(errors.attachRoleUnavailable)
+        }
+      }
+    }
+  },
+
 }
 
 const mocks = {
@@ -113,6 +127,14 @@ const koa = {
   createRole: async (ctx, role) => {
     try {
       await api.createRole(role)
+    } catch(err) {
+      ctx.throw(500, err)
+    }
+  },
+
+  updateRole: async (ctx, role) => {
+    try {
+      await api.updateRole(role)
     } catch(err) {
       ctx.throw(500, err)
     }
