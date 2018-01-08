@@ -94,6 +94,9 @@ const mocks = {
 
   onCreateRole: () =>
     axiosMock.onPost(`${baseUrl}/roles`),
+  
+  onUpdateRole: roleName =>
+    axiosMock.onPut(`${baseUrl}/roles/${roleName}`),
 }
 
 const koa = {
