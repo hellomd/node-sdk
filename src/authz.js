@@ -70,7 +70,7 @@ const api = {
   updateRole: async (roleName, permissions) => {
     for(let i = 0; i <= maxRetries; i++) {
       try {
-        await axios.put(`${baseUrl}/roles/${roleName}`, { "permissions": permissions })
+        await axios.put(`${baseUrl}/roles/${roleName}`, { permissions })
         break
       } catch(err) {
         if (i == 3) {
