@@ -9,6 +9,7 @@ const errors = {
   attachRoleUnavailable: 'Could not attach role',
   detachRoleUnavailable: 'Could not detach role',
   createRoleUnavailable: 'Could not create role',
+  updateRoleUnavailable: 'Could not update role',
 }
 
 const api = {
@@ -74,7 +75,7 @@ const api = {
         break
       } catch(err) {
         if (i == 3) {
-          throw(errors.attachRoleUnavailable)
+          throw(errors.updateRoleUnavailable)
         }
       }
     }
