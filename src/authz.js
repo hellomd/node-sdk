@@ -68,10 +68,10 @@ const api = {
     }
   },
 
-  updateRole: async (roleName, permissions) => {
+  updateRole: async (roleName, policies) => {
     for(let i = 0; i <= maxRetries; i++) {
       try {
-        await axios.put(`${baseUrl}/roles/${roleName}`, { permissions })
+        await axios.put(`${baseUrl}/roles/${roleName}`, { policies })
         break
       } catch(err) {
         if (i == 3) {
@@ -136,9 +136,9 @@ const koa = {
     }
   },
 
-  updateRole: async (ctx, role) => {
+  updateRole: async (ctx, role, policies) => {
     try {
-      await api.updateRole(role)
+      await api.updateRole(role, policies)
     } catch(err) {
       ctx.throw(500, err)
     }
