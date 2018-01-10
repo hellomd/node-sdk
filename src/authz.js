@@ -59,7 +59,7 @@ const mocks = {
     axiosMock.onHead(`${baseUrl}/users/${userId}/permissions/${method}/${resource}`),
 
   onAttachRole: (userId, role) =>
-    axiosMock.onPut(`${baseUrl}/users/${userId}/roles/${role}`),
+    axiosMock.onPut(new RegExp(`${baseUrl}\/users\/${userId}\/roles/${role}`)),
 
   onDetachRole: (userId, role) =>
     axiosMock.onDelete(`${baseUrl}/users/${userId}/roles/${role}`),
