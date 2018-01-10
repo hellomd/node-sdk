@@ -8,8 +8,6 @@ const errors = {
   permitUnavailable: 'Could not check permission',
   attachRoleUnavailable: 'Could not attach role',
   detachRoleUnavailable: 'Could not detach role',
-  createRoleUnavailable: 'Could not create role',
-  updateRoleUnavailable: 'Could not update role',
 }
 
 const api = {
@@ -32,7 +30,7 @@ const api = {
   attachRole: async (user, role) => {
     for(let i = 0; i <= maxRetries; i++) {
       try {
-        await axios.put(`${baseUrl}/users/${user}/roles`, { role })
+        await axios.put(`${baseUrl}/users/${user}/roles/${role}`)
         break
       } catch(err) {
         if (i == 3) {
@@ -54,50 +52,17 @@ const api = {
       }
     }
   },
-
-  createRole: async role => {
-    for(let i = 1; i <= maxRetries; i++) {
-      try {
-        await axios.post(baseUrl+'/roles', role)
-        break
-      } catch(err) {
-        if (i == 3) {
-          throw(errors.createRoleUnavailable)
-        }
-      }
-    }
-  },
-
-  updateRole: async (roleName, policies) => {
-    for(let i = 0; i <= maxRetries; i++) {
-      try {
-        await axios.put(`${baseUrl}/roles/${roleName}`, { policies })
-        break
-      } catch(err) {
-        if (i == 3) {
-          throw(errors.updateRoleUnavailable)
-        }
-      }
-    }
-  },
-
 }
 
 const mocks = {
   onPermit: (userId, method, resource) =>
     axiosMock.onHead(`${baseUrl}/users/${userId}/permissions/${method}/${resource}`),
 
-  onAttachRole: userId =>
-    axiosMock.onPut(`${baseUrl}/users/${userId}/roles`),
+  onAttachRole: (userId, role) =>
+    axiosMock.onPut(`${baseUrl}/users/${userId}/roles/${role}`),
 
   onDetachRole: (userId, role) =>
     axiosMock.onDelete(`${baseUrl}/users/${userId}/roles/${role}`),
-
-  onCreateRole: () =>
-    axiosMock.onPost(`${baseUrl}/roles`),
-  
-  onUpdateRole: roleName =>
-    axiosMock.onPut(`${baseUrl}/roles/${roleName}`),
 }
 
 const koa = {
@@ -127,22 +92,6 @@ const koa = {
       ctx.throw(500, err)
     }
   },
-
-  createRole: async (ctx, role) => {
-    try {
-      await api.createRole(role)
-    } catch(err) {
-      ctx.throw(500, err)
-    }
-  },
-
-  updateRole: async (ctx, role, policies) => {
-    try {
-      await api.updateRole(role, policies)
-    } catch(err) {
-      ctx.throw(500, err)
-    }
-  }
 }
 
 module.exports = {
