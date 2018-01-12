@@ -9,6 +9,7 @@
     "axios": "^0.17.1",
     "axios-mock-adapter": "^1.10.0",
     "jsonwebtoken": "^8.1.0",
+    "moment": "^2.20.1",
     "mongodb": "^2.2.33",
     "ramda": "^0.25.0",
     "raven": "^2.2.1",

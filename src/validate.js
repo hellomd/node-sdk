@@ -1,3 +1,4 @@
+const moment = require('moment')
 const validate = require('validate.js')
 
 validate.validators.ref = function(value, options, key, attributes) {
@@ -6,6 +7,11 @@ validate.validators.ref = function(value, options, key, attributes) {
     return "is not a valid ref"
   }
 }
+
+validate.extend(validate.validators.datetime, {
+  parse: value => moment(value, moment.iso8601, true).utc().toDate(),
+  format: (value, options) =>  moment.utc(value).format(options.dateOnly ? 'YYYY-MM-DD' : moment.iso8601)
+})
 
 const koaValidate = async (ctx, data, constraints)  =>  {
   const errors = validate(data, constraints)
