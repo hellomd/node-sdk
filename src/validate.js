@@ -11,7 +11,7 @@ validate.validators.ref = function(value, options, key, attributes) {
 validate.validators.values = function(values, options) {
   if (!values.map) return
   const result = values.map(value => validate.single(value, options) || [])
-  return [].concat(...result)
+  return [...result]
 }
 
 validate.validators.type = function(value, type) {
