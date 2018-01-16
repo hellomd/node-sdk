@@ -9,7 +9,8 @@ validate.validators.ref = function(value, options, key, attributes) {
 }
 
 validate.validators.values = function(values, options) {
-  if (!values.map) return
+  if (!validate.isDefined(values) || !validate.isArray(values)) return
+
   const result = values.map(value => validate.single(value, options) || [])
   return [].concat(...result)
 }
