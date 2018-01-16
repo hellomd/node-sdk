@@ -8,7 +8,7 @@ validate.validators.ref = function(value, options, key, attributes) {
   }
 }
 
-validate.validators.arrayValidator = function(values, options) {
+validate.validators.values = function(values, options) {
   if (!values.map) return
   const result = values.map(value => validate.single(value, options) || [])
   return [].concat(...result)
