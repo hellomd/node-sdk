@@ -4,12 +4,12 @@ const middleware = async (ctx, next) => {
   } catch (err) {
     switch (err.status) {
       case 422:
-        ctx.status = 422
         ctx.body = err.errors
+        ctx.status = 422
         break
       default:
-        ctx.status = err.status || 500
         ctx.body = err.message
+        ctx.status = err.status || 500
         ctx.app.emit('error', err, ctx)
     }
   }
