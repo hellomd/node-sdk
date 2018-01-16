@@ -31,6 +31,15 @@ validate.validators.type = function(value, type) {
   }
 }
 
+validate.validators.uuid = function(value) {
+  if (!validate.isDefined(value)) return
+
+  const regex = /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i
+  if (!regex.test(value)) {
+    return 'is not valid uuid'
+  }
+}
+
 validate.extend(validate.validators.datetime, {
   parse: value => moment(value, moment.iso8601, true).utc().toDate(),
   format: (value, options) =>  moment.utc(value).format(options.dateOnly ? 'YYYY-MM-DD' : moment.iso8601)
