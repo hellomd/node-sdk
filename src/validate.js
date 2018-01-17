@@ -9,7 +9,8 @@ validate.validators.ref = function(value, options, key, attributes) {
 }
 
 validate.validators.values = function(values, options) {
-  if (!values.map) return
+  if (!validate.isDefined(values) || !validate.isArray(values)) return
+
   const result = values.map(value => validate.single(value, options) || [])
   return [].concat(...result)
 }
@@ -27,6 +28,15 @@ validate.validators.type = function(value, type) {
 
   if (types[type] && !types[type](value)) {
     return `value must be of type ${type}`
+  }
+}
+
+validate.validators.uuid = function(value) {
+  if (!validate.isDefined(value)) return
+
+  const regex = /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i
+  if (!regex.test(value)) {
+    return 'is not valid uuid'
   }
 }
 
