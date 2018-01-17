@@ -11,6 +11,10 @@ const errors = {
 }
 
 const api = {
+  /**
+   * @apiDefine AuthError
+   * @apiError 403 Forbidden
+   */
   permit: async (userId, method, resource) => {
     for(let i = 0; i <= maxRetries; i++) {
       try {
