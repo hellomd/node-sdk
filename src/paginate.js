@@ -1,12 +1,10 @@
 const R = require('ramda')
 const qs = require('querystring')
 
-const TOTAL_COUNT_HEADER = 'X-Total-Count'
-
 const getUrlWithoutQuerystring = (ctx) => ctx.href.replace(ctx.search, '')
 
 const extractPaginationOptions = (ctx, defaultPerPage = 20, maxPerPage = 500) => {
-  const { page: rawPage = 0, perPage: rawPerPage = 20 } = ctx.query
+  const { page: rawPage = 0, perPage: rawPerPage = defaultPerPage } = ctx.query
   const [page, perPage] = [rawPage, rawPerPage].map(n => parseInt(n))
   const limit = R.clamp(1, perPage, maxPerPage)
   const skip = page * limit
