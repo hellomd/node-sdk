@@ -41,4 +41,14 @@ describe('paginate', () => {
     expect(body.limit).to.be.equal(20)
     expect(body.skip).to.be.equal(0)
   })
+
+  it('works without count', async function() {
+    const app = createAppWithCount()
+    const { body, headers } = await request(app)
+      .get('/?foo=bar')
+    expect(headers['x-total-count']).to.be.undefined
+    expect(headers['link']).to.be.undefined
+    expect(body.limit).to.be.equal(20)
+    expect(body.skip).to.be.equal(0)
+  })
 })

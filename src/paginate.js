@@ -37,8 +37,8 @@ const setTotaCount = (ctx, count) => {
 }
 
 const paginate = (ctx, count, defaultPerPage, maxPerPage) => {
-  setLink(ctx, count)
-  setTotaCount(ctx, count, defaultPerPage, maxPerPage)
+  count && setLink(ctx, count)
+  count && setTotaCount(ctx, count, defaultPerPage, maxPerPage)
   return extractPaginationOptions(ctx, defaultPerPage, maxPerPage)
 }
 
