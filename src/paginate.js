@@ -36,6 +36,11 @@ const setTotaCount = (ctx, count) => {
   ctx.set('X-Total-Count', count)
 }
 
+/**
+ * @apiDefine Pagination
+ * @apiParam {Number} [page=0] Page number
+ * @apiParam {Number} [perPage=20] Amount of items per page
+ */
 const paginate = (ctx, count, defaultPerPage, maxPerPage) => {
   if (typeof count !== 'undefined') {
     setLink(ctx, count)
