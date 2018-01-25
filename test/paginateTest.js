@@ -1,23 +1,17 @@
 const { expect } = require('chai')
-const Koa = require('koa')
 const request = require('supertest')
+const { createServer } = require('./testHelpers')
 const paginate = require('../src/paginate')
 
-const servers = []
-
 const createAppWithCount = (count) => {
-  const app = new Koa()
-  app.use(async ctx => {
-    ctx.body = await paginate(ctx, count)
+  const { app, server } = createServer()
+  app.use(ctx => {
+    ctx.body = paginate(ctx, count)
   })
-  const server = app.listen()
-  servers.push(server)
   return server
 }
 
 describe('paginate', () => {
-  after(() => servers.map(server => server.close()))
-
   it('works with page=1 perPage=20 foo=bar', async function() {
     const app = createAppWithCount(500)
     const { body, headers } = await request(app)
