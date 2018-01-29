@@ -27,6 +27,18 @@ describe('plainValidate', () => {
       const result = plainValidate({ foo: [['']] }, constraints)
       expectError(result)
     })
+
+    it('passes with object', () => {
+      const constraints = { foo: { values: { bar: { presence: true } } } }
+      const result = plainValidate({ foo: [{ bar: 'baz' }] }, constraints)
+      expect(result).to.be.undefined
+    })
+
+    it('fails with object', () => {
+      const constraints = { foo: { values: { bar: { presence: true } } } }
+      const result = plainValidate({ foo: [{}] }, constraints)
+      expectError(result)
+    })
   })
 
   describe('type', () => {
