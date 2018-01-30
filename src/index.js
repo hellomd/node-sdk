@@ -9,6 +9,7 @@ const testHelpers = require('./testHelpers')
 const { validate, plainValidate } = require('./validate')
 const paginate = require('./paginate')
 const sort = require('./sort')
+const filters = require('./filters')
 
 module.exports = {
   logger,
@@ -21,6 +22,7 @@ module.exports = {
   validate,
   paginate,
   sort,
+  filters,
   exposeCollections,
   axios,
   axiosMock,
