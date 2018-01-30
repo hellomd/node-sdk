@@ -11,6 +11,10 @@ const regExp = (ctx, queryKey, dbKey = queryKey, modifiers = 'i') => {
   return eq(ctx, queryKey, dbKey, value => new RegExp(value, modifiers))
 }
 
+/**
+ * @apiDefine PublishedFilter
+ * @apiParam {Boolean} [published] Published filter e.g. /?published=true
+ */
 const published = ctx => {
   return eq(ctx, 'published', 'publishedAt', v => {
     if (v === 'false') {
