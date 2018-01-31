@@ -1,5 +1,5 @@
 const { expect } = require('chai')
-const { eq, ne, regExp, published } = require('../src/filters')
+const { eq, ne, bool, regExp, published } = require('../src/filters')
 
 describe('filters', () => {
   describe('eq', () => {
@@ -50,6 +50,38 @@ describe('filters', () => {
     it('returns empty object when ctx.query has no query key', function() {
       const ctx = { query: {} }
       const query = ne(ctx, 'foo')
+      expect(query).to.eql({})
+    })
+  })
+
+  describe('bool', () => {
+    it('returns fulfilled query with true', function() {
+      const ctx = { query: { foo: 'true' } }
+      const query = bool(ctx, 'foo')
+      expect(query).to.eql({ foo: true })
+    })
+
+    it('returns fulfilled query with false', function() {
+      const ctx = { query: { foo: 'false' } }
+      const query = bool(ctx, 'foo')
+      expect(query).to.eql({ foo: false })
+    })
+
+    it('returns fulfilled query with db key', function() {
+      const ctx = { query: { foo: 'true' } }
+      const query = bool(ctx, 'foo', 'bar')
+      expect(query).to.eql({ bar: true })
+    })
+
+    it('returns fulfilled query with transform', function() {
+      const ctx = { query: { foo: 'true' } }
+      const query = bool(ctx, 'foo', 'foo', v => !v)
+      expect(query).to.eql({ foo: false })
+    })
+
+    it('returns empty object when ctx.query has no query key', function() {
+      const ctx = { query: {} }
+      const query = bool(ctx, 'foo')
       expect(query).to.eql({})
     })
   })
