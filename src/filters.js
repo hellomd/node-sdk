@@ -7,7 +7,7 @@ const eq = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
   return {}
 }
 
-const neq = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
+const ne = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
   return eq(ctx, queryKey, dbKey, v => ({ "$ne": transform(v) }))
 }
 
@@ -30,7 +30,7 @@ const published = ctx => {
 
 module.exports = {
   eq,
-  neq,
+  ne,
   regExp,
   published,
 }
