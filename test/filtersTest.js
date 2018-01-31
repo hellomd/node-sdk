@@ -1,5 +1,5 @@
 const { expect } = require('chai')
-const { eq, regExp, published } = require('../src/filters')
+const { eq, neq, regExp, published } = require('../src/filters')
 
 describe('filters', () => {
   describe('eq', () => {
@@ -24,6 +24,32 @@ describe('filters', () => {
     it('returns empty object when ctx.query has no query key', function() {
       const ctx = { query: {} }
       const query = eq(ctx, 'foo')
+      expect(query).to.eql({})
+    })
+  })
+
+  describe('neq', () => {
+    it('returns fulfilled query', function() {
+      const ctx = { query: { foo: 'bar' } }
+      const query = neq(ctx, 'foo')
+      expect(query).to.eql({ foo: { '$ne':  'bar' }})
+    })
+
+    it('returns fulfilled query with db key', function() {
+      const ctx = { query: { foo: 'bar' } }
+      const query = neq(ctx, 'foo', 'bar')
+      expect(query).to.eql({ bar: { '$ne':  'bar' } })
+    })
+
+    it('returns fulfilled query with transform', function() {
+      const ctx = { query: { foo: 'bar' } }
+      const query = neq(ctx, 'foo', 'foo', v => `${v}!!`)
+      expect(query).to.eql({ foo: { '$ne':  'bar!!' }})
+    })
+
+    it('returns empty object when ctx.query has no query key', function() {
+      const ctx = { query: {} }
+      const query = neq(ctx, 'foo')
       expect(query).to.eql({})
     })
   })
