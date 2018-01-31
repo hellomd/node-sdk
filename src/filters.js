@@ -8,14 +8,7 @@ const eq = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
 }
 
 const neq = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
-  if (ctx.query[queryKey]) {
-    return {
-      [dbKey]: {
-        '$ne': transform(ctx.query[queryKey])
-      }
-    }
-  }
-  return {}
+  return eq(ctx, queryKey, dbKey, v => ({ "$ne": transform(v) }))
 }
 
 const regExp = (ctx, queryKey, dbKey = queryKey, modifiers = 'i') => {
