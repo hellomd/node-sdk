@@ -48,11 +48,11 @@ validate.extend(validate.validators.datetime, {
   format: (value, options) =>  moment.utc(value).format(options.dateOnly ? 'YYYY-MM-DD' : moment.iso8601)
 })
 
-const koaValidate = async (ctx, data, constraints)  =>  {
+const koaValidate = async (ctx, data, constraints, transform = v => v)  =>  {
   const errors = validate(data, constraints)
 
   if (errors) {
-    ctx.throw(422, 'Unprocessable Entity', { errors })
+    ctx.throw(422, 'Unprocessable Entity', { errors: transform(errors) })
   }
 }
 
