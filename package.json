@@ -1,15 +1,21 @@
 {
-  "name": "node-sdk",
-  "version": "1.0.0",
+  "name": "@hellomd/node-sdk",
+  "version": "0.1.0",
   "main": "src/index.js",
   "repository": "https://github.com/hellomd/node-sdk",
   "author": "Marcello Milhomem Albuquerque <marcello.m.albuquerque@gmail.com>",
   "license": "MIT",
   "scripts": {
     "test": "mocha",
-    "test:watch": "mocha --watch"
+    "test:watch": "mocha --watch",
+    "patch": "npm version patch && npm publish --access public",
+    "minor": "npm version minor && npm publish --access public",
+    "major": "npm version major && npm publish --access public",
+    "prepublish": "npm test",
+    "postpublish": "git push origin master --follow-tags"
   },
   "dependencies": {
+    "amqplib": "^0.5.2",
     "axios": "^0.17.1",
     "axios-mock-adapter": "^1.10.0",
     "jsonwebtoken": "^8.1.0",
