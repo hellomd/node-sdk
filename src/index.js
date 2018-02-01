@@ -1,29 +1,35 @@
-const logger = require('./logger')
-const recovery = require('./recovery')
-const sentry = require('./sentry')
+const amqp = require('./amqp')
 const authz = require('./authz')
 const { axios, axiosMock } = require('./axios')
-const exposeCollections = require('./exposeCollections')
-const mongoHelpers = require('./mongoHelpers')
-const testHelpers = require('./testHelpers')
-const { validate, plainValidate } = require('./validate')
-const paginate = require('./paginate')
-const sort = require('./sort')
 const filters = require('./filters')
+const logger = require('./logger')
+const mongo = require('./mongo')
+const mongoHelpers = require('./mongoHelpers')
+const paginate = require('./paginate')
+const { validate, plainValidate } = require('./validate')
+const recovery = require('./recovery')
+const sentry = require('./sentry')
+const sort = require('./sort')
+const utils = require('./utils')
+const testHelpers = require('./testHelpers')
+const testPresets = require('./testPresets')
 
 module.exports = {
-  logger,
-  recovery,
-  sentry,
+  amqp,
   authz,
-  plainValidate,
-  mongoHelpers,
-  testHelpers,
-  validate,
-  paginate,
-  sort,
-  filters,
-  exposeCollections,
   axios,
   axiosMock,
+  filters,
+  logger,
+  mongo,
+  mongoHelpers,
+  paginate,
+  plainValidate,
+  recovery,
+  sentry,
+  sort,
+  utils,
+  testHelpers,
+  testPresets,
+  validate,
 }

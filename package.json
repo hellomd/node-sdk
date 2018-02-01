@@ -10,6 +10,7 @@
     "test:watch": "mocha --watch"
   },
   "dependencies": {
+    "amqplib": "^0.5.2",
     "axios": "^0.17.1",
     "axios-mock-adapter": "^1.10.0",
     "jsonwebtoken": "^8.1.0",
