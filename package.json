@@ -8,9 +8,9 @@
   "scripts": {
     "test": "mocha",
     "test:watch": "mocha --watch",
-    "patch": "npm version patch && npm publish",
-    "minor": "npm version minor && npm publish",
-    "major": "npm version major && npm publish",
+    "patch": "npm version patch && npm publish --access public",
+    "minor": "npm version minor && npm publish --access public",
+    "major": "npm version major && npm publish --access public",
     "prepublish": "npm test",
     "postpublish": "git push origin master --follow-tags"
   },
