@@ -2,7 +2,14 @@ const convertStringToBoolean = value => (
   typeof value === 'undefined' || ['0', 'false'].includes(value) ? false : true
 )
 
-const eq = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
+const createTransform = (ctx, queryKey) => {
+  if (Array.isArray(ctx.query[queryKey])) {
+    return v => ({ $in: v })
+  }
+  return v => v
+}
+
+const eq = (ctx, queryKey, dbKey = queryKey, transform = createTransform(ctx, queryKey)) => {
   if (typeof ctx.query[queryKey] !== 'undefined') {
     return {
       [dbKey]: transform(ctx.query[queryKey])
@@ -12,7 +19,7 @@ const eq = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
 }
 
 const ne = (ctx, queryKey, dbKey = queryKey, transform = v => v) => (
-  eq(ctx, queryKey, dbKey, v => ({ "$ne": transform(v) }))
+  eq(ctx, queryKey, dbKey, v => ({ $ne: transform(v) }))
 )
 
 const bool = (ctx, queryKey, dbKey = queryKey, transform = v => v) => (
