@@ -1,20 +1,25 @@
+const { toArray } = require('./utils')
+
 const convertStringToBoolean = value =>
   typeof value === 'undefined' || ['0', 'false'].includes(value) ? false : true
 
 const eq = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
-  const value = ctx.query[queryKey]
-  if (typeof value !== 'undefined') {
+  if (typeof ctx.query[queryKey] !== 'undefined') {
     return {
-      [dbKey]: Array.isArray(value)
-        ? { $in: transform(value) }
-        : transform(value),
+      [dbKey]: transform(ctx.query[queryKey]),
     }
   }
   return {}
 }
 
+const $in = (ctx, queryKey, dbKey = queryKey, transform = v => v) =>
+  eq(ctx, queryKey, dbKey, v => ({ $in: transform(toArray(v)) }))
+
 const ne = (ctx, queryKey, dbKey = queryKey, transform = v => v) =>
   eq(ctx, queryKey, dbKey, v => ({ $ne: transform(v) }))
+
+const nin = (ctx, queryKey, dbKey = queryKey, transform = v => v) =>
+  eq(ctx, queryKey, dbKey, v => ({ $nin: transform(toArray(v)) }))
 
 const bool = (ctx, queryKey, dbKey = queryKey, transform = v => v) =>
   eq(ctx, queryKey, dbKey, v => transform(convertStringToBoolean(v)))
@@ -36,7 +41,9 @@ const published = ctx =>
 
 module.exports = {
   eq,
+  in: $in,
   ne,
+  nin,
   bool,
   regExp,
   published,
