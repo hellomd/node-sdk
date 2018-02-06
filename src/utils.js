@@ -25,6 +25,8 @@ const randomInt = (max = 100) => Math.floor(Math.random() * Math.floor(max))
 
 const sample = arr => arr[randomInt(arr.length - 1)]
 
+const toArray = value => [].concat(typeof value === 'undefined' ? [] : value)
+
 module.exports = {
   nullify,
   nullOrDateString,
@@ -34,4 +36,5 @@ module.exports = {
   times,
   randomInt,
   sample,
+  toArray,
 }
