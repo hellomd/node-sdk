@@ -13,7 +13,7 @@ module.exports = async ({ ctx = {}, channel, handler, queue }) => {
       await handler.bind(consumer)({ ctx, key, content: parseJson(content) })
       channel.ack(msg)
     } catch (err) {
-      channel.reject(msg)
+      channel.reject(msg, false)
     }
   })
 
