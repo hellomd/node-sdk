@@ -25,7 +25,7 @@ const bool = (ctx, queryKey, dbKey = queryKey, transform = v => v) =>
   eq(ctx, queryKey, dbKey, v => transform(convertStringToBoolean(v)))
 
 const regExp = (ctx, queryKey, dbKey = queryKey, modifiers = 'i') =>
-  eq(ctx, queryKey, dbKey, value => new RegExp(value, modifiers))
+  eq(ctx, queryKey, dbKey, value => new RegExp(RegExp.quote(value), modifiers))
 
 /**
  * @apiDefine PublishedFilter
