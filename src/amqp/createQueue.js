@@ -8,7 +8,7 @@ module.exports = async ({
   channel,
   options = { durable: true },
 }) => {
-  const queue = `q-sub-${process.env.APP_NAME}-${routingKey}`
+  const queue = `q-sub-${exchangeKey}-${process.env.APP_NAME}-${routingKey}`
   const exchange = (await exchanges(channel))[exchangeKey]
   await channel.assertQueue(queue, options)
   await channel.bindQueue(queue, exchange, routingKey)
