@@ -2,6 +2,7 @@ const { MongoClient } = require('mongodb')
 const amqp = require('amqplib')
 const createPublisher = require('./amqp/createPublisher')
 const createTestQueue = require('./amqp/createTestQueue')
+const createTestMailerQueue = require('./amqp/createTestMailerQueue')
 const mapCollections = require('./mongo/mapCollections')
 const { axiosMock } = require('./axios')
 
@@ -10,6 +11,7 @@ const createWebPreset = createApp =>
     before(async function() {
       this.channel = await this.rabbit.createChannel()
       this.testQueue = await createTestQueue(this.channel)
+      this.testMailerQueue = await createTestMailerQueue(this.channel)
       this.app = createApp({
         channel: this.channel,
         db: this.dbConn,
