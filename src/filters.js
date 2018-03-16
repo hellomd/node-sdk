@@ -26,6 +26,9 @@ const nin = (ctx, queryKey, dbKey = queryKey, transform = v => v) =>
 const bool = (ctx, queryKey, dbKey = queryKey, transform = v => v) =>
   eq(ctx, queryKey, dbKey, v => transform(convertStringToBoolean(v)))
 
+const prefix = (ctx, queryKey, dbKey = queryKey) =>
+  eq(ctx, queryKey, dbKey, value => new RegExp(`^${escapeRegexp(value)}`, 'i'))
+
 const regExp = (ctx, queryKey, dbKey = queryKey, modifiers = 'i') =>
   eq(ctx, queryKey, dbKey, value => new RegExp(escapeRegexp(value), modifiers))
 
@@ -47,6 +50,7 @@ module.exports = {
   ne,
   nin,
   bool,
+  prefix,
   regExp,
   published,
 }

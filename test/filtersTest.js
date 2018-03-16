@@ -150,6 +150,26 @@ describe('filters', () => {
     })
   })
 
+  describe('prefix', () => {
+    it('returns fulfilled query', function() {
+      const ctx = { query: { foo: 'bar' } }
+      const query = filters.prefix(ctx, 'foo')
+      expect(query).to.eql({ foo: /^bar/i })
+    })
+
+    it('returns fulfilled query with db key', function() {
+      const ctx = { query: { foo: 'bar' } }
+      const query = filters.prefix(ctx, 'foo', 'bar')
+      expect(query).to.eql({ bar: /^bar/i })
+    })
+
+    it('returns empty object when ctx.query has no query key', function() {
+      const ctx = { query: {} }
+      const query = filters.prefix(ctx, 'foo')
+      expect(query).to.eql({})
+    })
+  })
+
   describe('regExp', () => {
     it('returns fulfilled query', function() {
       const ctx = { query: { foo: 'bar' } }
