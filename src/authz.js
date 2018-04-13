@@ -78,7 +78,7 @@ const koa = {
     try {
       const { id, isService = false } = ctx.state.user
       if (isService) {
-        return true
+        return
       }
       await api.permit(id, method, resource)
     } catch (err) {
