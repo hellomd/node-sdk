@@ -16,42 +16,44 @@ const api = {
    * @apiError 403 Forbidden
    */
   permit: async (userId, method, resource) => {
-    for(let i = 0; i <= maxRetries; i++) {
+    for (let i = 0; i <= maxRetries; i++) {
       try {
-        await axios.head(`${baseUrl}/users/${userId}/permissions/${method}/${resource}`)
+        await axios.head(
+          `${baseUrl}/users/${userId}/permissions/${method}/${resource}`,
+        )
         return true
-      } catch(err) {
+      } catch (err) {
         if (err.response && err.response.status == 403) {
-          throw(errors.forbidden)
+          throw errors.forbidden
         }
         if (i == 3) {
-          throw(errors.permitUnavailable)
+          throw errors.permitUnavailable
         }
       }
     }
   },
 
   attachRole: async (user, role) => {
-    for(let i = 0; i <= maxRetries; i++) {
+    for (let i = 0; i <= maxRetries; i++) {
       try {
         await axios.put(`${baseUrl}/users/${user}/roles/${role}`)
         break
-      } catch(err) {
+      } catch (err) {
         if (i == 3) {
-          throw(errors.attachRoleUnavailable)
+          throw errors.attachRoleUnavailable
         }
       }
     }
   },
 
   detachRole: async (user, role) => {
-    for(let i = 0; i <= maxRetries; i++) {
+    for (let i = 0; i <= maxRetries; i++) {
       try {
         await axios.delete(`${baseUrl}/users/${user}/roles/${role}`)
         break
-      } catch(err) {
+      } catch (err) {
         if (i == 3) {
-          throw(errors.detachRoleUnavailable)
+          throw errors.detachRoleUnavailable
         }
       }
     }
@@ -60,7 +62,9 @@ const api = {
 
 const mocks = {
   onPermit: (userId, method, resource) =>
-    axiosMock.onHead(`${baseUrl}/users/${userId}/permissions/${method}/${resource}`),
+    axiosMock.onHead(
+      `${baseUrl}/users/${userId}/permissions/${method}/${resource}`,
+    ),
 
   onAttachRole: (userId, role) =>
     axiosMock.onPut(new RegExp(`${baseUrl}\/users\/${userId}\/roles/${role}`)),
@@ -72,8 +76,12 @@ const mocks = {
 const koa = {
   permit: async (ctx, method, resource) => {
     try {
-      await api.permit(ctx.state.user.id, method, resource)
-    } catch(err) {
+      const { id, isService = false } = ctx.state.user
+      if (isService) {
+        return true
+      }
+      await api.permit(id, method, resource)
+    } catch (err) {
       if (err === errors.forbidden) {
         ctx.throw(403, errors.forbidden)
       }
@@ -84,7 +92,7 @@ const koa = {
   attachRole: async (ctx, user, role) => {
     try {
       await api.attachRole(user, role)
-    } catch(err) {
+    } catch (err) {
       ctx.throw(500, err)
     }
   },
@@ -92,7 +100,7 @@ const koa = {
   detachRole: async (ctx, user, role) => {
     try {
       await api.detachRole(user, role)
-    } catch(err) {
+    } catch (err) {
       ctx.throw(500, err)
     }
   },
