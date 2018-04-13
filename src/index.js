@@ -1,4 +1,5 @@
 const amqp = require('./amqp')
+const authn = require('./authn')
 const authz = require('./authz')
 const { axios, axiosMock } = require('./axios')
 const filters = require('./filters')
@@ -16,6 +17,7 @@ const testPresets = require('./testPresets')
 
 module.exports = {
   amqp,
+  authn,
   authz,
   axios,
   axiosMock,
