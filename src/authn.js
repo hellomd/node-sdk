@@ -24,7 +24,10 @@ const getToken = (id, email, expiresIn, isService = false) =>
 const serviceTokenMiddleware = async (ctx, next) => {
   const { id, email } = ctx.state.user || {}
   if (id) {
-    ctx.state.serviceToken = await getToken(id, email, 1, true)
+    ctx.state.serviceToken =
+      process.env.ENV !== 'test'
+        ? await getToken(id, email, 1, true)
+        : 'serviceToken'
   }
   await next()
 }

@@ -6,9 +6,9 @@ const serviceTokenHeader = (ctx, args) => ({
 })
 
 const buildKoaEndpoint = ctx => def => {
-  return async (args) => {
+  return async args => {
     try {
-      return buildEndpoint(ctx)(args)
+      return await buildEndpoint(ctx)(def)(args)
     } catch (err) {
       ctx.throw(err.code, err.message)
     }
