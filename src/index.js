@@ -1,3 +1,5 @@
+const api = require('./api')
+const apiMock = require('./apiMock')
 const amqp = require('./amqp')
 const authn = require('./authn')
 const authz = require('./authz')
@@ -16,6 +18,8 @@ const testHelpers = require('./testHelpers')
 const testPresets = require('./testPresets')
 
 module.exports = {
+  ...api,
+  ...apiMock,
   amqp,
   authn,
   authz,
