@@ -31,6 +31,7 @@ const buildEndpoint = ctx => def => {
     headers = [serviceTokenHeader],
     maxRetries = 3,
     errors = {},
+    debug = false,
   } = def
 
   return async args => {
@@ -53,6 +54,7 @@ const buildEndpoint = ctx => def => {
         })
         return transform(results)
       } catch (err) {
+        debug && console.log(err.response)
         const resCode = err.reponse ? err.response.status : 500
         if (resCode < 500 || i === maxRetries) {
           throw newError(errors[resCode.toString()] || defaultError(err))
