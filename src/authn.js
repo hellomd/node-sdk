@@ -10,25 +10,31 @@ const expireDate = days => {
   return date
 }
 
-const getToken = (id, email, expiresIn, isService = false) =>
-  jwtToken(
-    {
-      id,
-      email,
-      isService,
-      exp: Math.round(expireDate(expiresIn).getTime() / 1000),
-    },
-    process.env.SECRET,
-  )
+const getToken = (
+  id,
+  email,
+  expiresIn,
+  isService = false,
+  appName = process.env.APP_NAME,
+) => {
+  const exp = Math.round(expireDate(expiresIn).getTime() / 1000)
+  const data = id
+    ? {
+        id,
+        email,
+        isService,
+        exp,
+      }
+    : { appName, isService, exp }
+  return jwtToken(data, process.env.SECRET)
+}
 
 const serviceTokenMiddleware = async (ctx, next) => {
-  const { id, email } = ctx.state.user || {}
-  if (id) {
-    ctx.state.serviceToken =
-      process.env.ENV !== 'test'
-        ? await getToken(id, email, 1, true)
-        : 'serviceToken'
-  }
+  const { id = null, email = null } = ctx.state.user || {}
+  ctx.state.serviceToken =
+    process.env.ENV !== 'test'
+      ? await getToken(id, email, 1, true)
+      : 'serviceToken'
   await next()
 }
 
