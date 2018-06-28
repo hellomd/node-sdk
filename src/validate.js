@@ -2,6 +2,8 @@ const moment = require('moment')
 const validate = require('validate.js')
 
 validate.validators.ref = function(value, options, key, attributes) {
+  if (!validate.isDefined(value)) return
+
   const parts = (value || '').split(':')
   if (parts.length != 2 || parts[0].length < 1 || parts[1].length < 1) {
     return 'is not a valid ref'
