@@ -17,6 +17,8 @@ const getToken = (
   isService = false,
   appName = process.env.APP_NAME,
 ) => {
+  if (isService && process.env.ENV === 'test') return 'serviceToken'
+
   const exp = Math.round(expireDate(expiresIn).getTime() / 1000)
   const data = id
     ? {
@@ -31,10 +33,7 @@ const getToken = (
 
 const serviceTokenMiddleware = async (ctx, next) => {
   const { id = null, email = null } = ctx.state.user || {}
-  ctx.state.serviceToken =
-    process.env.ENV !== 'test'
-      ? await getToken(id, email, 1, true)
-      : 'serviceToken'
+  ctx.state.serviceToken = await getToken(id, email, 1, true)
   await next()
 }
 
