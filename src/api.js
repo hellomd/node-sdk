@@ -57,12 +57,11 @@ const buildEndpoint = ctx => def => {
         debug && console.log(err.response)
         const resCode = err.response ? err.response.status : 500
         if (resCode < 500 || i === maxRetries) {
-          const errHandler = errors[resCode.toString()]
-          const mappedError =
-            typeof errHandler === 'function'
-              ? errHandler(ctx, err.response)
-              : errHandler
-          throw newError(mappedError || defaultError(err))
+          const errObj = errors[resCode.toString()]
+          if (errObj && typeof errObj.message === 'function') {
+            errObj.message = errObj.message(ctx, err.response)
+          }
+          throw newError(errObj || defaultError(err))
         }
       }
     }
