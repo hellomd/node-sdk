@@ -55,9 +55,14 @@ const buildEndpoint = ctx => def => {
         return transform(results)
       } catch (err) {
         debug && console.log(err.response)
-        const resCode = err.reponse ? err.response.status : 500
+        const resCode = err.response ? err.response.status : 500
         if (resCode < 500 || i === maxRetries) {
-          throw newError(errors[resCode.toString()] || defaultError(err))
+          const errHandler = errors[resCode.toString()]
+          const mappedError =
+            typeof errHandler === 'function'
+              ? errHandler(ctx, err.response)
+              : errHandler
+          throw newError(mappedError || defaultError(err))
         }
       }
     }
