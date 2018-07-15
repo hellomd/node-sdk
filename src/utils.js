@@ -27,6 +27,16 @@ const sample = arr => arr[randomInt(arr.length - 1)]
 
 const toArray = value => [].concat(typeof value === 'undefined' ? [] : value)
 
+const withRetry = async (fn, maxRetries = 1) => {
+  for (let i = 0; i <= maxRetries; i++) {
+    try {
+      return await fn()
+    } catch (err) {
+      throw err
+    }
+  }
+}
+
 module.exports = {
   nullify,
   nullOrDateString,
@@ -37,4 +47,5 @@ module.exports = {
   randomInt,
   sample,
   toArray,
+  withRetry,
 }
