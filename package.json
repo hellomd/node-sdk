@@ -11,7 +11,7 @@
     "patch": "npm version patch && npm publish --access public",
     "minor": "npm version minor && npm publish --access public",
     "major": "npm version major && npm publish --access public",
-    "prepublish": "ENV=test npm test",
+    "prepublishOnly": "ENV=test npm test",
     "postpublish": "git push origin master --follow-tags"
   },
   "dependencies": {
