@@ -32,6 +32,7 @@ const buildEndpoint = ctx => def => {
     maxRetries = 3,
     errors = {},
     debug = false,
+    fetchOptions = {},
   } = def
 
   return async args => {
@@ -51,6 +52,7 @@ const buildEndpoint = ctx => def => {
               ),
             {},
           ),
+          ...fetchOptions,
         })
         return transform(results)
       } catch (err) {
