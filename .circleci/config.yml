@@ -1,0 +1,22 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/app
+    docker:
+      - image: circleci/node:10
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v0-usercache-{{ .Branch }}
+            - v0-usercache
+      - run:
+          name: Install Deps
+          command: yarn install --pure-lockfile --frozen-lockfile --non-interactive --cache-folder ~/.cache/yarn
+      - save_cache:
+          key: v0-usercache-{{ .Branch }}
+          paths:
+            - ~/.cache
+      - run:
+          name: Run tests
+          command: yarn test
