@@ -19,4 +19,4 @@ jobs:
             - ~/.cache
       - run:
           name: Run tests
-          command: ENV=TEST yarn test
+          command: ENV=test yarn test
