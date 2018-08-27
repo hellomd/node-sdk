@@ -14,7 +14,12 @@ validate.validators.values = function(values, options) {
   if (!validate.isDefined(values) || !validate.isArray(values)) return
 
   const result = values.map(value => {
-    const fn = typeof value === 'object' ? validate : validate.single
+    const fn =
+      // if an object and not an array, use normal validate,
+      //  if anything else (including arrays), use single
+      typeof value === 'object' && !Array.isArray(value)
+        ? validate
+        : validate.single
     return fn(value, options) || []
   })
   return [].concat(...result)
