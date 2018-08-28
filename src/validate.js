@@ -41,6 +41,15 @@ validate.validators.type = function(value, type) {
   }
 }
 
+validate.validators.allowedOnlyIf = function(value, options, key, attributes) {
+  if (!options.condition || typeof options.condition !== 'function') {
+    throw new Error('You must pass the condition option')
+  }
+  if (!!value && !options.condition(value, options, key, attributes)) {
+    return options.message || 'cannot be sent with given values'
+  }
+}
+
 validate.validators.uuid = function(value) {
   if (!validate.isDefined(value)) return
 
