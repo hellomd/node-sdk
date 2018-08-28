@@ -10,6 +10,11 @@ const errors = {
   detachRoleUnavailable: 'Could not detach role',
 }
 
+const buildServiceTokenHeaders = token => ({
+  'Content-Type': 'application/json',
+  Authorization: `bearer ${token}`,
+})
+
 const api = {
   /**
    * @apiDefine AuthError
@@ -33,10 +38,13 @@ const api = {
     }
   },
 
-  attachRole: async (user, role) => {
+  attachRole: async (user, role, token) => {
+    const headers = buildServiceTokenHeaders(token)
     for (let i = 0; i <= maxRetries; i++) {
       try {
-        await axios.put(`${baseUrl}/users/${user}/roles/${role}`)
+        await axios.put(`${baseUrl}/users/${user}/roles/${role}`, null, {
+          headers,
+        })
         break
       } catch (err) {
         if (i == 3) {
@@ -46,10 +54,13 @@ const api = {
     }
   },
 
-  detachRole: async (user, role) => {
+  detachRole: async (user, role, token) => {
+    const headers = buildServiceTokenHeaders(token)
     for (let i = 0; i <= maxRetries; i++) {
       try {
-        await axios.delete(`${baseUrl}/users/${user}/roles/${role}`)
+        await axios.delete(`${baseUrl}/users/${user}/roles/${role}`, null, {
+          headers,
+        })
         break
       } catch (err) {
         if (i == 3) {
@@ -91,7 +102,8 @@ const koa = {
 
   attachRole: async (ctx, user, role) => {
     try {
-      await api.attachRole(user, role)
+      const token = ctx.state.serviceToken
+      await api.attachRole(user, role, token)
     } catch (err) {
       ctx.throw(500, err)
     }
@@ -99,7 +111,8 @@ const koa = {
 
   detachRole: async (ctx, user, role) => {
     try {
-      await api.detachRole(user, role)
+      const token = ctx.state.serviceToken
+      await api.detachRole(user, role, token)
     } catch (err) {
       ctx.throw(500, err)
     }
