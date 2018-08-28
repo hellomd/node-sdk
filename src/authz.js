@@ -11,8 +11,10 @@ const errors = {
 }
 
 const buildServiceTokenHeaders = token => ({
-  'Content-Type': 'application/json',
-  Authorization: `bearer ${token}`,
+  headers: {
+    'Content-Type': 'application/json',
+    Authorization: `bearer ${token}`,
+  },
 })
 
 const api = {
@@ -42,7 +44,9 @@ const api = {
     const headers = buildServiceTokenHeaders(token)
     for (let i = 0; i <= maxRetries; i++) {
       try {
-        await axios.put(`${baseUrl}/users/${user}/roles/${role}`, null, {
+        await axios({
+          method: 'put',
+          url: `${baseUrl}/users/${user}/roles/${role}`,
           headers,
         })
         break
@@ -58,7 +62,9 @@ const api = {
     const headers = buildServiceTokenHeaders(token)
     for (let i = 0; i <= maxRetries; i++) {
       try {
-        await axios.delete(`${baseUrl}/users/${user}/roles/${role}`, null, {
+        await axios({
+          method: 'delete',
+          url: `${baseUrl}/users/${user}/roles/${role}`,
           headers,
         })
         break
