@@ -47,7 +47,7 @@ const api = {
         await axios({
           method: 'put',
           url: `${baseUrl}/users/${user}/roles/${role}`,
-          headers,
+          ...headers,
         })
         break
       } catch (err) {
@@ -65,7 +65,7 @@ const api = {
         await axios({
           method: 'delete',
           url: `${baseUrl}/users/${user}/roles/${role}`,
-          headers,
+          ...headers,
         })
         break
       } catch (err) {
