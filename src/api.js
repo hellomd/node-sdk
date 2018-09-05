@@ -1,3 +1,4 @@
+const util = require('util')
 const { axios } = require('./axios')
 
 const serviceTokenHeader = (ctx, args) => ({
@@ -56,7 +57,10 @@ const buildEndpoint = ctx => def => {
         })
         return transform(results)
       } catch (err) {
-        debug && console.log(err.response)
+        debug && console.log(util.inspect(err.response, {
+          depth: 4,
+          colors: true,
+        }))
         const resCode = err.response ? err.response.status : 500
         if (resCode < 500 || i === maxRetries) {
           const errObj = errors[resCode.toString()]
