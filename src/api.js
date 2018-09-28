@@ -58,7 +58,7 @@ const buildEndpoint = ctx => def => {
         return transform(results)
       } catch (err) {
         if (debug) {
-          const { request, ...logObject ) = err.response;
+          const { request, ...logObject } = err.response;
           console.log(util.inspect(logObject, {
             depth: 4,
             colors: true,
