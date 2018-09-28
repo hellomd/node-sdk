@@ -57,10 +57,13 @@ const buildEndpoint = ctx => def => {
         })
         return transform(results)
       } catch (err) {
-        debug && console.log(util.inspect(err.response, {
-          depth: 4,
-          colors: true,
-        }))
+        if (debug) {
+          const { request, ...logObject } = err.response;
+          console.log(util.inspect(logObject, {
+            depth: 4,
+            colors: true,
+          }))
+        }
         const resCode = err.response ? err.response.status : 500
         if (resCode < 500 || i === maxRetries) {
           const errObj = errors[resCode.toString()]
