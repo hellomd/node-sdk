@@ -67,8 +67,8 @@ const buildEndpoint = ctx => def => {
           if (customError && typeof customError.message === 'function') {
             customError.message = customError.message(ctx, err.response)
           }
-          
-          const finalError = isCustomErrorInstance ? customError : error
+
+          const finalError = isCustomErrorInstance ? customError : new Error(error.message)
           
           if (customError && !isCustomErrorInstance) {
             finalError.message = customError.message
