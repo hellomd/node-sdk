@@ -126,7 +126,9 @@ describe('api', () => {
 
       apiMock.get().reply(500)
 
-      return expect(api.get()).to.eventually.be.rejectedWith('Error')
+      return expect(api.get()).to.eventually.be.rejectedWith(
+        'Request failed with status code 500',
+      )
     })
 
     it('custom errors', async function() {
