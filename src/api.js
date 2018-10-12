@@ -16,9 +16,9 @@ const buildKoaEndpoint = ctx => def => {
   }
 }
 
-const defaultError = message => ({
-  code: '500',
-  message,
+const defaultError = error => ({
+  code: error.response ? error.response.status : 500,
+  message: error.message,
 })
 
 const newError = ({ message, ...obj }) => Object.assign(new Error(message), obj)
