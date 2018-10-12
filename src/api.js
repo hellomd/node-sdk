@@ -16,13 +16,6 @@ const buildKoaEndpoint = ctx => def => {
   }
 }
 
-const defaultError = error => ({
-  code: error.response ? error.response.status : 500,
-  message: error.message,
-})
-
-const newError = ({ message, ...obj }) => Object.assign(new Error(message), obj)
-
 const buildEndpoint = ctx => def => {
   const {
     method = 'GET',
@@ -56,21 +49,36 @@ const buildEndpoint = ctx => def => {
           ...fetchOptions,
         })
         return transform(results)
-      } catch (err) {
+      } catch (error) {
         if (debug) {
-          const { request, ...logObject } = err.response;
-          console.log(util.inspect(logObject, {
-            depth: 4,
-            colors: true,
-          }))
+          const { request, ...logObject } = error.response
+          console.log(
+            util.inspect(logObject, {
+              depth: 4,
+              colors: true,
+            }),
+          )
         }
-        const resCode = err.response ? err.response.status : 500
+        const resCode = error.response ? error.response.status : 500
         if (resCode < 500 || i === maxRetries) {
-          const errObj = errors[resCode.toString()]
-          if (errObj && typeof errObj.message === 'function') {
-            errObj.message = errObj.message(ctx, err.response)
+          const customError = errors[resCode.toString()]
+          const isCustomErrorInstance = customError instanceof Error
+          
+          if (customError && typeof customError.message === 'function') {
+            customError.message = customError.message(ctx, err.response)
           }
-          throw newError(errObj || defaultError(err))
+          
+          const finalError = isCustomErrorInstance ? customError : error
+          
+          if (customError && !isCustomErrorInstance) {
+            finalError.message = customError.message
+          }
+
+          if (!finalError.code) {
+            finalError.code = error.response ? error.response.status : 500
+          }
+
+          throw finalError
         }
       }
     }
