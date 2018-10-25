@@ -40,7 +40,10 @@ const consumerPreset = function() {
 
 const basePreset = function(collections) {
   before(async function() {
-    this.dbConn = await MongoClient.connect(process.env.MONGO_URL)
+    this.dbConn = await MongoClient.connect(
+      process.env.MONGO_URL,
+      { useNewUrlParser: true },
+    )
     this.db = mapCollections(this.dbConn, collections)
     this.rabbit = await amqp.connect(process.env.AMQP_URL)
   })
@@ -57,7 +60,7 @@ const basePreset = function(collections) {
   afterEach(async function() {
     const keys = Object.keys(this.db)
     for (let i = 0; i < keys.length; i++) {
-      await this.db[keys[i]].remove({})
+      await this.db[keys[i]].deleteMany({})
     }
   })
 }
