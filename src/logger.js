@@ -19,20 +19,23 @@ const transports = R.reject(R.isNil)([
 
 const logger = winston.createLogger({ transports })
 
-const middleware = async (ctx, next) => {
+const middleware = (options = {}) => async (ctx, next) => {
   ctx.logger = logger
   const start = Date.now()
 
-  const attrsInitial = {
-    path: ctx.path,
-    method: ctx.method,
-    request_id: ctx.state.id,
-    remote: ctx.request.ip,
-    environment: process.env.ENV,
-    application_name: process.env.APP_NAME,
-    '@marker': ['sourcecode'],
+  if (options.enableDoubleLogging) {
+    const attrsInitial = {
+      path: ctx.path,
+      method: ctx.method,
+      request_id: ctx.state.id,
+      remote: ctx.request.ip,
+      environment: process.env.ENV,
+      application_name: process.env.APP_NAME,
+      '@marker': ['sourcecode'],
+    }
+
+    logger.info(`<-- ${attrsInitial.method} ${attrsInitial.path}`, attrsInitial)
   }
-  logger.info(`<-- ${attrsInitial.method} ${attrsInitial.path}`, attrsInitial)
 
   try {
     await next()
@@ -72,4 +75,4 @@ const middleware = async (ctx, next) => {
   logger.info(message, attrs)
 }
 
-module.exports = () => middleware
+module.exports = middleware
