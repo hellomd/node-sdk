@@ -51,7 +51,7 @@ const buildEndpoint = ctx => def => {
         return transform(results)
       } catch (error) {
         if (debug) {
-          const { request, ...logObject } = error.response
+          const { request, ...logObject } = error.response || error
           console.log(
             util.inspect(logObject, {
               depth: 4,
@@ -63,13 +63,15 @@ const buildEndpoint = ctx => def => {
         if (resCode < 500 || i === maxRetries) {
           const customError = errors[resCode.toString()]
           const isCustomErrorInstance = customError instanceof Error
-          
+
           if (customError && typeof customError.message === 'function') {
             customError.message = customError.message(ctx, err.response)
           }
 
-          const finalError = isCustomErrorInstance ? customError : new Error(error.message)
-          
+          const finalError = isCustomErrorInstance
+            ? customError
+            : new Error(error.message)
+
           if (customError && !isCustomErrorInstance) {
             finalError.message = customError.message
           }
