@@ -19,60 +19,59 @@ const transports = R.reject(R.isNil)([
 
 const logger = winston.createLogger({ transports })
 
+const decorateMessage = (msg, ctx, options) => {
+  return options.showRequestId ? `[${ctx.state.id}] ${msg}` : msg;
+}
+
 const middleware = (options = {}) => async (ctx, next) => {
   ctx.logger = logger
   const start = Date.now()
 
-  if (options.enableDoubleLogging) {
-    const attrsInitial = {
-      path: ctx.path,
-      method: ctx.method,
-      request_id: ctx.state.id,
-      remote: ctx.request.ip,
-      environment: process.env.ENV,
-      application_name: process.env.APP_NAME,
-      '@marker': ['sourcecode'],
-    }
+  const attrs = {
+    path: ctx.path,
+    method: ctx.method,
+    request_id: ctx.state.id,
+    remote: ctx.request.ip,
+    environment: process.env.ENV,
+    application_name: process.env.APP_NAME,
+    '@marker': ['sourcecode'],
+  }
 
-    logger.info(`<-- ${attrsInitial.method} ${attrsInitial.path}`, attrsInitial)
+  const msg = `${attrs.method} ${attrs.path}`;
+
+  if (options.enableDoubleLogging) {
+    logger.info(
+      `<-- ${decorateMessage(msg, ctx, options)}`,
+      attrs,
+    )
   }
 
   try {
     await next()
   } catch (err) {
-    const attrs = {
-      path: ctx.path,
-      method: ctx.method,
+    const errorAttrs = {
+      ...attrs,
       time: Date.now() - start,
-      request_id: ctx.state.id,
-      remote: ctx.request.ip,
-      environment: process.env.ENV,
-      application_name: process.env.APP_NAME,
       status: err.status || 500,
-      '@marker': ['sourcecode'],
     }
-    const message = `xxx ${attrs.method} ${attrs.path} | ${attrs.time}ms | ${
-      attrs.status
-    } ${err.body || err}`
-    logger.error(message, attrs)
+    const errorMsg = `xxx ${decorateMessage(msg, ctx, options)}| ${
+      errorAttrs.time
+    }ms | ${errorAttrs.status} ${err.body || err}`;
+    logger.error(errorMsg, errorAttrs)
     throw err
   }
 
-  const attrs = {
-    path: ctx.path,
-    method: ctx.method,
+  const attrsFinal = {
+    ...attrs,
     time: Date.now() - start,
-    request_id: ctx.state.id,
-    remote: ctx.request.ip,
-    environment: process.env.ENV,
-    application_name: process.env.APP_NAME,
     status: ctx.status,
-    '@marker': ['sourcecode'],
   }
-  const message = `--> ${attrs.method} ${attrs.path} | ${attrs.time}ms | ${
-    attrs.status
-  }`
-  logger.info(message, attrs)
+
+  const finalMsg = `--> ${decorateMessage(msg, ctx, options)} | ${
+    attrsFinal.time
+  }ms | ${attrsFinal.status}`
+
+  logger.info(finalMsg, attrs)
 }
 
 module.exports = middleware
