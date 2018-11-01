@@ -34,6 +34,13 @@ const api = {
           throw errors.forbidden
         }
         if (i == 3) {
+          console.error(
+            'Error while retrieving permissions',
+            {
+              error: err,
+              url: `${baseUrl}/users/${userId}/permissions/${method}/${resource}`,
+            }
+          )
           throw errors.permitUnavailable
         }
       }
