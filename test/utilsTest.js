@@ -8,6 +8,7 @@ const {
   nullOrToString,
   times,
   randomInt,
+  randomString,
   sample,
 } = require('../src/utils')
 
@@ -75,6 +76,27 @@ describe('utils', () => {
     it('returns string with number', function() {
       const number = 1
       expect(nullOrToString(number)).to.equal('1')
+    })
+  })
+
+  describe.only('randomString', () => {
+    it('returns random strings', async function() {
+      const stringArray = []
+      const length = 6
+      let amount = 10
+
+      while (amount--) {
+        stringArray.push(await randomString(6))
+      }
+
+      const uniqArray = stringArray.filter(
+        (item, idx) => stringArray.indexOf(item) === idx,
+      )
+      expect(uniqArray.length).to.equal(stringArray.length)
+
+      for (const str of uniqArray) {
+        expect(str.length).to.equal(length)
+      }
     })
   })
 })

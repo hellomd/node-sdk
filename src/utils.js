@@ -1,3 +1,5 @@
+const crypto = require('crypto')
+
 const moment = require('moment')
 const { ObjectId } = require('mongodb')
 
@@ -23,6 +25,17 @@ const times = (n, fn) => Array.from(Array(n)).map((_, i) => fn(i))
 
 const randomInt = (max = 100) => Math.floor(Math.random() * Math.floor(max))
 
+const randomString = async (length = 10) =>
+  new Promise((resolve, reject) => {
+    crypto.randomBytes(length / 2, (error, buf) => {
+      if (error) {
+        return reject(error)
+      }
+
+      resolve(buf.toString('hex'))
+    })
+  })
+
 const sample = arr => arr[randomInt(arr.length - 1)]
 
 const toArray = value => [].concat(typeof value === 'undefined' ? [] : value)
@@ -35,6 +48,7 @@ module.exports = {
   nullOrToString,
   times,
   randomInt,
+  randomString,
   sample,
   toArray,
 }
