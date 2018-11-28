@@ -81,6 +81,13 @@ validate.validators.uuid = function(value) {
   }
 }
 
+validate.validators.datetimeFormat = function(value, options) {
+  const isValid = moment(value, options.format, true).isValid()
+
+  if (!isValid)
+    return `is not using an accepted format, it should follow ${options.format}`
+}
+
 validate.extend(validate.validators.datetime, {
   parse: value =>
     moment(value, moment.iso8601, true)
