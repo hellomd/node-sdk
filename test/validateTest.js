@@ -69,6 +69,31 @@ describe('plainValidate', () => {
     })
   })
 
+  describe('datetimeFormat', () => {
+    it('passes', () => {
+      const constraints = {
+        foo: {
+          datetimeFormat: {
+            format: 'HH:mm',
+          },
+        },
+      }
+      const result = plainValidate({ foo: '23:29' }, constraints)
+      expect(result).to.be.undefined
+    })
+    it('fails', () => {
+      const constraints = {
+        foo: {
+          datetimeFormat: {
+            format: 'HH:mm',
+          },
+        },
+      }
+      const result = plainValidate({ foo: '23:60' }, constraints)
+      expectError(result)
+    })
+  })
+
   describe('allowedOnlyIf', () => {
     it('passes', () => {
       const constraints = {
