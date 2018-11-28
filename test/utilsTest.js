@@ -79,7 +79,7 @@ describe('utils', () => {
     })
   })
 
-  describe.only('randomString', () => {
+  describe('randomString', () => {
     it('returns random strings', async function() {
       const stringArray = []
       const length = 6
