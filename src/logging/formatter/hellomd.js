@@ -16,7 +16,7 @@ module.exports = format(info => {
 
   if (obj.timestamp) {
     obj['@timestamp'] = obj.timestamp
-    delete info.timestamp
+    delete obj.timestamp
   }
 
   // obj['@fields'] = info

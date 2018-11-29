@@ -17,11 +17,9 @@ const formatterDev = winston.format.combine(
 
 const isStructuredLoggingEnabled = process.env.ENABLE_STRUCTURED_LOGGING == '1'
 
-const format = isStructuredLoggingEnabled ? formatterStructured : formatterDev;
+const format = isStructuredLoggingEnabled ? formatterStructured : formatterDev
 
-const transports = [
-  new winston.transports.Console({ format }),
-]
+const transports = [new winston.transports.Console({ format })]
 
 const logger = winston.createLogger({ transports })
 
@@ -52,26 +50,28 @@ const structuredLoggingMiddleware = async (options, ctx, next) => {
   try {
     await next()
   } catch (error) {
-
     const errorFields = {
       ...fields,
-      response_time: Date.now() = start,
+      response_time: Date.now() - start,
       response_code: error.status || 500,
     }
 
     logger.error(error.message, {
       koa: errorFields,
       nodejs: {
-        error,
+        error: {
+          message: error.message,
+          stack: error.stack,
+        },
       },
     })
 
-    throw err
+    throw error
   }
 
   const successFields = {
     ...fields,
-    response_time: Date.now() = start,
+    response_time: Date.now() - start,
     response_code: error.status,
   }
 
@@ -134,7 +134,7 @@ const koaMiddleware = (options = {}) => async (ctx, next) => {
   if (isStructuredLoggingEnabled) {
     await structuredLoggingMiddleware(options, ctx, next)
   } else {
-    await devLoggingMiddleware(options, ctx, next);
+    await devLoggingMiddleware(options, ctx, next)
   }
 }
 
