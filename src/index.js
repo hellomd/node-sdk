@@ -6,6 +6,7 @@ const authz = require('./authz')
 const { axios, axiosMock } = require('./axios')
 const filters = require('./filters')
 const logger = require('./logger')
+const logging = require('./logging')
 const mongo = require('./mongo')
 const mongoHelpers = require('./mongoHelpers')
 const paginate = require('./paginate')
@@ -27,6 +28,7 @@ module.exports = {
   axiosMock,
   filters,
   logger,
+  logging,
   mongo,
   mongoHelpers,
   paginate,
