@@ -72,7 +72,7 @@ const structuredLoggingMiddleware = async (options, ctx, next) => {
   const successFields = {
     ...fields,
     response_time: Date.now() - start,
-    response_code: error.status,
+    response_code: ctx.status,
   }
 
   logger.info(`${ctx.method} ${ctx.path}`, {
