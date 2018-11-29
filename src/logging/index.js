@@ -3,25 +3,13 @@ const winston = require('winston')
 
 const hellomdFormatter = require('./formatter/hellomd')
 
-const formatterStructured = winston.format.combine(
-  winston.format.timestamp(),
-  hellomdFormatter(),
-)
-
-const formatterDev = winston.format.combine(
-  winston.format.timestamp(),
-  winston.format.printf(
-    info => `${info.timestamp} ${info.level}: ${info.message}`,
-  ),
-)
-
 const isStructuredLoggingEnabled = process.env.ENABLE_STRUCTURED_LOGGING == '1'
 
-const format = isStructuredLoggingEnabled ? formatterStructured : formatterDev
-
-const transports = [new winston.transports.Console({ format })]
-
-const logger = winston.createLogger({ transports })
+const createLogger = ({ format }) => {
+  const transports = [new winston.transports.Console({ format })]
+  const logger = winston.createLogger({ transports })
+  return logger
+}
 
 const decorateMessage = (msg, ctx, options) => {
   return options.showRequestId ? `[${ctx.state.id}] ${msg}` : msg
@@ -33,31 +21,29 @@ const decorateMessage = (msg, ctx, options) => {
 const structuredLoggingMiddleware = async (options, ctx, next) => {
   const start = Date.now()
 
-  const fields = {
-    access: {
-      remote_ip_list: ctx.ips,
-      remote_ip: ctx.request.ip,
-      request_id: ctx.state.id,
-      // only for basic auth, no need for that
-      // user_name:
-      method: ctx.method,
-      url: ctx.path,
-      referrer: ctx.headers.referer || null,
-      agent: ctx.headers['user-agent'] || null,
-    },
-  }
+  // probably not the best idea, one logger per request
+  const format = winston.format.combine(
+    winston.format.timestamp(),
+    hellomdFormatter({ ctx }),
+  )
+  const logger = createLogger({ format })
+  ctx.logger = logger
 
   try {
     await next()
   } catch (error) {
-    const errorFields = {
-      ...fields,
-      response_time: Date.now() - start,
-      response_code: error.status || 500,
+    const fields = {
+      access: {
+        response_time: Date.now() - start,
+        response_code: error.status || 500,
+        // body_sent: {
+        //   bytes: Buffer.byteLength(ctx.response.body),
+        // },
+      },
     }
 
     logger.error(error.message, {
-      koa: errorFields,
+      koa: fields,
       nodejs: {
         error: {
           message: error.message,
@@ -69,19 +55,35 @@ const structuredLoggingMiddleware = async (options, ctx, next) => {
     throw error
   }
 
-  const successFields = {
-    ...fields,
-    response_time: Date.now() - start,
-    response_code: ctx.status,
+  const fields = {
+    access: {
+      response_time: Date.now() - start,
+      response_code: ctx.status,
+      // body_sent: {
+      //   bytes: Buffer.byteLength(ctx.response.body),
+      // },
+    },
   }
 
   logger.info(`${ctx.method} ${ctx.path}`, {
-    koa: successFields,
+    koa: fields,
   })
+
+  ctx.logger = null
 }
 
 const devLoggingMiddleware = async (options, ctx, next) => {
   const start = Date.now()
+
+  // probably not the best idea, one logger per request
+  const format = winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.printf(
+      info => `${info.timestamp} ${info.level}: ${info.message}`,
+    ),
+  )
+  const logger = createLogger({ format })
+  ctx.logger = logger
 
   const attrs = {
     path: ctx.path,
@@ -126,11 +128,11 @@ const devLoggingMiddleware = async (options, ctx, next) => {
   }ms | ${attrsFinal.status}`
 
   logger.info(finalMsg, attrs)
+
+  ctx.logger = null
 }
 
 const koaMiddleware = (options = {}) => async (ctx, next) => {
-  ctx.logger = logger
-
   if (isStructuredLoggingEnabled) {
     await structuredLoggingMiddleware(options, ctx, next)
   } else {
@@ -140,5 +142,5 @@ const koaMiddleware = (options = {}) => async (ctx, next) => {
 
 module.exports = {
   koaMiddleware,
-  logger,
+  createLogger,
 }
