@@ -32,7 +32,7 @@ const decorateMessage = (msg, ctx, options) => {
 // structured logging based on:
 //  https://github.com/koajs/bunyan-logger
 //  https://www.elastic.co/guide/en/beats/filebeat/current/exported-fields-nginx.html
-const structuredLoggingMiddleware = async (ctx, next) => {
+const structuredLoggingMiddleware = async (options, ctx, next) => {
   const start = Date.now()
 
   const fields = {
@@ -80,7 +80,7 @@ const structuredLoggingMiddleware = async (ctx, next) => {
   })
 }
 
-const devLoggingMiddleware = async (ctx, next) => {
+const devLoggingMiddleware = async (options, ctx, next) => {
   const start = Date.now()
 
   const attrs = {
@@ -128,17 +128,17 @@ const devLoggingMiddleware = async (ctx, next) => {
   logger.info(finalMsg, attrs)
 }
 
-const middleware = (options = {}) => async (ctx, next) => {
+const koaMiddleware = (options = {}) => async (ctx, next) => {
   ctx.logger = logger
 
   if (isStructuredLoggingEnabled) {
-    await structuredLoggingMiddleware(ctx, next)
+    await structuredLoggingMiddleware(options, ctx, next)
   } else {
-    await devLoggingMiddleware(ctx, next);
+    await devLoggingMiddleware(options, ctx, next);
   }
 }
 
 module.exports = {
-  middleware,
+  koaMiddleware,
   logger,
 }
