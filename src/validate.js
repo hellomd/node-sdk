@@ -1,6 +1,6 @@
 const moment = require('moment')
 const validate = require('validate.js')
-const { Types } = require('mongodb')
+const { ObjectId } = require('mongodb')
 
 validate.validators.ref = function(value, options, key, attributes) {
   if (!validate.isDefined(value)) return
@@ -90,7 +90,7 @@ validate.validators.datetimeFormat = function(value, options) {
 }
 
 validate.validators.objectId = function(value) {
-  const isValid = Types.ObjectId.isValid(value)
+  const isValid = ObjectId.isValid(value)
 
   if (!isValid) return 'is not a valid id'
 }
