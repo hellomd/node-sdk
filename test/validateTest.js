@@ -69,6 +69,30 @@ describe('plainValidate', () => {
     })
   })
 
+  describe('objectId', () => {
+    it('passes', () => {
+      const constraints = {
+        foo: {
+          objectId: true,
+        },
+      }
+      const result = plainValidate(
+        { foo: '5bed8593176c0fc8caf0d0b2' },
+        constraints,
+      )
+      expect(result).to.be.undefined
+    })
+    it('fails', () => {
+      const constraints = {
+        foo: {
+          objectId: true,
+        },
+      }
+      const result = plainValidate({ foo: 'ABCDEFG' }, constraints)
+      expectError(result)
+    })
+  })
+
   describe('datetimeFormat', () => {
     it('passes', () => {
       const constraints = {
