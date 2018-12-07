@@ -60,6 +60,100 @@ describe('filters', () => {
     })
   })
 
+  describe('inRegExp', () => {
+    it('returns fulfilled query', function() {
+      const params = ['bar', 'baz']
+      const ctx = { query: { foo: params } }
+      const query = filters.inRegExp(ctx, 'foo')
+
+      expect(query.foo.$in)
+        .to.be.an('array')
+        .of.length(2)
+
+      for (const [index, val] of query.foo.$in.entries()) {
+        expect(val).to.eql(new RegExp(`${params[index]}`, 'i'))
+      }
+    })
+
+    it('returns fulfilled query with modifier and dbkey', function() {
+      const params = ['bar', 'baz']
+      const ctx = { query: { foo: params } }
+      const query = filters.inRegExp(ctx, 'foo', 'fooDb', 'ig')
+
+      expect(query.fooDb.$in)
+        .to.be.an('array')
+        .of.length(2)
+
+      for (const [index, val] of query.fooDb.$in.entries()) {
+        expect(val).to.eql(new RegExp(`${params[index]}`, 'ig'))
+      }
+    })
+
+    it('transforms into array', function() {
+      const ctx = { query: { foo: 'bar' } }
+      const query = filters.inRegExp(ctx, 'foo')
+
+      expect(query.foo.$in)
+        .to.be.an('array')
+        .of.length(1)
+
+      expect(query.foo.$in[0]).to.eql(/bar/i)
+    })
+
+    it('returns empty object when ctx.query has no query key', function() {
+      const ctx = { query: {} }
+      const query = filters.inRegExp(ctx, 'foo')
+      expect(query).to.eql({})
+    })
+  })
+
+  describe('inPrefix', () => {
+    it('returns fulfilled query', function() {
+      const params = ['bar', 'baz']
+      const ctx = { query: { foo: params } }
+      const query = filters.inPrefix(ctx, 'foo')
+
+      expect(query.foo.$in)
+        .to.be.an('array')
+        .of.length(2)
+
+      for (const [index, val] of query.foo.$in.entries()) {
+        expect(val).to.eql(new RegExp(`^${params[index]}`, 'i'))
+      }
+    })
+
+    it('returns fulfilled query with modifier and dbkey', function() {
+      const params = ['bar', 'baz']
+      const ctx = { query: { foo: params } }
+      const query = filters.inPrefix(ctx, 'foo', 'fooDb', 'ig')
+
+      expect(query.fooDb.$in)
+        .to.be.an('array')
+        .of.length(2)
+
+      for (const [index, val] of query.fooDb.$in.entries()) {
+        expect(val).to.eql(new RegExp(`^${params[index]}`, 'ig'))
+      }
+    })
+
+    it('transforms into array', function() {
+      const ctx = { query: { foo: 'bar' } }
+      const query = filters.inPrefix(ctx, 'foo')
+
+      expect(query.foo.$in)
+        .to.be.an('array')
+        .of.length(1)
+
+      expect(query.foo.$in[0]).to.eql(/^bar/i)
+    })
+
+    it('returns empty object when ctx.query has no query key', function() {
+      const ctx = { query: {} }
+      const query = filters.inPrefix(ctx, 'foo')
+      expect(query).to.eql({})
+    })
+  })
+
   describe('ne', () => {
     it('returns fulfilled query', function() {
       const ctx = { query: { foo: 'bar' } }
