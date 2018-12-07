@@ -17,6 +17,16 @@ const escapeRegexp = str => (str + '').replace(/[.?*+^$[\]\\(){}|-]/g, '\\$&')
 const $in = (ctx, queryKey, dbKey = queryKey, transform = v => v) =>
   eq(ctx, queryKey, dbKey, v => ({ $in: transform(toArray(v)) }))
 
+const inRegExp = (ctx, queryKey, dbKey = queryKey, modifiers = 'i') =>
+  $in(ctx, queryKey, dbKey, arr =>
+    arr.map(v => new RegExp(escapeRegexp(v), modifiers)),
+  )
+
+const inPrefix = (ctx, queryKey, dbKey = queryKey, modifiers = 'i') =>
+  $in(ctx, queryKey, dbKey, arr =>
+    arr.map(v => new RegExp(`^${escapeRegexp(v)}`, modifiers)),
+  )
+
 const ne = (ctx, queryKey, dbKey = queryKey, transform = v => v) =>
   eq(ctx, queryKey, dbKey, v => ({ $ne: transform(v) }))
 
@@ -47,6 +57,8 @@ const published = ctx =>
 module.exports = {
   eq,
   in: $in,
+  inRegExp,
+  inPrefix,
   ne,
   nin,
   bool,
