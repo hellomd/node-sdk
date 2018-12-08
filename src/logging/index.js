@@ -11,6 +11,22 @@ const createLogger = ({ format }) => {
   return logger
 }
 
+const defaultLogger = isStructuredLoggingEnabled
+  ? createLogger({
+      format: winston.format.combine(
+        winston.format.timestamp(),
+        hellomdFormatter(),
+      ),
+    })
+  : createLogger({
+      format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.printf(
+          info => `${info.timestamp} ${info.level}: ${info.message}`,
+        ),
+      ),
+    })
+
 const decorateMessage = (msg, ctx, options) => {
   return options.showRequestId ? `[${ctx.state.id}] ${msg}` : msg
 }
@@ -19,120 +35,75 @@ const decorateMessage = (msg, ctx, options) => {
 //  https://github.com/koajs/bunyan-logger
 //  https://www.elastic.co/guide/en/beats/filebeat/current/exported-fields-nginx.html
 const structuredLoggingMiddleware = async (options, ctx, next) => {
-  const start = Date.now()
-
   // probably not the best idea, one logger per request
-  const format = winston.format.combine(
-    winston.format.timestamp(),
-    hellomdFormatter({ ctx }),
-  )
-  const logger = createLogger({ format })
+  const logger = createLogger({
+    format: winston.format.combine(
+      winston.format.timestamp(),
+      hellomdFormatter({ koaCtx: ctx }),
+    ),
+  })
   ctx.logger = logger
 
-  try {
-    await next()
-  } catch (error) {
-    const fields = {
-      access: {
-        response_time: Date.now() - start,
-        response_code: error.status || 500,
-        // body_sent: {
-        //   bytes: Buffer.byteLength(ctx.response.body),
-        // },
-      },
-    }
+  // errors are logged on the error reporter
+  await next()
 
-    logger.error(error.message, {
-      koa: fields,
-      nodejs: {
-        error: {
-          message: error.message,
-          stack: error.stack,
-        },
-      },
-    })
-
-    throw error
-  }
+  const diffTime = process.hrtime(ctx.requestTimeStart)
+  const duration = diffTime[0] * 1000 + diffTime[1] / 1000000
 
   const fields = {
     access: {
-      response_time: Date.now() - start,
+      response_time: duration,
       response_code: ctx.status,
-      // body_sent: {
-      //   bytes: Buffer.byteLength(ctx.response.body),
-      // },
     },
   }
 
   logger.info(`${ctx.method} ${ctx.path}`, {
     koa: fields,
+    timestamp: ctx.requestDateTime,
   })
 
   ctx.logger = null
 }
 
 const devLoggingMiddleware = async (options, ctx, next) => {
-  const start = Date.now()
-
   // probably not the best idea, one logger per request
-  const format = winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.printf(
-      info => `${info.timestamp} ${info.level}: ${info.message}`,
+  const logger = createLogger({
+    format: winston.format.combine(
+      winston.format.timestamp(),
+      winston.format.printf(
+        info => `${info.timestamp} ${info.level}: ${info.message}`,
+      ),
     ),
-  )
-  const logger = createLogger({ format })
+  })
   ctx.logger = logger
 
-  const attrs = {
-    path: ctx.path,
-    method: ctx.method,
-    request_id: ctx.state.id,
-    remote: ctx.request.ip,
-    environment: process.env.ENV,
-    application_name: process.env.APP_NAME,
-  }
-
-  const msg = `${attrs.method} ${attrs.path}`
+  const msg = `${ctx.method} ${ctx.path}`
 
   if (options.enableDoubleLogging) {
-    logger.info(`<-- ${decorateMessage(msg, ctx, options)}`, attrs)
+    logger.info(`<-- ${decorateMessage(msg, ctx, options)}`)
   }
 
-  try {
-    await next()
-  } catch (err) {
-    const errorAttrs = {
-      ...attrs,
-      time: Date.now() - start,
-      status: err.status || 500,
-    }
-    const errorMsg = `xxx ${decorateMessage(msg, ctx, options)}| ${
-      errorAttrs.time
-    }ms | ${errorAttrs.status} ${err.body || err}`
+  // error should be logged in the error reporter
+  await next()
 
-    logger.error(errorMsg, errorAttrs)
+  const diffTime = process.hrtime(ctx.requestTimeStart)
+  const duration = diffTime[0] * 1000 + diffTime[1] / 1000000
 
-    throw err
-  }
+  const finalMsg = `--> ${decorateMessage(
+    msg,
+    ctx,
+    options,
+  )} | ${duration}ms | ${ctx.status}`
 
-  const attrsFinal = {
-    ...attrs,
-    time: Date.now() - start,
-    status: ctx.status,
-  }
-
-  const finalMsg = `--> ${decorateMessage(msg, ctx, options)} | ${
-    attrsFinal.time
-  }ms | ${attrsFinal.status}`
-
-  logger.info(finalMsg, attrs)
+  logger.info(finalMsg)
 
   ctx.logger = null
 }
 
 const koaMiddleware = (options = {}) => async (ctx, next) => {
+  ctx.requestTimeStart = process.hrtime()
+  ctx.requestDateTime = new Date().toISOString()
+
   if (isStructuredLoggingEnabled) {
     await structuredLoggingMiddleware(options, ctx, next)
   } else {
@@ -141,6 +112,8 @@ const koaMiddleware = (options = {}) => async (ctx, next) => {
 }
 
 module.exports = {
-  koaMiddleware,
   createLogger,
+  isStructuredLoggingEnabled,
+  koaMiddleware,
+  logger: defaultLogger,
 }

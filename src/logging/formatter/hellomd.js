@@ -4,25 +4,26 @@ const jsonStringify = require('fast-safe-stringify')
 
 // based on https://github.com/winstonjs/logform/blob/d9d41c5/logstash.js
 module.exports = format((info, options) => {
-  const { ctx } = options
+  const { koaCtx } = options
 
   const obj = {
     environment: process.env.ENV,
-    application_name: process.env.APP_NAME,
+    project: process.env.PROJECT_NAME || process.env.APP_NAME,
+    commit: process.env.COMMIT_SHA1,
     ...info,
-    koa: ctx && {
+    koa: koaCtx && {
       ...(info && info.koa),
       access: {
         ...(info.koa && info.koa.access),
-        remote_ip_list: ctx.ips,
-        remote_ip: ctx.request.ip,
-        request_id: ctx.state.id,
+        remote_ip_list: koaCtx.ips,
+        remote_ip: koaCtx.request.ip,
+        request_id: koaCtx.state.id,
         // only for basic auth, no need for that
         // user_name:
-        method: ctx.method,
-        url: ctx.path,
-        referrer: ctx.headers.referer || null,
-        agent: ctx.headers['user-agent'] || null,
+        method: koaCtx.method,
+        url: koaCtx.path,
+        referrer: koaCtx.headers.referer || null,
+        agent: koaCtx.headers['user-agent'] || null,
       },
     },
   }
