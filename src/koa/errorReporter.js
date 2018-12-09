@@ -1,3 +1,5 @@
+const raven = require('raven')
+
 const {
   logger: defaultLogger,
   isStructuredLoggingEnabled,
