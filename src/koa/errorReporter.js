@@ -23,6 +23,7 @@ async function errorListener(error, ctx) {
 
     logger.error(error.message, {
       timestamp: ctx.requestDateTime,
+      kind: 'http.request',
       koa: fields,
       nodejs: {
         error: {

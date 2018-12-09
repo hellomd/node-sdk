@@ -59,6 +59,7 @@ const structuredLoggingMiddleware = async (options, ctx, next) => {
 
   logger.info(`${ctx.method} ${ctx.path}`, {
     koa: fields,
+    kind: 'http.request',
     timestamp: ctx.requestDateTime,
   })
 
