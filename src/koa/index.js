@@ -29,6 +29,8 @@ const fixIp = () => async (ctx, next) => {
       ctx.get('x-real-ip') ||
       ((ctx.ips && ctx.ips[ctx.ips.length - 1]) || ctx.ip)
   }
+
+  return next()
 }
 
 module.exports = {
