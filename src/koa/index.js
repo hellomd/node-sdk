@@ -25,7 +25,7 @@ const fixIp = () => async (ctx, next) => {
     // If not available, use last ip on ctx.ips, since the ones prepend there, are client passed ones
     //  which can be spoofed
     // If all fails, leave it to their current value
-    ctx.ip =
+    ctx.request.ip =
       ctx.get('x-real-ip') ||
       ((ctx.ips && ctx.ips[ctx.ips.length - 1]) || ctx.ip)
   }
