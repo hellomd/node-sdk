@@ -73,8 +73,7 @@ async function errorListener(error, ctx) {
         },
       )
 
-    shouldUseApm &&
-      ctx.apmAgent &&
+    ctx.apmAgent &&
       ctx.apmAgent.captureError(error, { user }, (apmError, eventId) => {
         if (apmError) {
           logger.error('Error while reporting request error to APM', {
@@ -91,7 +90,7 @@ async function errorListener(error, ctx) {
   }
 }
 
-async function errorMiddleware(ctx, next) {
+const errorMiddleware = () => async (ctx, next) => {
   try {
     await next()
   } catch (error) {

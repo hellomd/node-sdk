@@ -5,9 +5,13 @@ const hellomdFormatter = require('./formatter/hellomd')
 
 const isStructuredLoggingEnabled = process.env.ENABLE_STRUCTURED_LOGGING == '1'
 
-const createLogger = ({ format }) => {
-  const transports = [new winston.transports.Console({ format })]
-  const logger = winston.createLogger({ transports })
+const isTesting = process.env.ENV === 'test' || process.env.NODE_ENV === 'test'
+
+const createLogger = ({ format, ...options }) => {
+  const transports = [
+    new winston.transports.Console({ format, silent: isTesting }),
+  ]
+  const logger = winston.createLogger({ transports, ...options })
   return logger
 }
 

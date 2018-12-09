@@ -1,30 +1,12 @@
-const apmNode = require('elastic-apm-node')
-
 const raven = require('raven')
 
 const { logger } = require('../logging')
 
-const shouldUseSentry = !!process.env.SENTRY_DSN
-const shouldUseApm = !!process.env.APM_TOKEN
+const { apmAgent, shouldUseApm } = require('./apmAgent')
 
-let apmAgent = null
+const shouldUseSentry = !!process.env.SENTRY_DSN
 
 // @TODO Migrate sentry to newest sdk https://docs.sentry.io/error-reporting/quickstart/?platform=node
-
-if (shouldUseApm) {
-  apmAgent = apmNode.start({
-    // Override service name from package.json
-    // Allowed characters: a-z, A-Z, 0-9, -, _, and space
-    serviceName: process.env.PROJECT_NAME,
-    // Use if APM Server requires a token
-    secretToken: process.env.APM_TOKEN,
-    // Set custom APM Server URL
-    serverUrl:
-      process.env.APM_URL ||
-      'http://apm-server.monitoring.svc.cluster.local:8200',
-    logger,
-  })
-}
 
 const wrapper = cb => {
   global.process.on('unhandledRejection', function(reason, promise) {
@@ -197,5 +179,6 @@ const wrapper = cb => {
 }
 
 module.exports = {
+  apmAgent,
   wrapper,
 }

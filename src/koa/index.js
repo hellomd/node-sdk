@@ -1,39 +1,34 @@
-const requestIdLib = require('koa-requestid')
+const logging = require('../logging')
+
+const { apmAgent, shouldUseApm } = require('./apmAgent')
 
 const { errorListener, errorMiddleware } = require('./errorReporter')
+const { fixIp } = require('./fixIp')
+const { requestId } = require('./requestId')
 const { wrapper } = require('./wrapper')
 
-const requestId = (options = {}) =>
-  requestIdLib({
-    expose: 'X-Request-Id',
-    header: 'X-Request-Id',
-    query: 'requestId',
-    ...options,
+// Helpful middleware, that initializes other middlewares
+const addMiddlewares = app => {
+  // make apm available on context
+  app.use(async (ctx, next) => {
+    ctx.apmAgent = apmAgent
+
+    return next()
   })
 
-const fixIp = () => async (ctx, next) => {
-  const { app } = ctx
+  // those come first
+  app.use(fixIp())
+  app.use(requestId())
 
-  // request forwaded by caddy
-  const isCaddy = ctx.get('x-forwarded-server').startsWith('gateway-')
+  // now error reporting middleware, so errors are really caught
+  app.use(errorMiddleware())
 
-  if (app.proxy && isCaddy) {
-    // Caddy transparent directive forwards all ips given by client on
-    //  X-Forwaded-For, Koa adds those to .ips, and picks the first one and mark it
-    //  as the real client ip
-    // But we don't want that, we want it to use the X-Real-Ip provided by caddy instead
-    // If not available, use last ip on ctx.ips, since the ones prepend there, are client passed ones
-    //  which can be spoofed
-    // If all fails, leave it to their current value
-    ctx.request.ip =
-      ctx.get('x-real-ip') ||
-      ((ctx.ips && ctx.ips[ctx.ips.length - 1]) || ctx.ip)
-  }
-
-  return next()
+  // logging middleware comes now, so ctx.logger is made available
+  app.use(logging.koaMiddleware())
 }
 
 module.exports = {
+  addMiddlewares,
   errorListener,
   errorMiddleware,
   fixIp,
