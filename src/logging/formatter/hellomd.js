@@ -22,7 +22,7 @@ module.exports = format((info, options) => {
         // user_name:
         method: koaCtx.method,
         url: koaCtx.path,
-        referrer: koaCtx.headers.referer || null,
+        referer: koaCtx.headers.referer || null,
         agent: koaCtx.headers['user-agent'] || null,
       },
     },
