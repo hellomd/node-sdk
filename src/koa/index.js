@@ -27,7 +27,7 @@ const addMiddlewares = app => {
   app.use(logging.koaMiddleware())
 }
 
-const finalMiddleware = () => async (ctx, next) => {
+const updateContextMiddleware = () => async (ctx, next) => {
   if (ctx.apmAgent) {
     // add user data
     const user =
@@ -46,7 +46,7 @@ module.exports = {
   addMiddlewares,
   errorListener,
   errorMiddleware,
-  finalMiddleware,
+  updateContextMiddleware,
   fixIp,
   requestId,
   wrapper,
