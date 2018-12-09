@@ -5,6 +5,9 @@ const {
   isStructuredLoggingEnabled,
 } = require('../logging')
 
+const shouldUseSentry = !!process.env.SENTRY_DSN
+const shouldUseApm = !!process.env.APM_TOKEN
+
 async function errorListener(error, ctx) {
   const logger = ctx.logger || defaultLogger
 
@@ -25,11 +28,9 @@ async function errorListener(error, ctx) {
       timestamp: ctx.requestDateTime,
       kind: 'http.request',
       koa: fields,
-      nodejs: {
-        error: {
-          message: error.message,
-          stack: error.stack,
-        },
+      error: {
+        message: error.message,
+        stack: error.stack,
       },
     })
   } else {
@@ -42,19 +43,51 @@ async function errorListener(error, ctx) {
     logger.error(errorMsg)
   }
 
-  if ((!error.status || error.status > 499) && !!process.env.SENTRY_DSN) {
-    raven.captureException(error, (sentryError, eventId) => {
-      if (sentryError) {
-        logger.error('Error while reporting error to Sentry', {
-          error: sentryError,
-          originalError: error,
-        })
-      } else {
-        logger.info('Reported error to Sentry', {
-          eventId,
-        })
-      }
-    })
+  if (!error.status || error.status > 499) {
+    const user =
+      (ctx.state &&
+        ctx.state.user && {
+          id: ctx.state.user.id,
+          email: ctx.state.user.email,
+        }) ||
+      null
+
+    shouldUseSentry &&
+      raven.captureException(
+        error,
+        {
+          request: ctx.request,
+          user,
+        },
+        (sentryError, eventId) => {
+          if (sentryError) {
+            logger.error('Error while reporting request error to Sentry', {
+              error: sentryError,
+              originalError: error,
+            })
+          } else {
+            logger.info('Reported request error to Sentry', {
+              eventId,
+            })
+          }
+        },
+      )
+
+    shouldUseApm &&
+      ctx.apmAgent &&
+      ctx.apmAgent.captureError(error, { user }, (apmError, eventId) => {
+        if (apmError) {
+          logger.error('Error while reporting request error to APM', {
+            error: apmError,
+            originalError: error,
+            eventId,
+          })
+        } else {
+          logger.info('Reported request error to APM', {
+            eventId,
+          })
+        }
+      })
   }
 }
 
