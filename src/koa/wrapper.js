@@ -10,9 +10,6 @@ const shouldUseSentry = !!process.env.SENTRY_DSN
 
 const wrapper = cb => {
   global.process.on('unhandledRejection', function(reason, promise) {
-    // used to test multiline parsing
-    if (reason && reason.throwAway) throw error
-
     let currDone = 0
     let targetDone = +shouldUseApm + +shouldUseSentry
 
@@ -94,9 +91,6 @@ const wrapper = cb => {
     //  https://github.com/elastic/apm-agent-nodejs/blob/50dbeecd593aaa3935db3de47ebb3da7dc6d0033/lib/agent.js#L350-L357
     shouldUseApm &&
       process.on('uncaughtException', error => {
-        // used to test multiline parsing
-        if (error && error.throwAway) throw error
-
         apmAgent.captureError(
           error,
           { uncaughtException: true },
@@ -137,9 +131,6 @@ const wrapper = cb => {
           ['production', 'staging'].indexOf(process.env.ENV) !== -1,
       })
       .install((error, sentryError, eventId) => {
-        // used to test multiline parsing
-        if (error && error.throwAway) throw error
-
         if (sentryError) {
           logger.error(
             'Error while reporting unhandled promise rejection to Sentry',
