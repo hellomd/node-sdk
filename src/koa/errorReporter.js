@@ -9,6 +9,9 @@ const shouldUseSentry = !!process.env.SENTRY_DSN
 const shouldUseApm = !!process.env.APM_TOKEN
 
 async function errorListener(error, ctx) {
+  // used to test multiline parsing
+  if (error && error.throwAway) throw error
+
   const logger = ctx.logger || defaultLogger
 
   const diffTime = process.hrtime(ctx.requestTimeStart)
