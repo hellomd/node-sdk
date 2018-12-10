@@ -40,6 +40,8 @@ const updateContextMiddleware = () => async (ctx, next) => {
 
     ctx.apmAgent.setUserContext(user)
   }
+
+  return next()
 }
 
 module.exports = {
