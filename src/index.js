@@ -1,3 +1,6 @@
+// order here is important, this must come first than everything else
+const { apmAgent, shouldUseApm } = require('./apmAgent')
+
 const api = require('./api')
 const apiMock = require('./apiMock')
 const amqp = require('./amqp')
@@ -23,6 +26,8 @@ module.exports = {
   ...api,
   ...apiMock,
   amqp,
+  apmAgent,
+  shouldUseApm,
   authn,
   authz,
   axios,

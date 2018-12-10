@@ -2,7 +2,7 @@ const raven = require('raven')
 
 const { logger } = require('../logging')
 
-const { apmAgent, shouldUseApm } = require('./apmAgent')
+const { apmAgent, shouldUseApm } = require('../apmAgent')
 
 const shouldUseSentry = !!process.env.SENTRY_DSN
 
