@@ -10,6 +10,9 @@ const shouldUseSentry = !!process.env.SENTRY_DSN
 
 const wrapper = cb => {
   global.process.on('unhandledRejection', function(reason, promise) {
+    // used to test multiline parsing
+    if (reason && reason.throwAway) throw error
+
     let currDone = 0
     let targetDone = +shouldUseApm + +shouldUseSentry
 
