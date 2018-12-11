@@ -4,8 +4,6 @@ const { axios } = require('./axios')
 const serviceTokenHeader = (ctx, args) => ({
   'Content-Type': 'application/json',
   Authorization: `bearer ${ctx.state.serviceToken}`,
-  // add request-id header
-  ...(!!ctx.state.id && { 'X-Request-Id': ctx.state.id }),
 })
 
 const buildKoaEndpoint = ctx => def => {
@@ -46,7 +44,10 @@ const buildEndpoint = ctx => def => {
                 prev,
                 typeof curr === 'function' ? curr(ctx, args) : curr,
               ),
-            {},
+            {
+              // add request-id header by default
+              ...(!!ctx.state.id && { 'X-Request-Id': ctx.state.id }),
+            },
           ),
           ...fetchOptions,
         })
