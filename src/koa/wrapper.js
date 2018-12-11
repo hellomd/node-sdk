@@ -84,6 +84,10 @@ const wrapper = cb => {
     }
   })
 
+  process.on('warning', warning => {
+    logger.warn(warning)
+  })
+
   if (!shouldUseSentry) {
     // when using sentry, the captured error is sent to apm on their callback
     //  here we have to specify one handler directly, since we disabled their default one.
