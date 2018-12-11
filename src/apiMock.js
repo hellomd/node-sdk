@@ -23,7 +23,10 @@ const mockEndpoint = ctx => def => {
     const data = typeof dataFn === 'function' ? dataFn(ctx, args) : dataFn
     const headers = Object.assign(
       { Accept: 'application/json, text/plain, */*' },
-      headerFns.reduce((prev, curr) => Object.assign(prev, curr(ctx)), {}),
+      headerFns.reduce((prev, curr) => Object.assign(prev, curr(ctx)), {
+        // add X-Request-Id to match original api
+        ...(!!ctx.state.id && { 'X-Request-Id': ctx.state.id }),
+      }),
     )
     return axiosMock[methodMap[method]](url, data, headers)
   }
