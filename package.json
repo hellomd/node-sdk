@@ -11,6 +11,7 @@
     "patch": "npm version patch && npm publish --access public",
     "minor": "npm version minor && npm publish --access public",
     "major": "npm version major && npm publish --access public",
+    "prepare": "install-self-peers -- --ignore-scripts",
     "prepublishOnly": "ENV=test npm test",
     "postpublish": "git push origin master --follow-tags"
   },
@@ -19,19 +20,24 @@
     "axios": "^0.17.1",
     "axios-mock-adapter": "^1.10.0",
     "chai-as-promised": "^7.1.1",
+    "elastic-apm-node": "^2.0.4",
     "jsonwebtoken": "^8.2.1",
     "moment": "^2.20.1",
     "mongodb": "^3.1.4",
     "ramda": "^0.25.0",
     "raven": "^2.2.1",
     "validate.js": "^0.12.0",
-    "winston": "^3.0.0-rc1",
+    "winston": "^3.1.0",
     "winston-transport": "^3.0.1"
   },
   "devDependencies": {
+    "@team-griffin/install-self-peers": "^1.1.1",
     "chai": "^4.1.2",
-    "koa": "^2.4.1",
     "mocha": "^4.1.0",
     "supertest": "^3.0.0"
+  },
+  "peerDependencies": {
+    "koa": "^2.4.1",
+    "koa-requestid": "^2.0.1"
   }
 }
