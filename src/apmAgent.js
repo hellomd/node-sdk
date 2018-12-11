@@ -2,7 +2,7 @@ const apmNode = require('elastic-apm-node')
 
 const { logger } = require('./logging')
 
-const shouldUseApm = !!process.env.APM_TOKEN
+const shouldUseApm = !!process.env.APM_TOKEN && process.env.ENABLE_APM === '1'
 
 let apmAgent = null
 
