@@ -9,9 +9,16 @@ const isTesting = process.env.ENV === 'test' || process.env.NODE_ENV === 'test'
 
 const createLogger = ({ format, ...options }) => {
   const transports = [
-    new winston.transports.Console({ format, silent: isTesting }),
+    new winston.transports.Console({
+      format,
+      // silent: isTesting,
+    }),
   ]
-  const logger = winston.createLogger({ transports, ...options })
+  const logger = winston.createLogger({
+    transports,
+    ...options,
+    level: isTesting ? 'error' : options.level,
+  })
   return logger
 }
 
