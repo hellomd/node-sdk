@@ -7,6 +7,7 @@ const {
 
 const shouldUseSentry = !!process.env.SENTRY_DSN
 const shouldUseApm = !!process.env.APM_TOKEN
+const isTesting = process.env.ENV === 'test' || process.env.NODE_ENV === 'test'
 
 async function errorListener(error, ctx) {
   const logger = ctx.logger || defaultLogger
@@ -38,7 +39,10 @@ async function errorListener(error, ctx) {
       error.status
     } ${error.body || error}`
 
-    logger.error(errorMsg)
+    const shouldLogHttpError =
+      !isTesting || (!error.status || error.status >= 500)
+
+    shouldLogHttpError && logger.error(errorMsg)
   }
 
   if (!error.status || error.status > 499) {
