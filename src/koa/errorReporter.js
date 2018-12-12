@@ -34,11 +34,9 @@ async function errorListener(error, ctx) {
       },
     })
   } else {
-    const errorMsg = `xxx ${decorateMessage(
-      msg,
-      ctx,
-      options,
-    )}| ${duration}ms | ${error.status} ${error.body || error}`
+    const errorMsg = `xxx ${msg} | ${duration}ms | ${
+      error.status
+    } ${error.body || error}`
 
     logger.error(errorMsg)
   }
