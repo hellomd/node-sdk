@@ -34,7 +34,7 @@ async function errorListener(error, ctx) {
       },
     })
   } else {
-    const errorMsg = `xxx ${msg} | ${duration}ms | ${
+    const errorMsg = `xxx ${ctx.method} ${ctx.path} | ${duration}ms | ${
       error.status
     } ${error.body || error}`
 
