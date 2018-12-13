@@ -15,6 +15,7 @@ const createWebPreset = createApp =>
       this.app = createApp({
         channel: this.channel,
         db: this.dbConn,
+        dbConn: this.dbConn,
       }).callback()
     })
 
