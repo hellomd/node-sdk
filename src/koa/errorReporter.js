@@ -1,13 +1,12 @@
 const raven = require('raven')
 
+const { isTesting } = require('../utils')
 const {
   logger: defaultLogger,
   isStructuredLoggingEnabled,
 } = require('../logging')
 
 const shouldUseSentry = !!process.env.SENTRY_DSN
-const shouldUseApm = !!process.env.APM_TOKEN
-const isTesting = process.env.ENV === 'test' || process.env.NODE_ENV === 'test'
 
 async function errorListener(error, ctx) {
   const logger = ctx.logger || defaultLogger

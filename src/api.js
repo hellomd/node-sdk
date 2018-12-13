@@ -1,5 +1,7 @@
 const util = require('util')
+
 const { axios } = require('./axios')
+const { isTesting } = require('./utils')
 
 const serviceTokenHeader = (ctx, args) => ({
   'Content-Type': 'application/json',
@@ -46,7 +48,9 @@ const buildEndpoint = ctx => def => {
               ),
             {
               // add request-id header by default
-              ...(!!ctx.state.id && { 'X-Request-Id': ctx.state.id }),
+              ...(!!ctx.state &&
+                !!ctx.state.id &&
+                !isTesting && { 'X-Request-Id': ctx.state.id }),
             },
           ),
           ...fetchOptions,

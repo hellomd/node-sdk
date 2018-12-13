@@ -1,11 +1,11 @@
 const R = require('ramda')
 const winston = require('winston')
 
+const { isTesting } = require('../utils')
+
 const hellomdFormatter = require('./formatter/hellomd')
 
 const isStructuredLoggingEnabled = process.env.ENABLE_STRUCTURED_LOGGING == '1'
-
-const isTesting = process.env.ENV === 'test' || process.env.NODE_ENV === 'test'
 
 const createLogger = ({ format, ...options }) => {
   const transports = [
