@@ -90,6 +90,8 @@ validate.validators.datetimeFormat = function(value, options) {
 }
 
 validate.validators.objectId = function(value) {
+  if (!validate.isDefined(value)) return
+
   const isValid = ObjectId.isValid(value)
 
   if (!isValid) return 'is not a valid id'
