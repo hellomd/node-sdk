@@ -22,6 +22,7 @@
     "chai-as-promised": "^7.1.1",
     "elastic-apm-node": "^2.0.4",
     "jsonwebtoken": "^8.2.1",
+    "koa-requestid": "^2.0.1",
     "moment": "^2.20.1",
     "mongodb": "^3.1.4",
     "ramda": "^0.25.0",
@@ -37,7 +38,6 @@
     "supertest": "^3.0.0"
   },
   "peerDependencies": {
-    "koa": "^2.4.1",
-    "koa-requestid": "^2.0.1"
+    "koa": "^2.4.1"
   }
 }
