@@ -17,7 +17,7 @@ const createLogger = ({ format, ...options }) => {
   const logger = winston.createLogger({
     transports,
     ...options,
-    level: isTesting ? 'error' : options.level,
+    level: isTesting ? 'error' : options.level || process.env.LOGGING_LEVEL,
   })
   return logger
 }
