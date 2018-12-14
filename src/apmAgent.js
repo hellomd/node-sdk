@@ -15,6 +15,8 @@ if (shouldUseApm) {
     serverUrl:
       process.env.APM_URL ||
       'http://apm-server.monitoring.svc.cluster.local:8200',
+    // every transaction is logged
+    transactionSampleRate: 1,
     logger,
   })
 }

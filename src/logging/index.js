@@ -26,12 +26,14 @@ const defaultLogger = isStructuredLoggingEnabled
   ? createLogger({
       format: winston.format.combine(
         winston.format.timestamp(),
+        winston.format.splat(),
         hellomdFormatter(),
       ),
     })
   : createLogger({
       format: winston.format.combine(
         winston.format.timestamp(),
+        winston.format.splat(),
         winston.format.printf(
           info => `${info.timestamp} ${info.level}: ${info.message}`,
         ),
@@ -50,6 +52,7 @@ const structuredLoggingMiddleware = async (options, ctx, next) => {
   const logger = createLogger({
     format: winston.format.combine(
       winston.format.timestamp(),
+      winston.format.splat(),
       hellomdFormatter({ koaCtx: ctx }),
     ),
   })
@@ -82,6 +85,7 @@ const devLoggingMiddleware = async (options, ctx, next) => {
   const logger = createLogger({
     format: winston.format.combine(
       winston.format.timestamp(),
+      winston.format.splat(),
       winston.format.printf(
         info => `${info.timestamp} ${info.level}: ${info.message}`,
       ),
