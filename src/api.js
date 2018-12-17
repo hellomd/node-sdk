@@ -1,7 +1,7 @@
 const util = require('util')
 
 const { axios } = require('./axios')
-const { isTesting } = require('./utils')
+const { isTesting } = require('./isTesting')
 
 const serviceTokenHeader = (ctx, args) => ({
   'Content-Type': 'application/json',

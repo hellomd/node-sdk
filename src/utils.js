@@ -3,8 +3,6 @@ const crypto = require('crypto')
 const moment = require('moment')
 const { ObjectId } = require('mongodb')
 
-const isTesting = process.env.ENV === 'test' || process.env.NODE_ENV === 'test'
-
 const nullify = o =>
   Object.entries(o).reduce(
     (acc, [k, v]) => ({ ...acc, [k]: v === undefined ? null : v }),
@@ -43,7 +41,6 @@ const sample = arr => arr[randomInt(arr.length - 1)]
 const toArray = value => [].concat(typeof value === 'undefined' ? [] : value)
 
 module.exports = {
-  isTesting,
   nullify,
   nullOrDateString,
   nullOrDate,

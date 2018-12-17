@@ -1,6 +1,6 @@
 const raven = require('raven')
 
-const { isTesting } = require('../utils')
+const { isTesting } = require('../isTesting')
 const {
   logger: defaultLogger,
   isStructuredLoggingEnabled,

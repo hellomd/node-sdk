@@ -1,7 +1,7 @@
 const R = require('ramda')
 const winston = require('winston')
 
-const { isTesting } = require('../utils')
+const { isTesting } = require('../isTesting')
 
 const hellomdFormatter = require('./formatter/hellomd')
 
