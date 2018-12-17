@@ -16,26 +16,26 @@
     "postpublish": "git push origin master --follow-tags"
   },
   "dependencies": {
-    "amqplib": "^0.5.2",
-    "axios": "^0.17.1",
-    "axios-mock-adapter": "^1.10.0",
-    "chai-as-promised": "^7.1.1",
-    "elastic-apm-node": "^2.0.4",
-    "jsonwebtoken": "^8.2.1",
-    "koa-requestid": "^2.0.1",
-    "moment": "^2.20.1",
-    "mongodb": "^3.1.4",
-    "ramda": "^0.25.0",
-    "raven": "^2.2.1",
-    "validate.js": "^0.12.0",
-    "winston": "^3.1.0",
-    "winston-transport": "^3.0.1"
+    "amqplib": "0.5.3",
+    "axios": "0.18.0",
+    "axios-mock-adapter": "1.15.0",
+    "chai-as-promised": "7.1.1",
+    "elastic-apm-node": "2.0.5",
+    "jsonwebtoken": "8.4.0",
+    "koa-requestid": "2.0.1",
+    "moment": "2.23.0",
+    "mongodb": "3.1.10",
+    "ramda": "0.26.1",
+    "raven": "2.6.4",
+    "validate.js": "0.12.0",
+    "winston": "3.1.0",
+    "winston-transport": "4.2.0"
   },
   "devDependencies": {
     "@team-griffin/install-self-peers": "^1.1.1",
-    "chai": "^4.1.2",
-    "mocha": "^4.1.0",
-    "supertest": "^3.0.0"
+    "chai": "^4.2.0",
+    "mocha": "^5.2.0",
+    "supertest": "^3.3.0"
   },
   "peerDependencies": {
     "koa": "^2.4.1"
