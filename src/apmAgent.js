@@ -2,24 +2,18 @@ const apmNode = require('elastic-apm-node')
 
 const { logger } = require('./logging')
 
-const shouldUseApm = !!process.env.APM_TOKEN && process.env.ENABLE_APM === '1'
+const shouldUseApm =
+  !!process.env.ELASTIC_APM_ACTIVE && process.env.ELASTIC_APM_ACTIVE === 'true'
 
-let apmAgent = null
-
-if (shouldUseApm) {
-  apmAgent = apmNode.start({
-    serviceName: process.env.PROJECT_NAME,
-    secretToken: process.env.APM_TOKEN,
-    serviceVersion: process.env.COMMIT_SHA1,
-    captureExceptions: false,
-    serverUrl:
-      process.env.APM_URL ||
-      'http://apm-server.monitoring.svc.cluster.local:8200',
-    // every transaction is logged
-    transactionSampleRate: 1,
-    logger,
-  })
-}
+// we are using ELASTIC_APM_* env vars to configure some of the options
+// if ELASTIC_APM_ACTIVE is false, start does nothing
+const apmAgent = apmNode.start({
+  captureExceptions: false,
+  serverUrl: 'http://apm-server.monitoring.svc.cluster.local:8200',
+  // every transaction is logged by default, this is overwritten by using the env var
+  transactionSampleRate: 1,
+  logger,
+})
 
 module.exports = {
   apmAgent,
