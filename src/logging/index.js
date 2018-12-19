@@ -10,7 +10,6 @@ const devFormatter = require('./formatter/dev')
 const hellomdFormatter = require('./formatter/hellomd')
 
 const isStructuredLoggingEnabled =
-  process.env.ENABLE_STRUCTURED_LOGGING === '1' ||
   process.env.ENABLE_STRUCTURED_LOGGING === 'true'
 
 const createLogger = ({ format, ...options }) => {

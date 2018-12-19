@@ -70,8 +70,13 @@ const buildEndpoint = ctx => def => {
         }
         logger.debug('API client axios request failed', {
           error,
-          statusCode: logObject.status,
-          result: logObject.data,
+          apiStatusCode: logObject && logObject.status,
+          apiResultData: logObject && logObject.data,
+          apiRequestInfo: {
+            method: logObject && logObject.config && logObject.config.method,
+            url: logObject && logObject.config && logObject.config.url,
+            data: logObject && logObject.config && logObject.config.data,
+          },
         })
         const resCode = error.response ? error.response.status : 500
         if (resCode < 500 || i === maxRetries) {
