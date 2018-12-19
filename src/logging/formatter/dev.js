@@ -9,6 +9,7 @@ module.exports = () =>
   combine(
     format.timestamp(),
     format.splat(),
+    format.colorize(),
     format.printf(({ timestamp, level, message, ...info }) => {
       const msg = `${info.timestamp} ${info.level}: ${info.message}`
       if (!Object.keys(info).length) return msg
