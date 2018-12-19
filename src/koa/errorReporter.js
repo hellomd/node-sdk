@@ -1,5 +1,6 @@
 const raven = require('raven')
 
+const { shouldUseApm } = require('../apmAgent')
 const { isTesting } = require('../isTesting')
 const {
   logger: defaultLogger,
@@ -36,7 +37,7 @@ async function errorListener(error, ctx) {
   } else {
     const errorMsg = `xxx ${ctx.method} ${ctx.path} | ${duration}ms | ${
       error.status
-    } ${error.body || error}`
+    } ${error.body || error}\n${error.stack}`
 
     const shouldLogHttpError =
       !isTesting || (!error.status || error.status >= 500)
@@ -74,7 +75,8 @@ async function errorListener(error, ctx) {
         },
       )
 
-    ctx.apmAgent &&
+    shouldUseApm &&
+      ctx.apmAgent &&
       ctx.apmAgent.captureError(error, { user }, (apmError, eventId) => {
         if (apmError) {
           logger.error('Error while reporting request error to APM', {

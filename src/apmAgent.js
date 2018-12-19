@@ -13,6 +13,7 @@ const apmAgent = apmNode.start({
   // every transaction is logged by default, this is overwritten by using the env var
   transactionSampleRate: 1,
   logger,
+  active: shouldUseApm,
 })
 
 module.exports = {
