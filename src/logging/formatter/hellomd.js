@@ -6,7 +6,7 @@ const { jsonReplacer } = require('./utils')
 
 // based on https://github.com/winstonjs/logform/blob/d9d41c5/logstash.js
 module.exports = format(({ meta, ...info }, options) => {
-  const { koaCtx } = options
+  const { koaCtx, metadata } = options
 
   const obj = {
     environment: process.env.ENV,
@@ -29,6 +29,7 @@ module.exports = format(({ meta, ...info }, options) => {
         agent: koaCtx.headers['user-agent'] || null,
       },
     },
+    ...metadata,
   }
   // if (info.message) {
   //   obj['@message'] = info.message;

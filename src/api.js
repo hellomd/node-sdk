@@ -1,5 +1,7 @@
 const util = require('util')
 
+const { logger } = require('./logging')
+
 const { axios } = require('./axios')
 const { isTesting } = require('./isTesting')
 
@@ -66,6 +68,11 @@ const buildEndpoint = ctx => def => {
             }),
           )
         }
+        logger.debug('API client axios request failed', {
+          error,
+          statusCode: logObject.status,
+          result: logObject.data,
+        })
         const resCode = error.response ? error.response.status : 500
         if (resCode < 500 || i === maxRetries) {
           const customError = errors[resCode.toString()]
