@@ -6,6 +6,7 @@ const winston = require('winston')
 
 const { isTesting } = require('../isTesting')
 
+const devFormatter = require('./formatter/dev')
 const hellomdFormatter = require('./formatter/hellomd')
 
 const isStructuredLoggingEnabled = process.env.ENABLE_STRUCTURED_LOGGING == '1'
@@ -34,13 +35,7 @@ const createLoggerWithMetadata = metadata =>
         ),
       })
     : createLogger({
-        format: winston.format.combine(
-          winston.format.timestamp(),
-          winston.format.splat(),
-          winston.format.printf(
-            info => `${info.timestamp} ${info.level}: ${info.message}`,
-          ),
-        ),
+        format: devFormatter(),
       })
 
 const defaultLogger = createLoggerWithMetadata()
@@ -88,13 +83,7 @@ const structuredLoggingMiddleware = async (options, ctx, next) => {
 const devLoggingMiddleware = async (options, ctx, next) => {
   // probably not the best idea, one logger per request
   const logger = createLogger({
-    format: winston.format.combine(
-      winston.format.timestamp(),
-      winston.format.splat(),
-      winston.format.printf(
-        info => `${info.timestamp} ${info.level}: ${info.message}`,
-      ),
-    ),
+    format: devFormatter(),
   })
   ctx.logger = logger
 

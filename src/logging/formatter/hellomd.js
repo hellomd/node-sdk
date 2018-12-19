@@ -2,6 +2,8 @@ const { format } = require('winston')
 const { MESSAGE } = require('triple-beam')
 const jsonStringify = require('fast-safe-stringify')
 
+const { jsonReplacer } = require('./utils')
+
 // based on https://github.com/winstonjs/logform/blob/d9d41c5/logstash.js
 module.exports = format((info, options) => {
   const { koaCtx } = options
@@ -39,6 +41,6 @@ module.exports = format((info, options) => {
   }
 
   // obj['@fields'] = info
-  info[MESSAGE] = jsonStringify(obj)
+  info[MESSAGE] = jsonStringify(obj, jsonReplacer)
   return info
 })
