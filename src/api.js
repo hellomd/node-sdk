@@ -14,8 +14,8 @@ const buildKoaEndpoint = ctx => def => {
   return async args => {
     try {
       return await buildEndpoint(ctx)(def)(args)
-    } catch (err) {
-      ctx.throw(err.code, err.message)
+    } catch (error) {
+      ctx.throw(error.code, error.message)
     }
   }
 }
@@ -84,7 +84,7 @@ const buildEndpoint = ctx => def => {
           const isCustomErrorInstance = customError instanceof Error
 
           if (customError && typeof customError.message === 'function') {
-            customError.message = customError.message(ctx, err.response)
+            customError.message = customError.message(ctx, error.response)
           }
 
           const finalError = isCustomErrorInstance
