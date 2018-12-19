@@ -14,7 +14,6 @@ const createLogger = ({ format, ...options }) => {
   const transports = [
     new winston.transports.Console({
       format,
-      // silent: isTesting,
     }),
   ]
   const logger = winston.createLogger({
@@ -25,23 +24,26 @@ const createLogger = ({ format, ...options }) => {
   return logger
 }
 
-const defaultLogger = isStructuredLoggingEnabled
-  ? createLogger({
-      format: winston.format.combine(
-        winston.format.timestamp(),
-        winston.format.splat(),
-        hellomdFormatter(),
-      ),
-    })
-  : createLogger({
-      format: winston.format.combine(
-        winston.format.timestamp(),
-        winston.format.splat(),
-        winston.format.printf(
-          info => `${info.timestamp} ${info.level}: ${info.message}`,
+const createLoggerWithMetadata = metadata =>
+  isStructuredLoggingEnabled
+    ? createLogger({
+        format: winston.format.combine(
+          winston.format.timestamp(),
+          winston.format.splat(),
+          hellomdFormatter({ metadata }),
         ),
-      ),
-    })
+      })
+    : createLogger({
+        format: winston.format.combine(
+          winston.format.timestamp(),
+          winston.format.splat(),
+          winston.format.printf(
+            info => `${info.timestamp} ${info.level}: ${info.message}`,
+          ),
+        ),
+      })
+
+const defaultLogger = createLoggerWithMetadata()
 
 const decorateMessage = (msg, ctx, options) => {
   return options.showRequestId ? `[${ctx.state.id}] ${msg}` : msg
@@ -132,6 +134,8 @@ const koaMiddleware = (options = {}) => async (ctx, next) => {
 
 module.exports = {
   createLogger,
+  createLoggerWithMetadata,
+  hellomdFormatter,
   isStructuredLoggingEnabled,
   koaMiddleware,
   logger: defaultLogger,

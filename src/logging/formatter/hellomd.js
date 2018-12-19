@@ -9,6 +9,7 @@ module.exports = format((info, options) => {
   const obj = {
     environment: process.env.ENV,
     project: process.env.PROJECT_NAME || process.env.APP_NAME,
+    resource: process.env.PROJECT_RESOURCE || 'app',
     commit: process.env.COMMIT_SHA1,
     ...info,
     koa: koaCtx && {
