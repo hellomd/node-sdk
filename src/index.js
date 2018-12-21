@@ -8,6 +8,7 @@ const authn = require('./authn')
 const authz = require('./authz')
 const { axios, axiosMock } = require('./axios')
 const filters = require('./filters')
+const jobs = require('./jobs')
 const koa = require('./koa')
 const logger = require('./logger')
 const logging = require('./logging')
@@ -33,6 +34,7 @@ module.exports = {
   axios,
   axiosMock,
   filters,
+  jobs,
   koa,
   logger,
   logging,
