@@ -10,28 +10,51 @@ module.exports = () =>
     format.timestamp(),
     format.splat(),
     format.colorize(),
-    format.printf(({ timestamp, level, message, meta, ...info }) => {
+    format.printf(({ timestamp, level, message, splat, ...info }) => {
       const msg = `${timestamp} ${level}: ${message}`
-      if (!meta) return msg
 
-      if (meta.error && meta.error.message && meta.error.stack) {
-        const { error } = meta
-        delete meta.error
+      if (!info) return msg
 
-        return `${msg}\n${error.stack}\n${jsonStringify(meta, jsonReplacer, 2)}`
+      if (info.error && info.error.message && info.error.stack) {
+        const { error } = info
+        delete info.error
+
+        const infoObj = jsonStringify(info, jsonReplacer, 2)
+
+        if (infoObj !== '{}') {
+          return `${msg}\n${error.stack}\n${jsonStringify(
+            info,
+            jsonReplacer,
+            2,
+          )}`
+        } else {
+          return `${msg}\n${error.stack}`
+        }
       }
 
-      if (meta.warning && meta.warning.message && meta.warning.stack) {
-        const { warning } = meta
-        delete meta.warning
+      if (info.warning && info.warning.message && info.warning.stack) {
+        const { warning } = info
+        delete info.warning
 
-        return `${msg}\n${warning.stack}\n${jsonStringify(
-          meta,
-          jsonReplacer,
-          2,
-        )}`
+        const infoObj = jsonStringify(info, jsonReplacer, 2)
+
+        if (infoObj !== '{}') {
+          return `${msg}\n${warning.stack}\n${jsonStringify(
+            info,
+            jsonReplacer,
+            2,
+          )}`
+        } else {
+          return `${msg}\n${warning.stack}`
+        }
       }
 
-      return `${msg}\n${jsonStringify(meta, jsonReplacer, 2)}`
+      const infoObj = jsonStringify(info, jsonReplacer, 2)
+
+      if (infoObj !== '{}') {
+        return `${msg}\n${jsonStringify(info, jsonReplacer, 2)}`
+      } else {
+        return `${msg}`
+      }
     }),
   )
