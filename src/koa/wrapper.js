@@ -85,7 +85,7 @@ const wrapper = cb => {
   })
 
   process.on('warning', warning => {
-    logger.warn(warning)
+    logger.warn(warning.message, { warning })
   })
 
   if (!shouldUseSentry) {

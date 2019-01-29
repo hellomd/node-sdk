@@ -14,6 +14,24 @@ module.exports = () =>
       const msg = `${timestamp} ${level}: ${message}`
       if (!meta) return msg
 
+      if (meta.error && meta.error.message && meta.error.stack) {
+        const { error } = meta
+        delete meta.error
+
+        return `${msg}\n${error.stack}\n${jsonStringify(meta, jsonReplacer, 2)}`
+      }
+
+      if (meta.warning && meta.warning.message && meta.warning.stack) {
+        const { warning } = meta
+        delete meta.warning
+
+        return `${msg}\n${warning.stack}\n${jsonStringify(
+          meta,
+          jsonReplacer,
+          2,
+        )}`
+      }
+
       return `${msg}\n${jsonStringify(meta, jsonReplacer, 2)}`
     }),
   )
