@@ -17,7 +17,7 @@ function setup({ app, collections }) {
     const rabbit = await amqp.connect(AMQP_URL)
     const channel = await rabbit.createChannel()
     const mongoOpts = { useNewUrlParser: true }
-    const mongo = await MongoClient.connect(
+    const dbConn = await MongoClient.connect(
       MONGO_URL,
       mongoOpts,
     )
@@ -28,11 +28,11 @@ function setup({ app, collections }) {
     global.auth = authn(authUserId)
     global.rabbit = rabbit
     global.channel = channel
-    global.mongo = mongo
+    global.dbConn = dbConn
     global.testQueue = testQueue
     global.testMailerQueue = testMailerQueue
-    global.db = mapCollections(mongo, collections)
-    global.app = app({ channel, db: mongo }).callback()
+    global.db = mapCollections(dbConn, collections)
+    global.app = app({ channel, dbConn }).callback()
     global.request = request(global.app)
     global.onPermit = (method, resource) =>
       authz.onPermit(authUserId, method, resource)
@@ -49,7 +49,7 @@ function setup({ app, collections }) {
   })
 
   afterAll(async () => {
-    await global.mongo.close()
+    await global.dbConn.close()
     await global.rabbit.close()
   })
 
