@@ -6,7 +6,7 @@ const { MongoClient, ObjectId } = require('mongodb')
 
 const { createTestQueue, createTestMailerQueue } = require('../amqp')
 const authz = require('../authz')
-const axiosMock = require('../axiosMock')
+const { axiosMock } = require('../axios')
 const { mapCollections } = require('../mongo')
 const { authn } = require('../testHelpers')
 
