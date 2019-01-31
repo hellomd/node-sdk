@@ -4,13 +4,11 @@ const amqp = require('amqplib')
 const request = require('supertest')
 const { MongoClient, ObjectId } = require('mongodb')
 
-const {
-  amqp: { createTestQueue, createTestMailerQueue },
-  authz,
-  axiosMock,
-  mongo: { mapCollections },
-  testHelpers: { authn },
-} = require('../index')
+const { createTestQueue, createTestMailerQueue } = require('../amqp')
+const authz = require('../authz')
+const axiosMock = require('../axiosMock')
+const { mapCollections } = require('../mongo')
+const { authn } = require('../testHelpers')
 
 const { AMQP_URL, MONGO_URL } = process.env
 
