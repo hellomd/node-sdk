@@ -14,6 +14,12 @@ module.exports = format(({ meta, ...info }, options) => {
     resource: process.env.PROJECT_RESOURCE || 'app',
     commit: process.env.COMMIT_SHA1,
     ...info,
+    user: koaCtx &&
+      koaCtx.state &&
+      koaCtx.state.user && {
+        id: koaCtx.state.user.id,
+        email: koaCtx.state.user.email,
+      },
     koa: koaCtx && {
       ...(info && info.koa),
       access: {
