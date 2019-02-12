@@ -10,22 +10,23 @@ module.exports = async ({ ctx = {}, channel, handler, queue }) => {
   const consumer = {}
 
   const { consumerTag } = await channel.consume(queue, async msg => {
+    if (ctx && !ctx.logger) {
+      ctx.logger = createLoggerWithMetadata({
+        kind: key,
+        resource: 'queue',
+      })
+    }
+
     try {
       const {
         fields: { routingKey: key },
         content,
       } = msg
 
-      if (ctx && !ctx.logger) {
-        ctx.logger = createLoggerWithMetadata({
-          kind: key,
-          resource: 'queue',
-        })
-      }
-
       await handler.bind(consumer)({ ctx, key, content: parseJson(content) })
       channel.ack(msg)
-    } catch (err) {
+    } catch (error) {
+      ctx.logger.error('Error while calling queue event handler', { error })
       channel.reject(msg, false)
     }
   })
