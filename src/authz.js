@@ -1,4 +1,5 @@
 const { axios, axiosMock } = require('./axios')
+const { TOKEN_KIND } = require('./authn')
 
 const baseUrl = process.env.AUTHORIZATION_URL || 'http://authorization'
 const maxRetries = 3
@@ -34,13 +35,10 @@ const api = {
           throw errors.forbidden
         }
         if (i == 3) {
-          console.error(
-            'Error while retrieving permissions',
-            {
-              error: err,
-              url: `${baseUrl}/users/${userId}/permissions/${method}/${resource}`,
-            }
-          )
+          console.error('Error while retrieving permissions', {
+            error: err,
+            url: `${baseUrl}/users/${userId}/permissions/${method}/${resource}`,
+          })
           throw errors.permitUnavailable
         }
       }
@@ -100,10 +98,17 @@ const mocks = {
 const koa = {
   permit: async (ctx, method, resource) => {
     try {
-      const { id, isService = false } = ctx.state.user
-      if (isService) {
+      const { isService = false, kind } = ctx.state.user
+      if (isService || kind === TOKEN_KIND.SERVICE) {
         return
       }
+
+      let { id } = ctx.state.user
+
+      if (kind === TOKEN_KIND.ANONYMOUS_USER) {
+        id = `anonymous:${id}`
+      }
+
       await api.permit(id, method, resource)
     } catch (err) {
       if (err === errors.forbidden) {
