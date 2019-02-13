@@ -1,6 +1,8 @@
 const { axios, axiosMock } = require('./axios')
 const { TOKEN_KIND } = require('./authn')
 
+const { logger: defaultLogger } = require('./logging')
+
 const baseUrl = process.env.AUTHORIZATION_URL || 'http://authorization'
 const maxRetries = 3
 
@@ -23,7 +25,7 @@ const api = {
    * @apiDefine AuthError
    * @apiError 403 Forbidden
    */
-  permit: async (userId, method, resource) => {
+  permit: async (userId, method, resource, logger = defaultLogger) => {
     for (let i = 0; i <= maxRetries; i++) {
       try {
         await axios.head(
@@ -35,7 +37,7 @@ const api = {
           throw errors.forbidden
         }
         if (i == 3) {
-          console.error('Error while retrieving permissions', {
+          logger.error('Error while retrieving permissions', {
             error: err,
             url: `${baseUrl}/users/${userId}/permissions/${method}/${resource}`,
           })
@@ -109,7 +111,7 @@ const koa = {
         id = `anonymous:${id}`
       }
 
-      await api.permit(id, method, resource)
+      await api.permit(id, method, resource, ctx.logger)
     } catch (err) {
       if (err === errors.forbidden) {
         ctx.throw(403, errors.forbidden)
