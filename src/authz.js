@@ -109,11 +109,12 @@ const koa = {
   permit: async (ctx, method, resource) => {
     try {
       const { id, isService = false, kind } = ctx.state.user
+
       if (isService || kind === TOKEN_KIND.SERVICE) {
         return
       }
 
-      const refKind = kind === TOKEN_KIND.ANONYMOUS_USER ? 'anonymous' : 'user'
+      const refKind = kind
 
       await api.permit(id, method, resource, refKind, ctx.logger)
     } catch (err) {

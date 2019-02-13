@@ -2,8 +2,8 @@ const { promisify } = require('util')
 const { sign } = require('jsonwebtoken')
 
 const TOKEN_KIND = {
-  ANONYMOUS_USER: 'anonymous_user',
-  LOGGED_USER: 'logged_user',
+  ANONYMOUS: 'anonymous',
+  USER: 'user',
   SERVICE: 'service',
 }
 
@@ -25,7 +25,7 @@ const getToken = (
 ) => {
   if (isService && process.env.ENV === 'test') return 'serviceToken'
 
-  const kind = isService ? TOKEN_KIND.SERVICE : TOKEN_KIND.LOGGED_USER
+  const kind = isService ? TOKEN_KIND.SERVICE : TOKEN_KIND.USER
   const exp = Math.round(expireDate(expiresIn).getTime() / 1000)
   const data = id
     ? {
@@ -43,7 +43,7 @@ const getAnonymousToken = id => {
   return jwtToken(
     {
       id,
-      kind: TOKEN_KIND.ANONYMOUS_USER,
+      kind: TOKEN_KIND.ANONYMOUS,
     },
     process.env.SECRET,
   )
