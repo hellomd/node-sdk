@@ -25,12 +25,18 @@ const api = {
    * @apiDefine AuthError
    * @apiError 403 Forbidden
    */
-  permit: async (userId, method, resource, logger = defaultLogger) => {
+  permit: async (
+    refId,
+    method,
+    resource,
+    refKind = 'user',
+    logger = defaultLogger,
+  ) => {
     for (let i = 0; i <= maxRetries; i++) {
+      const url = `${baseUrl}/${refKind}:${refId}/permissions/${method}/${resource}`
+
       try {
-        await axios.head(
-          `${baseUrl}/users/${userId}/permissions/${method}/${resource}`,
-        )
+        await axios.head(url)
         return true
       } catch (err) {
         if (err.response && err.response.status == 403) {
@@ -39,7 +45,7 @@ const api = {
         if (i == 3) {
           logger.error('Error while retrieving permissions', {
             error: err,
-            url: `${baseUrl}/users/${userId}/permissions/${method}/${resource}`,
+            url,
           })
           throw errors.permitUnavailable
         }
@@ -47,13 +53,13 @@ const api = {
     }
   },
 
-  attachRole: async (user, role, token) => {
+  attachRole: async (refId, role, token, refKind = 'user') => {
     const headers = buildServiceTokenHeaders(token)
     for (let i = 0; i <= maxRetries; i++) {
       try {
         await axios({
           method: 'put',
-          url: `${baseUrl}/users/${user}/roles/${role}`,
+          url: `${baseUrl}/${refKind}:${refId}/roles/${role}`,
           ...headers,
         })
         break
@@ -65,13 +71,13 @@ const api = {
     }
   },
 
-  detachRole: async (user, role, token) => {
+  detachRole: async (refId, role, token, refKind = 'user') => {
     const headers = buildServiceTokenHeaders(token)
     for (let i = 0; i <= maxRetries; i++) {
       try {
         await axios({
           method: 'delete',
-          url: `${baseUrl}/users/${user}/roles/${role}`,
+          url: `${baseUrl}/${refKind}:${refId}/roles/${role}`,
           ...headers,
         })
         break
@@ -85,33 +91,31 @@ const api = {
 }
 
 const mocks = {
-  onPermit: (userId, method, resource) =>
+  onPermit: (refId, method, resource, refKind = 'user') =>
     axiosMock.onHead(
-      `${baseUrl}/users/${userId}/permissions/${method}/${resource}`,
+      `${baseUrl}/${refKind}:${refId}/permissions/${method}/${resource}`,
     ),
 
-  onAttachRole: (userId, role) =>
-    axiosMock.onPut(new RegExp(`${baseUrl}\/users\/${userId}\/roles/${role}`)),
+  onAttachRole: (refId, role, refKind = 'user') =>
+    axiosMock.onPut(
+      new RegExp(`${baseUrl}\/${refKind}:${refId}\/roles/${role}`),
+    ),
 
-  onDetachRole: (userId, role) =>
-    axiosMock.onDelete(`${baseUrl}/users/${userId}/roles/${role}`),
+  onDetachRole: (refId, role, refKind = 'user') =>
+    axiosMock.onDelete(`${baseUrl}/${refKind}:${refId}/roles/${role}`),
 }
 
 const koa = {
   permit: async (ctx, method, resource) => {
     try {
-      const { isService = false, kind } = ctx.state.user
+      const { id, isService = false, kind } = ctx.state.user
       if (isService || kind === TOKEN_KIND.SERVICE) {
         return
       }
 
-      let { id } = ctx.state.user
+      const refKind = kind === TOKEN_KIND.ANONYMOUS_USER ? 'anonymous' : 'user'
 
-      if (kind === TOKEN_KIND.ANONYMOUS_USER) {
-        id = `anonymous:${id}`
-      }
-
-      await api.permit(id, method, resource, ctx.logger)
+      await api.permit(id, method, resource, refKind, ctx.logger)
     } catch (err) {
       if (err === errors.forbidden) {
         ctx.throw(403, errors.forbidden)
@@ -120,19 +124,19 @@ const koa = {
     }
   },
 
-  attachRole: async (ctx, user, role) => {
+  attachRole: async (ctx, refId, role, refKind = 'user') => {
     try {
       const token = ctx.state.serviceToken
-      await api.attachRole(user, role, token)
+      await api.attachRole(refId, role, token, refKind)
     } catch (err) {
       ctx.throw(500, err)
     }
   },
 
-  detachRole: async (ctx, user, role) => {
+  detachRole: async (ctx, refId, role, refKind = 'user') => {
     try {
       const token = ctx.state.serviceToken
-      await api.detachRole(user, role, token)
+      await api.detachRole(refId, role, token, refKind)
     } catch (err) {
       ctx.throw(500, err)
     }
