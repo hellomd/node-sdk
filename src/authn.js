@@ -1,5 +1,5 @@
 const { promisify } = require('util')
-const { sign } = require('jsonwebtoken')
+const { sign, verify } = require('jsonwebtoken')
 
 const TOKEN_KIND = {
   ANONYMOUS: 'anonymous',
@@ -15,6 +15,13 @@ const expireDate = days => {
   date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000)
   return date
 }
+
+const verifyToken = token =>
+  new Promise((resolve, reject) => {
+    verify(token, process.env.SECRET, (error, decoded) => {
+      error ? reject(error) : resolve(decoded)
+    })
+  })
 
 const getToken = (
   id,
@@ -60,4 +67,5 @@ module.exports = {
   getAnonymousToken,
   serviceTokenMiddleware,
   TOKEN_KIND,
+  verifyToken,
 }
