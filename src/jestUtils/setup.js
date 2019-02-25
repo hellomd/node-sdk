@@ -47,7 +47,7 @@ if (process.env.ENV === 'test') {
       await global.hmd.testQueue.purge()
       await global.hmd.testMailerQueue.purge()
 
-      const keys = Object.keys(global.db)
+      const keys = Object.keys(global.hmd.db)
       for (let i = 0; i < keys.length; i++) {
         await global.hmd.db[keys[i]].deleteMany({})
       }
