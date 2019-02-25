@@ -22,33 +22,40 @@ if (process.env.ENV === 'test') {
       const testQueue = await createTestQueue(channel)
       const testMailerQueue = await createTestMailerQueue(channel)
       const authUserId = ObjectId().toString()
-      global.authn = authn
-      global.auth = authn(authUserId)
-      global.rabbit = rabbit
-      global.channel = channel
-      global.dbConn = dbConn
-      global.testQueue = testQueue
-      global.testMailerQueue = testMailerQueue
-      global.db = mapCollections(dbConn, collections)
-      global.app = app({ channel, dbConn }).callback()
-      global.request = request(global.app)
-      global.onPermit = (method, resource) =>
-        authz.onPermit(authUserId, method, resource)
+
+      const appCallback = app({ channel, dbConn }).callback()
+
+      global.hmd = {
+        authn,
+        authz,
+        auth: authn(authUserId),
+        authUserId,
+        rabbit,
+        channel,
+        dbConn,
+        testQueue,
+        testMailerQueue,
+        db: mapCollections(dbConn, collections),
+        app: appCallback,
+        request: request(appCallback),
+        onPermit: (method, resource) =>
+          authz.onPermit(authUserId, method, resource),
+      }
     })
 
     afterEach(async () => {
-      await global.testQueue.purge()
-      await global.testMailerQueue.purge()
+      await global.hmd.testQueue.purge()
+      await global.hmd.testMailerQueue.purge()
 
       const keys = Object.keys(global.db)
       for (let i = 0; i < keys.length; i++) {
-        await global.db[keys[i]].deleteMany({})
+        await global.hmd.db[keys[i]].deleteMany({})
       }
     })
 
     afterAll(async () => {
-      await global.dbConn.close()
-      await global.rabbit.close()
+      await global.hmd.dbConn.close()
+      await global.hmd.rabbit.close()
     })
 
     beforeEach(() => {
