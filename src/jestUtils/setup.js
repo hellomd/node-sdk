@@ -27,37 +27,35 @@ if (isJestRunning) {
 
       const appCallback = app({ channel, dbConn }).callback()
 
-      global.hmd = {
-        authn,
-        authz,
-        auth: authn(authUserId),
-        authUserId,
-        rabbit,
-        channel,
-        dbConn,
-        testQueue,
-        testMailerQueue,
-        db: mapCollections(dbConn, collections),
-        app: appCallback,
-        request: request(appCallback),
-        onPermit: (method, resource) =>
-          authz.onPermit(authUserId, method, resource),
-      }
+      global.authn = authn
+      global.authz = authz
+      global.auth = authn(authUserId)
+      global.authUserId = authUserId
+      global.rabbit = rabbit
+      global.channel = channel
+      global.dbConn = dbConn
+      global.testQueue = testQueue
+      global.testMailerQueue = testMailerQueue
+      global.db = mapCollections(dbConn, collections)
+      global.app = appCallback
+      global.request = request(appCallback)
+      global.onPermit = (method, resource) =>
+        authz.onPermit(authUserId, method, resource)
     })
 
     afterEach(async () => {
-      await global.hmd.testQueue.purge()
-      await global.hmd.testMailerQueue.purge()
+      await global.testQueue.purge()
+      await global.testMailerQueue.purge()
 
-      const keys = Object.keys(global.hmd.db)
+      const keys = Object.keys(global.db)
       for (let i = 0; i < keys.length; i++) {
-        await global.hmd.db[keys[i]].deleteMany({})
+        await global.db[keys[i]].deleteMany({})
       }
     })
 
     afterAll(async () => {
-      await global.hmd.dbConn.close()
-      await global.hmd.rabbit.close()
+      await global.dbConn.close()
+      await global.rabbit.close()
     })
 
     beforeEach(() => {
