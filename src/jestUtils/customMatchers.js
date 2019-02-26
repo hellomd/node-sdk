@@ -21,7 +21,7 @@ if (isJestRunning) {
       const isString = typeof received === 'string'
       const pieces = isString ? received.split(':') : []
 
-      const isValid = pieces.length === 2 && Object.isValid(pieces[1])
+      const isValid = pieces.length === 2 && ObjectId.isValid(pieces[1])
 
       if (
         typeof resourceKind === 'undefined' &&
