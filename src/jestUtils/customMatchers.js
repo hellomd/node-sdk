@@ -16,7 +16,7 @@ if (isJestRunning) {
       }
     },
 
-    toBeIsoString(received) {
+    toBeISOString(received) {
       const pass = moment(received, 'YYYY-MM-DDTHH:mm:ss.SSSZ', true).isValid()
       return {
         message: () =>
