@@ -23,7 +23,7 @@ if (isJestRunning) {
       const dbConn = await MongoClient.connect(MONGO_URL, mongoOpts)
       const testQueue = await createTestQueue(channel)
       const testMailerQueue = await createTestMailerQueue(channel)
-      const authUserId = ObjectId().toString()
+      const authUserId = '5c754ba9b78dbd0036a766c1'
 
       const appCallback = app({ channel, dbConn }).callback()
 
