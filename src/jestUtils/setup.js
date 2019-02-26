@@ -1,5 +1,9 @@
-if (process.env.ENV === 'test') {
+const isJestRunning = require('./isJestRunning')
+
+if (isJestRunning) {
   const path = require('path')
+
+  require('jest-extended')
 
   const amqp = require('amqplib')
   const request = require('supertest')
