@@ -9,13 +9,11 @@ const {
 
 const shouldUseSentry = !!process.env.SENTRY_DSN
 
-async function errorListener(error, ctx) {
+function logRequestWithError(error, ctx) {
   const logger = ctx.logger || defaultLogger
 
   const diffTime = process.hrtime(ctx.requestTimeStart)
   const duration = diffTime[0] * 1000 + diffTime[1] / 1000000
-
-  error.status = error.status || 500
 
   if (isStructuredLoggingEnabled) {
     const fields = {
@@ -44,6 +42,10 @@ async function errorListener(error, ctx) {
 
     shouldLogHttpError && logger.error(errorMsg)
   }
+}
+
+async function errorListener(error, ctx) {
+  const logger = ctx.logger || defaultLogger
 
   if (!error.status || error.status > 499) {
     const user =
@@ -97,6 +99,9 @@ const errorMiddleware = () => async (ctx, next) => {
   try {
     await next()
   } catch (error) {
+    error.status = error.status || 500
+    logRequestWithError(error, ctx)
+
     switch (error.status) {
       // validation error
       case 422:
@@ -107,7 +112,7 @@ const errorMiddleware = () => async (ctx, next) => {
         // we are always exposing the error message to the client
         //  probably not great
         ctx.body = error.message
-        ctx.status = error.status || 500
+        ctx.status = error.status
         ctx.app.emit('error', error, ctx)
     }
   }
