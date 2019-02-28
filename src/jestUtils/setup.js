@@ -25,8 +25,6 @@ if (isJestRunning) {
       const testMailerQueue = await createTestMailerQueue(channel)
       const authUserId = '5c754ba9b78dbd0036a766c1'
 
-      const appCallback = app({ channel, dbConn }).callback()
-
       global.authn = authn
       global.authz = authz
       global.auth = authn(authUserId)
@@ -37,10 +35,12 @@ if (isJestRunning) {
       global.testQueue = testQueue
       global.testMailerQueue = testMailerQueue
       global.db = mapCollections(dbConn, collections)
-      global.app = appCallback
-      global.request = request(appCallback)
       global.onPermit = (method, resource) =>
         authz.onPermit(authUserId, method, resource)
+
+      const appCallback = app({ channel, dbConn }).callback()
+      global.app = appCallback
+      global.request = request(appCallback)
     })
 
     afterEach(async () => {
