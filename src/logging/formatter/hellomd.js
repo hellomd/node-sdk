@@ -6,7 +6,7 @@ const { jsonReplacer } = require('./utils')
 
 // based on https://github.com/winstonjs/logform/blob/d9d41c5/logstash.js
 module.exports = format(({ meta, ...info }, options) => {
-  const { koaCtx, metadata } = options
+  const { koaCtx, metadata, user } = options
 
   const obj = {
     environment: process.env.ENV,
@@ -14,12 +14,7 @@ module.exports = format(({ meta, ...info }, options) => {
     resource: process.env.PROJECT_RESOURCE || 'app',
     commit: process.env.COMMIT_SHA1,
     ...info,
-    user: koaCtx &&
-      koaCtx.state &&
-      koaCtx.state.user && {
-        id: koaCtx.state.user.id,
-        email: koaCtx.state.user.email,
-      },
+    user,
     koa: koaCtx && {
       ...(info && info.koa),
       access: {

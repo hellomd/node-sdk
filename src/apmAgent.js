@@ -1,6 +1,13 @@
 const apmNode = require('elastic-apm-node')
 
-const { logger } = require('./logging')
+const { createLoggerWithMetadata } = require('./logging')
+
+const apmLogger = createLoggerWithMetadata(
+  {},
+  {
+    level: process.env.ELASTIC_APM_LOG_LEVEL || 'error',
+  },
+)
 
 const shouldUseApm =
   !!process.env.ELASTIC_APM_ACTIVE && process.env.ELASTIC_APM_ACTIVE === 'true'
@@ -14,7 +21,7 @@ const apmAgent = apmNode.start({
   transactionSampleRate: 1,
   // metrics disabled, to reduce duplication, see https://github.com/elastic/apm-agent-nodejs/issues/835
   metricsInterval: 0,
-  logger,
+  logger: apmLogger,
   active: shouldUseApm,
 })
 

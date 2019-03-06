@@ -9,6 +9,8 @@ const { isTesting } = require('../isTesting')
 const devFormatter = require('./formatter/dev')
 const hellomdFormatter = require('./formatter/hellomd')
 
+const { getUserFromCtxOrHeaderIfAny } = require('./utils')
+
 const isStructuredLoggingEnabled =
   process.env.ENABLE_STRUCTURED_LOGGING === 'true'
 
@@ -26,9 +28,10 @@ const createLogger = ({ format, ...options }) => {
   return logger
 }
 
-const createLoggerWithMetadata = metadata =>
+const createLoggerWithMetadata = (metadata, options = {}) =>
   isStructuredLoggingEnabled
     ? createLogger({
+        ...options,
         format: winston.format.combine(
           winston.format.timestamp(),
           winston.format.splat(),
@@ -36,6 +39,7 @@ const createLoggerWithMetadata = metadata =>
         ),
       })
     : createLogger({
+        ...options,
         format: devFormatter(),
       })
 
@@ -49,12 +53,16 @@ const decorateMessage = (msg, ctx, options) => {
 //  https://github.com/koajs/bunyan-logger
 //  https://www.elastic.co/guide/en/beats/filebeat/current/exported-fields-nginx.html
 const structuredLoggingMiddleware = async (options, ctx, next) => {
+  // we need to log user, even if the auth middleware was not added
+  //  but the user still supplied the auth token
+  const user = await getUserFromCtxOrHeaderIfAny(ctx)
+
   // probably not the best idea, one logger per request
   const logger = createLogger({
     format: winston.format.combine(
       winston.format.timestamp(),
       winston.format.splat(),
-      hellomdFormatter({ koaCtx: ctx }),
+      hellomdFormatter({ koaCtx: ctx, user }),
     ),
   })
   ctx.logger = logger

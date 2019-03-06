@@ -111,7 +111,10 @@ const errorMiddleware = () => async (ctx, next) => {
       default:
         // we are always exposing the error message to the client
         //  probably not great
-        ctx.body = error.message
+        ctx.body =
+          error.status === 500 && process.env.ENV === 'production'
+            ? 'Internal Server Error'
+            : error.message
         ctx.status = error.status
         ctx.app.emit('error', error, ctx)
     }
