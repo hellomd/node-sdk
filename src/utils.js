@@ -38,6 +38,8 @@ const randomString = async (length = 10) =>
 
 const sample = arr => arr[randomInt(arr.length - 1)]
 
+const sleep = timeMs => new Promise(resolve => setTimeout(resolve, timeMs))
+
 const toArray = value => [].concat(typeof value === 'undefined' ? [] : value)
 
 module.exports = {
@@ -50,5 +52,6 @@ module.exports = {
   randomInt,
   randomString,
   sample,
+  sleep,
   toArray,
 }

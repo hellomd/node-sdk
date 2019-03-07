@@ -7,7 +7,9 @@ const parseJson = content => {
 }
 
 module.exports = async ({ ctx = {}, channel, handler, queue }) => {
-  const consumer = {}
+  const consumer = {
+    processingCount: 0,
+  }
 
   const { consumerTag } = await channel.consume(queue, async msg => {
     const {
@@ -22,6 +24,8 @@ module.exports = async ({ ctx = {}, channel, handler, queue }) => {
       })
     }
 
+    consumer.processingCount++
+
     try {
       await handler.bind(consumer)({ ctx, key, content: parseJson(content) })
       channel.ack(msg)
@@ -29,6 +33,8 @@ module.exports = async ({ ctx = {}, channel, handler, queue }) => {
       ctx.logger.error('Error while calling queue event handler', { error })
       channel.reject(msg, false)
     }
+
+    consumer.processingCount--
   })
 
   consumer.cancel = () => channel.cancel(consumerTag)
