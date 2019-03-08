@@ -49,9 +49,18 @@ const regExp = (ctx, queryKey, dbKey = queryKey, modifiers = 'i') =>
 const published = ctx =>
   eq(ctx, 'published', 'publishedAt', v => {
     if (convertStringToBoolean(v)) {
-      return { $ne: null }
+      return { $ne: null, $lte: new Date() }
     }
-    return null
+    return {
+      $or: [
+        {
+          $eq: null,
+        },
+        {
+          $gt: new Date(),
+        },
+      ],
+    }
   })
 
 module.exports = {

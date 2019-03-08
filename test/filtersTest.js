@@ -1,4 +1,6 @@
 const { expect } = require('chai')
+const sinon = require('sinon')
+
 const filters = require('../src/filters')
 
 describe('filters', () => {
@@ -291,16 +293,35 @@ describe('filters', () => {
   })
 
   describe('published', () => {
+    beforeEach(() => {
+      this.clock = sinon.useFakeTimers()
+    })
+
+    afterEach(() => {
+      this.clock.restore()
+    })
+
     it('returns true query', function() {
       const ctx = { query: { published: 'true' } }
       const query = filters.published(ctx)
-      expect(query).to.eql({ publishedAt: { $ne: null } })
+      expect(query).to.eql({ publishedAt: { $ne: null, $lte: new Date() } })
     })
 
     it('returns false query', function() {
       const ctx = { query: { published: 'false' } }
       const query = filters.published(ctx)
-      expect(query).to.eql({ publishedAt: null })
+      expect(query).to.eql({
+        publishedAt: {
+          $or: [
+            {
+              $eq: null,
+            },
+            {
+              $gt: new Date(),
+            },
+          ],
+        },
+      })
     })
 
     it('returns empty object when ctx.query has no published key', function() {
