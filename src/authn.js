@@ -38,14 +38,15 @@ const getToken = (
     ? {
         id,
         email,
+        appName,
         isService,
         exp,
         kind,
       }
     : { appName, isService, exp, kind }
+
   return jwtToken(data, process.env.SECRET)
 }
-
 const getAnonymousToken = id => {
   return jwtToken(
     {
@@ -56,6 +57,18 @@ const getAnonymousToken = id => {
   )
 }
 
+const getServiceToken = async (
+  id = '5c826a411b0ba36314096f53',
+  email = 'services@hellomd.com',
+) => getToken(id, email, 1, true)
+
+const ctxWithServiceToken = async ctx => ({
+  ...ctx,
+  state: {
+    serviceToken: await getServiceToken(),
+  },
+})
+
 const serviceTokenMiddleware = async (ctx, next) => {
   const { id = null, email = null } = ctx.state.user || {}
   ctx.state.serviceToken = await getToken(id, email, 1, true)
@@ -63,8 +76,10 @@ const serviceTokenMiddleware = async (ctx, next) => {
 }
 
 module.exports = {
+  ctxWithServiceToken,
   getToken,
   getAnonymousToken,
+  getServiceToken,
   serviceTokenMiddleware,
   TOKEN_KIND,
   verifyToken,

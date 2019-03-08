@@ -24,6 +24,8 @@ async function getUserFromCtxOrHeaderIfAny(ctx) {
     ctx.state.user && {
       id: ctx.state.user.id,
       email: ctx.state.user.email,
+      appName: ctx.state.user.appName,
+      kind: ctx.state.user.kind,
     }
 
   if (userAlreadyOnCtx) return userAlreadyOnCtx
@@ -37,6 +39,8 @@ async function getUserFromCtxOrHeaderIfAny(ctx) {
     return {
       id: obj.id,
       email: obj.email,
+      appName: obj.appName,
+      kind: obj.kind,
     }
   } catch (error) {
     return
