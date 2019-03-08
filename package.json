@@ -1,6 +1,6 @@
 {
   "name": "@hellomd/node-sdk",
-  "version": "0.25.26",
+  "version": "0.25.27",
   "main": "src/index.js",
   "repository": "https://github.com/hellomd/node-sdk",
   "author": "Marcello Milhomem Albuquerque <marcello.m.albuquerque@gmail.com>",
