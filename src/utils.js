@@ -42,6 +42,12 @@ const sleep = timeMs => new Promise(resolve => setTimeout(resolve, timeMs))
 
 const toArray = value => [].concat(typeof value === 'undefined' ? [] : value)
 
+const isProd = process.env.ENV === 'production'
+const isStaging = process.env.ENV === 'staging'
+const isDev =
+  process.env.ENV === 'development' || process.env.NODE_ENV === 'development'
+const isLocal = !process.env.ENV || process.env.ENV === 'local'
+
 module.exports = {
   nullify,
   nullOrDateString,
@@ -54,4 +60,8 @@ module.exports = {
   sample,
   sleep,
   toArray,
+  isProd,
+  isStaging,
+  isDev,
+  isLocal,
 }
