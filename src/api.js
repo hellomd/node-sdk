@@ -31,6 +31,7 @@ const buildEndpoint = ctx => def => {
     errors = {},
     debug = false,
     fetchOptions = {},
+    shouldReturnOriginalRequestError = false,
   } = def
 
   return async args => {
@@ -78,6 +79,11 @@ const buildEndpoint = ctx => def => {
             data: logObject && logObject.config && logObject.config.data,
           },
         })
+
+        if (shouldReturnOriginalRequestError) {
+          throw error
+        }
+
         const resCode = error.response ? error.response.status : 500
         if (resCode < 500 || i === maxRetries) {
           const customError = errors[resCode.toString()]
@@ -106,15 +112,21 @@ const buildEndpoint = ctx => def => {
   }
 }
 
-const buildKoaApi = def => ctx =>
+const buildKoaApi = (def, globalOptions = {}) => ctx =>
   Object.entries(def).reduce(
-    (prev, [k, v]) => ({ ...prev, [k]: buildKoaEndpoint(ctx)(v) }),
+    (prev, [k, v]) => ({
+      ...prev,
+      [k]: buildKoaEndpoint(ctx)({ ...globalOptions, ...v }),
+    }),
     {},
   )
 
-const buildApi = def => ctx =>
+const buildApi = (def, globalOptions = {}) => ctx =>
   Object.entries(def).reduce(
-    (prev, [k, v]) => ({ ...prev, [k]: buildEndpoint(ctx)(v) }),
+    (prev, [k, v]) => ({
+      ...prev,
+      [k]: buildEndpoint(ctx)({ ...globalOptions, ...v }),
+    }),
     {},
   )
 

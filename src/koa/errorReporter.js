@@ -105,7 +105,7 @@ const errorMiddleware = () => async (ctx, next) => {
     switch (error.status) {
       // validation error
       case 422:
-        ctx.body = error.errors
+        ctx.body = error.errors || error.message
         ctx.status = 422
         break
       default:
