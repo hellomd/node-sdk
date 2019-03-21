@@ -144,6 +144,22 @@ describe('api', () => {
       )
     })
 
+    it('returns default error when configured to do so', async function() {
+      const definition = {
+        get: { url: '/users' },
+      }
+      const api = buildApi(definition, {
+        shouldReturnOriginalRequestError: true,
+      })(ctx)
+      const apiMock = mockApi(ctx)(definition)
+
+      apiMock.get().reply(500)
+
+      return expect(api.get())
+        .to.eventually.be.rejectedWith('Request failed with status code 500')
+        .and.have.property('response')
+    })
+
     it('data as object', async function() {
       const definition = { post: { url: '/users', data: { name: 'John' } } }
       const api = buildApi(definition)(ctx)
@@ -172,11 +188,10 @@ describe('api', () => {
 
       apiMock
         .get()
-        .reply(
-          ({ headers }) =>
-            headers.Authorization === `bearer ${ctx.state.serviceToken}`
-              ? [200]
-              : [404],
+        .reply(({ headers }) =>
+          headers.Authorization === `bearer ${ctx.state.serviceToken}`
+            ? [200]
+            : [404],
         )
 
       return expect(api.get()).to.eventually.be.fulfilled
@@ -192,9 +207,8 @@ describe('api', () => {
 
       apiMock
         .get()
-        .reply(
-          ({ headers }) =>
-            headers['Content-Type'] === 'image/png' ? [200] : [404],
+        .reply(({ headers }) =>
+          headers['Content-Type'] === 'image/png' ? [200] : [404],
         )
 
       return expect(api.get()).to.eventually.be.fulfilled
@@ -212,15 +226,30 @@ describe('api', () => {
 
       apiMock
         .get()
-        .reply(
-          ({ headers }) =>
-            headers['X-Custom-A'] === 'Custom A' &&
-            headers['X-Custom-B'] === 'Custom B'
-              ? [200]
-              : [404],
+        .reply(({ headers }) =>
+          headers['X-Custom-A'] === 'Custom A' &&
+          headers['X-Custom-B'] === 'Custom B'
+            ? [200]
+            : [404],
         )
 
       return expect(api.get()).to.eventually.be.fulfilled
+    })
+
+    it('uses endpoint definition option instead of global passed one', async function() {
+      const definition = {
+        get: { url: '/users', shouldReturnOriginalRequestError: false },
+      }
+      const api = buildApi(definition, {
+        shouldReturnOriginalRequestError: true,
+      })(ctx)
+      const apiMock = mockApi(ctx)(definition)
+
+      apiMock.get().reply(500)
+
+      return expect(api.get())
+        .to.eventually.be.rejectedWith('Request failed with status code 500')
+        .and.to.not.have.property('response')
     })
   })
 })
