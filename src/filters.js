@@ -46,22 +46,30 @@ const regExp = (ctx, queryKey, dbKey = queryKey, modifiers = 'i') =>
  * @apiDefine PublishedFilter
  * @apiParam {Boolean} [published] Published filter e.g. /?published=true
  */
-const published = ctx =>
-  eq(ctx, 'published', 'publishedAt', v => {
-    if (convertStringToBoolean(v)) {
-      return { $ne: null, $lte: new Date() }
-    }
-    return {
-      $or: [
-        {
-          $eq: null,
-        },
-        {
+const published = (ctx, queryKey = 'published', dbKey = 'publishedAt') => {
+  const value = ctx.query[queryKey]
+
+  if (typeof value === 'undefined') {
+    return {}
+  }
+
+  if (convertStringToBoolean(value)) {
+    return { [dbKey]: { $ne: null, $lte: new Date() } }
+  }
+
+  return {
+    $or: [
+      {
+        [dbKey]: null,
+      },
+      {
+        [dbKey]: {
           $gt: new Date(),
         },
-      ],
-    }
-  })
+      },
+    ],
+  }
+}
 
 module.exports = {
   eq,

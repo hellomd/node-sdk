@@ -311,16 +311,14 @@ describe('filters', () => {
       const ctx = { query: { published: 'false' } }
       const query = filters.published(ctx)
       expect(query).to.eql({
-        publishedAt: {
-          $or: [
-            {
-              $eq: null,
-            },
-            {
+        $or: [
+          { publishedAt: null },
+          {
+            publishedAt: {
               $gt: new Date(),
             },
-          ],
-        },
+          },
+        ],
       })
     })
 
