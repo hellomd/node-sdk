@@ -37,6 +37,12 @@ describe('plainValidate', () => {
       expect(result).to.be.undefined
     })
 
+    it('pass with value null', () => {
+      const constraints = { foo: { values: { type: 'number' } } }
+      const result = plainValidate({ foo: [null] }, constraints)
+      expect(result).to.be.undefined
+    })
+
     it('fails with object', () => {
       const constraints = { foo: { values: { bar: { presence: true } } } }
       const result = plainValidate({ foo: [{}] }, constraints)
