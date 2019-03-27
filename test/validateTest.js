@@ -154,4 +154,46 @@ describe('plainValidate', () => {
       expectError(result)
     })
   })
+
+  describe('validateOnlyIf', () => {
+    it('passes', () => {
+      const constraints = {
+        bar: {
+          presence: true,
+        },
+        foo: {
+          validateOnlyIf: {
+            condition: (value, options, key, attributes) =>
+              attributes.bar === 'yes',
+            constraints: {
+              type: 'number',
+              presence: { allowEmpty: false },
+            },
+          },
+        },
+      }
+      const result = plainValidate({ bar: 'yes', foo: 1 }, constraints)
+      expect(result).to.be.undefined
+    })
+
+    it('fails', () => {
+      const constraints = {
+        bar: {
+          presence: true,
+        },
+        foo: {
+          validateOnlyIf: {
+            condition: (value, options, key, attributes) =>
+              attributes.bar === 'yes',
+            constraints: {
+              type: 'number',
+              presence: { allowEmpty: false },
+            },
+          },
+        },
+      }
+      const result = plainValidate({ bar: 'yes' }, constraints)
+      expectError(result)
+    })
+  })
 })

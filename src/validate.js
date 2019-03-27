@@ -73,6 +73,26 @@ validate.validators.allowedOnlyIf = function(value, options, key, attributes) {
   }
 }
 
+validate.validators.validateOnlyIf = function(value, options, key, attributes) {
+  if (!options.condition || typeof options.condition !== 'function') {
+    throw new Error('You must pass the condition option')
+  }
+
+  if (!options.constraints) {
+    throw new Error('You must pass the constraints option')
+  }
+
+  if (options.condition(value, options, key, attributes)) {
+    const fn =
+      // if an object and not an array, use normal validate,
+      //  if anything else (including arrays), use single
+      typeof value === 'object' && !Array.isArray(value)
+        ? validate
+        : validate.single
+    return fn(value, options.constraints)
+  }
+}
+
 validate.validators.uuid = function(value) {
   if (!validate.isDefined(value)) return
 
