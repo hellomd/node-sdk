@@ -86,7 +86,7 @@ validate.validators.validateOnlyIf = function(value, options, key, attributes) {
     const fn =
       // if an object and not an array, use normal validate,
       //  if anything else (including arrays), use single
-      typeof value === 'object' && !Array.isArray(value)
+      typeof value === 'object' && !Array.isArray(value) && !!value
         ? validate
         : validate.single
     return fn(value, options.constraints)

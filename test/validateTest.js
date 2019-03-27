@@ -176,6 +176,25 @@ describe('plainValidate', () => {
       expect(result).to.be.undefined
     })
 
+    it('pass with value null', () => {
+      const constraints = {
+        bar: {
+          presence: true,
+        },
+        foo: {
+          validateOnlyIf: {
+            condition: (value, options, key, attributes) =>
+              attributes.bar === 'yes',
+            constraints: {
+              type: 'number',
+            },
+          },
+        },
+      }
+      const result = plainValidate({ bar: 'yes', foo: null }, constraints)
+      expect(result).to.be.undefined
+    })
+
     it('fails', () => {
       const constraints = {
         bar: {
