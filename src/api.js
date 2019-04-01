@@ -1,5 +1,6 @@
 const util = require('util')
 
+const { valueOrFunction } = require('./utils')
 const { logger } = require('./logging')
 
 const { axios } = require('./axios')
@@ -19,9 +20,6 @@ const buildKoaEndpoint = ctx => def => {
     }
   }
 }
-
-const valueOrFunction = (value, ctx, args) =>
-  typeof value === 'function' ? value(ctx, args) : value
 
 const buildEndpoint = ctx => def => {
   const {
