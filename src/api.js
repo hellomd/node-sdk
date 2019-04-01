@@ -36,7 +36,7 @@ const buildEndpoint = ctx => def => {
   } = def
 
   return async args => {
-    const [url, data] = ['url', 'data'].map(param =>
+    const [url, data, query] = ['url', 'data', 'query'].map(param =>
       valueOrFunction(def[param], ctx, args),
     )
     for (let i = 0; i <= maxRetries; i++) {
@@ -45,6 +45,7 @@ const buildEndpoint = ctx => def => {
           method,
           url,
           data,
+          query,
           headers: headers.reduce(
             (prev, curr) =>
               Object.assign(
@@ -79,6 +80,7 @@ const buildEndpoint = ctx => def => {
             method: logObject && logObject.config && logObject.config.method,
             url: logObject && logObject.config && logObject.config.url,
             data: logObject && logObject.config && logObject.config.data,
+            query: logObject && logObject.config && logObject.config.query,
           },
         })
 
