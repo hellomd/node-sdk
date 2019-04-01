@@ -20,6 +20,9 @@ const buildKoaEndpoint = ctx => def => {
   }
 }
 
+const valueOrFunction = (value, ctx, args) =>
+  typeof value === 'function' ? value(ctx, args) : value
+
 const buildEndpoint = ctx => def => {
   const {
     method = 'GET',
@@ -35,8 +38,8 @@ const buildEndpoint = ctx => def => {
   } = def
 
   return async args => {
-    const url = typeof urlFn === 'function' ? urlFn(ctx, args) : urlFn
-    const data = typeof dataFn === 'function' ? dataFn(ctx, args) : dataFn
+    const url = valueOrFunction(urlFn, ctx, args)
+    const data = valueOrFunction(dataFn, ctx, args)
     for (let i = 0; i <= maxRetries; i++) {
       try {
         const { data: results } = await axios({
