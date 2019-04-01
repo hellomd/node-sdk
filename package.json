@@ -6,8 +6,8 @@
   "author": "Marcello Milhomem Albuquerque <marcello.m.albuquerque@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "test": "mocha",
-    "test:watch": "mocha --watch",
+    "test": "ENV=test mocha",
+    "test:watch": "ENV=test mocha --watch",
     "patch": "npm version patch && npm publish --access public",
     "minor": "npm version minor && npm publish --access public",
     "major": "npm version major && npm publish --access public",
