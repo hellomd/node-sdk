@@ -6,8 +6,8 @@
   "author": "Marcello Milhomem Albuquerque <marcello.m.albuquerque@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "test": "ENV=test mocha",
-    "test:watch": "ENV=test mocha --watch",
+    "test": "cross-env ENV=test mocha",
+    "test:watch": "cross-env ENV=test mocha --watch",
     "patch": "npm version patch && npm publish --access public",
     "minor": "npm version minor && npm publish --access public",
     "major": "npm version major && npm publish --access public",
@@ -33,6 +33,7 @@
   "devDependencies": {
     "@team-griffin/install-self-peers": "^1.1.1",
     "chai": "^4.2.0",
+    "cross-env": "^5.2.0",
     "dotenv": "^7.0.0",
     "mocha": "^6.0.2",
     "sinon": "^7.3.0",
