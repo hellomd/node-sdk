@@ -48,6 +48,9 @@ const isDev =
   process.env.ENV === 'development' || process.env.NODE_ENV === 'development'
 const isLocal = !process.env.ENV || process.env.ENV === 'local'
 
+const valueOrFunction = (value, ctx, args) =>
+  typeof value === 'function' ? value(ctx, args) : value
+
 module.exports = {
   nullify,
   nullOrDateString,
@@ -64,4 +67,5 @@ module.exports = {
   isStaging,
   isDev,
   isLocal,
+  valueOrFunction,
 }

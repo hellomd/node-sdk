@@ -1,5 +1,6 @@
 const util = require('util')
 
+const { valueOrFunction } = require('./utils')
 const { logger } = require('./logging')
 
 const { axios } = require('./axios')
@@ -23,8 +24,6 @@ const buildKoaEndpoint = ctx => def => {
 const buildEndpoint = ctx => def => {
   const {
     method = 'GET',
-    url: urlFn,
-    data: dataFn,
     transform = x => x,
     headers = [serviceTokenHeader],
     maxRetries = 3,
@@ -35,14 +34,16 @@ const buildEndpoint = ctx => def => {
   } = def
 
   return async args => {
-    const url = typeof urlFn === 'function' ? urlFn(ctx, args) : urlFn
-    const data = typeof dataFn === 'function' ? dataFn(ctx, args) : dataFn
+    const [url, data, query] = ['url', 'data', 'query'].map(param =>
+      valueOrFunction(def[param], ctx, args),
+    )
     for (let i = 0; i <= maxRetries; i++) {
       try {
         const { data: results } = await axios({
           method,
           url,
           data,
+          query,
           headers: headers.reduce(
             (prev, curr) =>
               Object.assign(
@@ -77,6 +78,7 @@ const buildEndpoint = ctx => def => {
             method: logObject && logObject.config && logObject.config.method,
             url: logObject && logObject.config && logObject.config.url,
             data: logObject && logObject.config && logObject.config.data,
+            query: logObject && logObject.config && logObject.config.query,
           },
         })
 
