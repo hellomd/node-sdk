@@ -43,7 +43,7 @@ const buildEndpoint = ctx => def => {
           method,
           url,
           data,
-          query,
+          params: query,
           headers: headers.reduce(
             (prev, curr) =>
               Object.assign(
