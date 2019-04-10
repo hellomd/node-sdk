@@ -127,7 +127,7 @@ validate.extend(validate.validators.datetime, {
 })
 
 const koaValidate = async (ctx, data, constraints, transform = v => v) => {
-  const errors = validate(data, constraints)
+  const errors = validate(data, constraints, { ctx })
 
   if (errors) {
     ctx.throw(422, 'Unprocessable Entity', { errors: transform(errors) })
