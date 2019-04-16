@@ -1,8 +1,14 @@
+if (!process.env.ENV || process.env.ENV === 'local') {
+  require('dotenv').config()
+}
+
 const { MongoClient } = require('mongodb')
 
 const { mapCollections } = require('../mongo')
 
 const { createLoggerWithMetadata } = require('../logging')
+
+const sleep = timeMs => new Promise(resolve => setTimeout(resolve, timeMs))
 
 async function runJob(
   cb,
@@ -13,10 +19,6 @@ async function runJob(
     collections,
   } = {},
 ) {
-  if (!process.env.ENV || process.env.ENV === 'local') {
-    require('dotenv').config()
-  }
-
   let mongoConn = undefined
 
   if (shouldConnectToMongoDb) {
@@ -54,8 +56,11 @@ async function runJob(
     })
     process.exit(1)
   } finally {
-    !!mongoConn && (await mongoConn.close())
+    !!mongoConn && (await mongoConn.close(true))
   }
+
+  await sleep(5000)
+  process.kill(0)
 }
 
 module.exports = {
