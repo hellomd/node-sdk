@@ -62,6 +62,10 @@ async function errorListener(error, ctx) {
         {
           request: ctx.request,
           user,
+          tags: {
+            requestId: ctx.get('x-request-id'),
+            transactionId: ctx.get('x-transaction-id'),
+          },
         },
         (sentryError, eventId) => {
           if (sentryError) {
@@ -79,19 +83,29 @@ async function errorListener(error, ctx) {
 
     shouldUseApm &&
       ctx.apmAgent &&
-      ctx.apmAgent.captureError(error, { user }, (apmError, eventId) => {
-        if (apmError) {
-          logger.error('Error while reporting request error to APM', {
-            error: apmError,
-            originalError: error,
-            eventId,
-          })
-        } else {
-          logger.info('Reported request error to APM', {
-            eventId,
-          })
-        }
-      })
+      ctx.apmAgent.captureError(
+        error,
+        {
+          user,
+          tags: {
+            requestId: ctx.get('x-request-id'),
+            transactionId: ctx.get('x-transaction-id'),
+          },
+        },
+        (apmError, eventId) => {
+          if (apmError) {
+            logger.error('Error while reporting request error to APM', {
+              error: apmError,
+              originalError: error,
+              eventId,
+            })
+          } else {
+            logger.info('Reported request error to APM', {
+              eventId,
+            })
+          }
+        },
+      )
   }
 }
 
