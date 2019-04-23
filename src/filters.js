@@ -3,13 +3,13 @@ const { toArray } = require('./utils')
 const convertStringToBoolean = value =>
   typeof value === 'undefined' || ['0', 'false'].includes(value) ? false : true
 
+const convertStringToNull = value =>
+  typeof value === 'undefined' || value === 'null' ? null : value
+
 const eq = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
-  if (typeof ctx.query[queryKey] !== 'undefined') {
-    return {
-      [dbKey]: transform(ctx.query[queryKey]),
-    }
+  return {
+    [dbKey]: transform(convertStringToNull(ctx.query[queryKey])),
   }
-  return {}
 }
 
 const escapeRegexp = str => (str + '').replace(/[.?*+^$[\]\\(){}|-]/g, '\\$&')
