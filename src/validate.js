@@ -1,31 +1,117 @@
 const moment = require('moment')
 const validate = require('validate.js')
 const { ObjectId } = require('mongodb')
+const R = require('ramda')
+
+const defaultRefResourceIdValidator = {
+  objectId: { message: 'does not have a valid resource id' },
+}
 
 validate.validators.ref = function(value, options, key, attributes) {
   if (!validate.isDefined(value)) return
 
+  if (!validate.isString(value)) return 'must be a string'
+
+  options = validate.extend({}, this.options, options)
+
+  const {
+    resourceKindConstraint,
+    resourceIdConstraint = defaultRefResourceIdValidator,
+  } = options
+
   const parts = (value || '').split(':')
-  if (parts.length != 2 || parts[0].length < 1 || parts[1].length < 1) {
-    return 'is not a valid ref'
+  let [resourceKind, resourceId] = parts
+
+  resourceKind = resourceKind && resourceKind.trim()
+  resourceId = resourceId && resourceId.trim()
+
+  if (parts.length !== 2 || !resourceKind || !resourceId)
+    return (
+      options.notValidRef ||
+      this.notValidRef ||
+      options.message ||
+      this.message ||
+      'is not a valid ref'
+    )
+
+  if (resourceKindConstraint) {
+    const resourceKindValidationResult = validate(
+      { resourceKind },
+      {
+        resourceKind: resourceKindConstraint,
+      },
+    )
+    if (resourceKindValidationResult)
+      return resourceKindValidationResult.resourceKind
+  }
+
+  if (resourceIdConstraint) {
+    const resourceIdValidationResult = validate(
+      { resourceId },
+      { resourceId: resourceIdConstraint },
+    )
+    if (resourceIdValidationResult) return resourceIdValidationResult.resourceId
   }
 }
 
-validate.validators.values = function(values, options) {
-  if (!validate.isDefined(values) || !validate.isArray(values)) return
+validate.validators.values = function(
+  values,
+  options,
+  key,
+  attributes,
+  globalOptions,
+) {
+  if (!validate.isDefined(values)) return
 
-  const result = values.map(value => {
-    const fn =
-      // if an object and not an array, use normal validate,
-      //  if anything else (including arrays), use single
-      typeof value === 'object' && !Array.isArray(value) && !!value
-        ? validate
-        : validate.single
-    return fn(value, options) || []
-  })
-  return [].concat(...result)
+  if (!validate.isArray(values)) return 'must be an array'
+
+  options = validate.extend({}, this.options, options)
+
+  const { constraints, isArrayOfObjects } = options
+
+  // old version
+  if (!constraints) {
+    const result = values.map(value => {
+      const fn =
+        // if an object and not an array, use normal validate,
+        //  if anything else (including arrays), use single
+        typeof value === 'object' && !Array.isArray(value) && !!value
+          ? validate
+          : validate.single
+      return fn(value, options) || []
+    })
+    return [].concat(...result)
+  } else {
+    const result = values.map((value, idx) => {
+      if (isArrayOfObjects && (Array.isArray(value) || !value))
+        return ['element must be an object']
+
+      const fn = isArrayOfObjects ? validate : validate.single
+      return (
+        fn(
+          value,
+          typeof options.constraints === 'function'
+            ? options.constraints(
+                value,
+                idx,
+                values,
+                options,
+                key,
+                attributes,
+                globalOptions,
+              )
+            : options.constraints,
+        ) || []
+      )
+    })
+
+    const hasErrors = R.flatten(result || []).length > 0
+
+    return hasErrors ? [].concat(...result) : undefined
+  }
 }
 
+// Deprecated, do not use
 validate.validators.valuesFn = function(values, options) {
   if (!validate.isDefined(values) || !validate.isArray(values) || !options.fn)
     return
@@ -48,8 +134,14 @@ validate.validators.valuesFn = function(values, options) {
   return [].concat(...result)
 }
 
-validate.validators.type = function(value, type) {
+validate.validators.type = function(value, typeOrOptions) {
   if (!validate.isDefined(value)) return
+
+  let options =
+    typeof typeOrOptions === 'string' ? { type: typeOrOptions } : typeOrOptions
+  options = validate.extend({}, this.options, options)
+
+  const { type } = options
 
   const types = {
     array: validate.isArray,
@@ -59,21 +151,33 @@ validate.validators.type = function(value, type) {
     object: validate.isObject,
   }
 
-  if (types[type] && !types[type](value)) {
-    return `value must be of type ${type}`
+  if (!type || !types[type])
+    throw new Error(
+      `Invalid type option, must be one of ${Object.keys(types).join(', ')}`,
+    )
+
+  if (!types[type](value)) {
+    const errorMessage =
+      options.message || this.message || 'value must be of type %{type}'
+
+    return validate.format(errorMessage, { type })
   }
 }
 
 validate.validators.allowedOnlyIf = function(value, options, key, attributes) {
+  options = validate.extend({}, this.options, options)
+
   if (!options.condition || typeof options.condition !== 'function') {
     throw new Error('You must pass the condition option')
   }
   if (!!value && !options.condition(value, options, key, attributes)) {
-    return options.message || 'cannot be sent with given values'
+    return options.message || this.message || 'cannot be sent with given values'
   }
 }
 
 validate.validators.validateOnlyIf = function(value, options, key, attributes) {
+  options = validate.extend({}, this.options, options)
+
   if (!options.condition || typeof options.condition !== 'function') {
     throw new Error('You must pass the condition option')
   }
@@ -93,28 +197,37 @@ validate.validators.validateOnlyIf = function(value, options, key, attributes) {
   }
 }
 
-validate.validators.uuid = function(value) {
+validate.validators.uuid = function(value, options) {
+  options = validate.extend({}, this.options, options)
+
   if (!validate.isDefined(value)) return
 
   const regex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
   if (!regex.test(value)) {
-    return 'is not valid uuid'
+    return options.message || this.message || 'is not valid uuid'
   }
 }
 
 validate.validators.datetimeFormat = function(value, options) {
+  options = validate.extend({}, this.options, options)
   const isValid = moment(value, options.format, true).isValid()
 
   if (!isValid)
-    return `is not using an accepted format, it should follow ${options.format}`
+    return (
+      options.message ||
+      this.message ||
+      `is not using an accepted format, it should follow ${options.format}`
+    )
 }
 
-validate.validators.objectId = function(value) {
+validate.validators.objectId = function(value, options) {
   if (!validate.isDefined(value)) return
+
+  options = validate.extend({}, this.options, options)
 
   const isValid = ObjectId.isValid(value)
 
-  if (!isValid) return 'is not a valid id'
+  if (!isValid) return options.message || this.message || 'is not a valid id'
 }
 
 validate.extend(validate.validators.datetime, {
