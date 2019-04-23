@@ -11,10 +11,22 @@ describe('filters', () => {
       expect(query).to.eql({ foo: 'bar' })
     })
 
+    it('returns fulfilled null query', function() {
+      const ctx = { query: { foo: 'null' } }
+      const query = filters.eq(ctx, 'foo')
+      expect(query).to.eql({ foo: null })
+    })
+
     it('returns fulfilled query with db key', function() {
       const ctx = { query: { foo: 'bar' } }
       const query = filters.eq(ctx, 'foo', 'bar')
       expect(query).to.eql({ bar: 'bar' })
+    })
+
+    it('returns fulfilled null query with db key', function() {
+      const ctx = { query: { foo: null } }
+      const query = filters.eq(ctx, 'foo', 'bar')
+      expect(query).to.eql({ bar: null })
     })
 
     it('returns fulfilled query with transform', function() {
