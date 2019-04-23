@@ -3,10 +3,12 @@ const { toArray } = require('./utils')
 const convertStringToBoolean = value =>
   typeof value === 'undefined' || ['0', 'false'].includes(value) ? false : true
 
+const convertStringToNull = value => (value === 'null' ? null : value)
+
 const eq = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
   if (typeof ctx.query[queryKey] !== 'undefined') {
     return {
-      [dbKey]: transform(ctx.query[queryKey]),
+      [dbKey]: transform(convertStringToNull(ctx.query[queryKey])),
     }
   }
   return {}
