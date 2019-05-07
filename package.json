@@ -12,7 +12,7 @@
     "minor": "npm version minor && npm publish --access public",
     "major": "npm version major && npm publish --access public",
     "prepare": "install-self-peers -- --ignore-scripts",
-    "prepublishOnly": "ENV=test npm test",
+    "prepublishOnly": "yarn test",
     "postpublish": "git push origin master --follow-tags"
   },
   "dependencies": {
