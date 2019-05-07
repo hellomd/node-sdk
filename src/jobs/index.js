@@ -56,11 +56,17 @@ async function runJob(
     })
     process.exit(1)
   } finally {
+    logger.info(`Disconnecting from MongoDB on job ${jobName}`, {
+      error,
+    })
     !!mongoConn && (await mongoConn.close(true))
+    logger.info(`Disconnected from MongoDB on job ${jobName}`, {
+      error,
+    })
   }
 
   await sleep(5000)
-  process.kill(0)
+  process.exit(0)
 }
 
 module.exports = {

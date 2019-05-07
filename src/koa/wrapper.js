@@ -73,19 +73,14 @@ const wrapper = cb => {
       )
     }
 
-    if (
-      !shouldUseApm &&
-      (!shouldUseSentry ||
-        ['production', 'staging'].indexOf(process.env.ENV) === -1)
-    ) {
-      logger.error('Unhandled promise rejection', {
-        error: {
-          message: (reason && reason.message) || reason,
-          stack: (reason && reason.stack) || null,
-        },
-      })
-      exitIfDone()
-    }
+    // if we got here, no error were sent to our error reporter
+    logger.error('Unhandled promise rejection', {
+      error: {
+        message: (reason && reason.message) || reason,
+        stack: (reason && reason.stack) || null,
+      },
+    })
+    exitIfDone()
   })
 
   process.on('warning', warning => {
