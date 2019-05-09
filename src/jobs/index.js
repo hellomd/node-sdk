@@ -56,16 +56,14 @@ async function runJob(
     })
     process.exit(1)
   } finally {
-    logger.info(`Disconnecting from MongoDB on job ${jobName}`, {
-      error,
-    })
-    !!mongoConn && (await mongoConn.close(true))
-    logger.info(`Disconnected from MongoDB on job ${jobName}`, {
-      error,
-    })
+    logger.info(`Disconnecting from MongoDB on job ${jobName}`)
+    !!mongoConn && (await mongoConn.close())
+    logger.info(`Disconnected from MongoDB on job ${jobName}`)
   }
 
+  logger.info(`Sleeping 5s before leaving ${jobName}`)
   await sleep(5000)
+  logger.info(`Slept, leaving ${jobName}`)
   process.exit(0)
 }
 
