@@ -1,4 +1,5 @@
 const util = require('util')
+const querystring = require('querystring')
 
 const { valueOrFunction } = require('./utils')
 const { logger } = require('./logging')
@@ -44,6 +45,7 @@ const buildEndpoint = ctx => def => {
           url,
           data,
           params: query,
+          paramsSerializer: querystring.stringify,
           headers: headers.reduce(
             (prev, curr) =>
               Object.assign(
