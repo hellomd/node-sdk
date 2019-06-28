@@ -239,7 +239,7 @@ validate.extend(validate.validators.datetime, {
     moment.utc(value).format(options.dateOnly ? 'YYYY-MM-DD' : moment.iso8601),
 })
 
-const koaValidate = async (ctx, data, constraints, transform = v => v) => {
+const koaValidate = (ctx, data, constraints, transform = v => v) => {
   const errors = validate(data, constraints, { ctx })
 
   if (errors) {

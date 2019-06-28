@@ -1,4 +1,5 @@
 const { toArray } = require('./utils')
+const { validate } = require('./validate')
 
 const convertStringToBoolean = value =>
   typeof value === 'undefined' || ['0', 'false'].includes(value) ? false : true
@@ -12,6 +13,18 @@ const eq = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
     }
   }
   return {}
+}
+
+const validableFilter = fn => (ctx, queryKey, dbKey = queryKey, ...args) => {
+  const options = args[args.length - 1]
+
+  if (options && options.constraints) {
+    validate(ctx, ctx.query, {
+      [queryKey]: options.constraints,
+    })
+  }
+
+  return fn(ctx, queryKey, dbKey, ...args)
 }
 
 const escapeRegexp = str => (str + '').replace(/[.?*+^$[\]\\(){}|-]/g, '\\$&')
@@ -73,7 +86,7 @@ const published = (ctx, queryKey = 'published', dbKey = 'publishedAt') => {
   }
 }
 
-module.exports = {
+const filters = {
   eq,
   in: $in,
   inRegExp,
@@ -85,3 +98,9 @@ module.exports = {
   regExp,
   published,
 }
+
+for (const filterKey of Object.keys(filters)) {
+  filters[filterKey] = validableFilter(filters[filterKey])
+}
+
+module.exports = filters
