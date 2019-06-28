@@ -40,6 +40,19 @@ describe('filters', () => {
       const query = filters.eq(ctx, 'foo')
       expect(query).to.eql({})
     })
+
+    it('is validable', function() {
+      const spy = sinon.spy()
+
+      const ctx = { query: { foo: '123' }, throw: spy }
+      const query = filters.eq(ctx, 'foo', 'foo', v => v, {
+        constraints: { objectId: true },
+      })
+
+      expect(spy).to.have.been.calledWith(422, 'Unprocessable Entity', {
+        errors: { foo: ['Foo is not a valid id'] },
+      })
+    })
   })
 
   describe('in', () => {

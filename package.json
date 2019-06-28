@@ -6,8 +6,8 @@
   "author": "Marcello Milhomem Albuquerque <marcello.m.albuquerque@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "test": "cross-env ENV=test mocha",
-    "test:watch": "cross-env ENV=test mocha --watch",
+    "test": "cross-env ENV=test mocha --require test/common",
+    "test:watch": "cross-env ENV=test mocha --require test/common --watch",
     "patch": "npm version patch && npm publish --access public",
     "minor": "npm version minor && npm publish --access public",
     "major": "npm version major && npm publish --access public",
@@ -26,6 +26,7 @@
     "moment": "2.24.0",
     "ramda": "0.26.1",
     "raven": "2.6.4",
+    "sinon-chai": "^3.3.0",
     "validate.js": "0.12.0",
     "winston": "3.2.1",
     "winston-transport": "4.3.0"
