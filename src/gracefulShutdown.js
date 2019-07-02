@@ -39,3 +39,7 @@ function httpServer(server, options = {}) {
 
   process.on('SIGTERM', cleanup)
 }
+
+module.exports = {
+  httpServer,
+}
