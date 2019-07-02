@@ -8,6 +8,7 @@ const authn = require('./authn')
 const authz = require('./authz')
 const { axios, axiosMock } = require('./axios')
 const filters = require('./filters')
+const gracefulShutdown = require('./gracefulShutdown')
 const jestUtils = require('./jestUtils')
 const jobs = require('./jobs')
 const koa = require('./koa')
@@ -34,6 +35,7 @@ module.exports = {
   axios,
   axiosMock,
   filters,
+  gracefulShutdown,
   jestUtils,
   jobs,
   koa,
