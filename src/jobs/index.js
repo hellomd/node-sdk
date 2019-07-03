@@ -4,8 +4,8 @@ if (!process.env.ENV || process.env.ENV === 'local') {
 
 const { MongoClient } = require('mongodb')
 
+const { apmAgent, shouldUseApm } = require('../apmAgent')
 const { mapCollections } = require('../mongo')
-
 const { createLoggerWithMetadata } = require('../logging')
 
 const sleep = timeMs => new Promise(resolve => setTimeout(resolve, timeMs))
@@ -19,6 +19,8 @@ async function runJob(
     collections,
   } = {},
 ) {
+  const trans = shouldUseApm && apmAgent.startTransaction(name, 'cronjob')
+
   let mongoConn = undefined
 
   if (shouldConnectToMongoDb) {
@@ -46,6 +48,8 @@ async function runJob(
     kind: jobName,
   })
 
+  let hasErrored = false
+
   try {
     logger.info(`Running job ${jobName}`)
     await cb({ mongoConn, mongoDb, logger })
@@ -54,17 +58,22 @@ async function runJob(
     logger.error(`Got error while running job ${jobName}`, {
       error,
     })
-    process.exit(1)
+    hasErrored = true
   } finally {
     logger.info(`Disconnecting from MongoDB on job ${jobName}`)
     !!mongoConn && (await mongoConn.close())
     logger.info(`Disconnected from MongoDB on job ${jobName}`)
   }
 
-  logger.info(`Sleeping 5s before leaving ${jobName}`)
-  await sleep(5000)
+  if (trans) {
+    trans.result = hasErrored ? 'error' : 'success'
+    trans.end()
+  }
+
+  logger.info(`Sleeping 2s before leaving ${jobName}`)
+  await sleep(2000)
   logger.info(`Slept, leaving ${jobName}`)
-  process.exit(0)
+  process.exit(hasErrored | 0)
 }
 
 module.exports = {
