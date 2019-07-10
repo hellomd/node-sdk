@@ -1,6 +1,7 @@
 const { axios, axiosMock } = require('./axios')
 const { TOKEN_KIND } = require('./authn')
 
+const { isTesting } = require('./isTesting')
 const { logger: defaultLogger } = require('./logging')
 
 const baseUrl = process.env.AUTHORIZATION_URL || 'http://authorization'
@@ -25,18 +26,22 @@ const api = {
    * @apiDefine AuthError
    * @apiError 403 Forbidden
    */
-  permit: async (
-    refId,
-    method,
-    resource,
-    refKind = 'user',
-    logger = defaultLogger,
-  ) => {
+  permit: async (refId, method, resource, refKind = 'user', ctx = {}) => {
+    const { logger = defaultLogger } = ctx
+
     for (let i = 0; i <= maxRetries; i++) {
       const url = `${baseUrl}/${refKind}:${refId}/permissions/${method}/${resource}`
 
       try {
-        await axios.head(url)
+        await axios.head(url, {
+          headers: {
+            // add request-id header by default
+            ...(!!ctx &&
+              !!ctx.state &&
+              !!ctx.state.id &&
+              !isTesting && { 'X-Request-Id': ctx.state.id }),
+          },
+        })
         return true
       } catch (err) {
         if (err.response && err.response.status == 403) {
@@ -53,14 +58,21 @@ const api = {
     }
   },
 
-  attachRole: async (refId, role, token, refKind = 'user') => {
+  attachRole: async (refId, role, token, refKind = 'user', ctx = {}) => {
     const headers = buildServiceTokenHeaders(token)
     for (let i = 0; i <= maxRetries; i++) {
       try {
         await axios({
           method: 'put',
           url: `${baseUrl}/${refKind}:${refId}/roles/${role}`,
-          ...headers,
+          headers: {
+            // add request-id header by default
+            ...(!!ctx &&
+              !!ctx.state &&
+              !!ctx.state.id &&
+              !isTesting && { 'X-Request-Id': ctx.state.id }),
+            ...headers,
+          },
         })
         break
       } catch (err) {
@@ -71,14 +83,21 @@ const api = {
     }
   },
 
-  detachRole: async (refId, role, token, refKind = 'user') => {
+  detachRole: async (refId, role, token, refKind = 'user', ctx = {}) => {
     const headers = buildServiceTokenHeaders(token)
     for (let i = 0; i <= maxRetries; i++) {
       try {
         await axios({
           method: 'delete',
           url: `${baseUrl}/${refKind}:${refId}/roles/${role}`,
-          ...headers,
+          headers: {
+            // add request-id header by default
+            ...(!!ctx &&
+              !!ctx.state &&
+              !!ctx.state.id &&
+              !isTesting && { 'X-Request-Id': ctx.state.id }),
+            ...headers,
+          },
         })
         break
       } catch (err) {
@@ -116,7 +135,7 @@ const koa = {
 
       const refKind = kind
 
-      await api.permit(id, method, resource, refKind, ctx.logger)
+      await api.permit(id, method, resource, refKind, ctx)
     } catch (err) {
       if (err === errors.forbidden) {
         ctx.throw(403, errors.forbidden)
@@ -128,7 +147,7 @@ const koa = {
   attachRole: async (ctx, refId, role, refKind = 'user') => {
     try {
       const token = ctx.state.serviceToken
-      await api.attachRole(refId, role, token, refKind)
+      await api.attachRole(refId, role, token, refKind, ctx)
     } catch (err) {
       ctx.throw(500, err)
     }
@@ -137,7 +156,7 @@ const koa = {
   detachRole: async (ctx, refId, role, refKind = 'user') => {
     try {
       const token = ctx.state.serviceToken
-      await api.detachRole(refId, role, token, refKind)
+      await api.detachRole(refId, role, token, refKind, ctx)
     } catch (err) {
       ctx.throw(500, err)
     }
