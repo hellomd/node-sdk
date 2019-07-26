@@ -209,7 +209,12 @@ validate.validators.uuid = function(value, options) {
 }
 
 validate.validators.datetimeFormat = function(value, options) {
+  if (!validate.isDefined(value)) return
+
+  if (!validate.isString(value)) return 'must be a string'
+
   options = validate.extend({}, this.options, options)
+
   const isValid = moment(value, options.format, true).isValid()
 
   if (!isValid)
