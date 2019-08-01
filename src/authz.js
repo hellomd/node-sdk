@@ -44,7 +44,7 @@ const api = {
         })
         return true
       } catch (err) {
-        const { request, ...logObject } = err.response || err
+        const { request, ...logObject } = err && err.response
         if (err.response && err.response.status == 403) {
           throw errors.forbidden
         }
@@ -163,6 +163,9 @@ const koa = {
       if (err === errors.forbidden) {
         ctx.throw(403, errors.forbidden)
       }
+      ctx.logger.debug('Error from api.permit', {
+        error: err,
+      })
       ctx.throw(500, errors.permitUnavailable)
     }
   },
