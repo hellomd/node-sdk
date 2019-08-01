@@ -75,12 +75,23 @@ const buildEndpoint = ctx => def => {
         logger.debug('API client axios request failed', {
           error,
           apiStatusCode: logObject && logObject.status,
-          apiResultData: logObject && logObject.data,
+          apiResultData:
+            logObject &&
+            logObject.data &&
+            JSON.stringify(logObject.data, null, 2),
           apiRequestInfo: {
             method: logObject && logObject.config && logObject.config.method,
             url: logObject && logObject.config && logObject.config.url,
-            data: logObject && logObject.config && logObject.config.data,
-            query: logObject && logObject.config && logObject.config.query,
+            data:
+              logObject &&
+              logObject.config &&
+              logObject.config.data &&
+              JSON.stringify(logObject.config.data, null, 2),
+            query:
+              logObject &&
+              logObject.config &&
+              logObject.config.query &&
+              JSON.stringify(logObject.config.query, null, 2),
           },
         })
 

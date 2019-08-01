@@ -44,10 +44,33 @@ const api = {
         })
         return true
       } catch (err) {
+        const { request, ...logObject } = err.response || err
         if (err.response && err.response.status == 403) {
           throw errors.forbidden
         }
         if (i == 3) {
+          logger.debug('authz client axios request failed', {
+            error: err,
+            apiStatusCode: logObject && logObject.status,
+            apiResultData:
+              logObject &&
+              logObject.data &&
+              JSON.stringify(logObject.data, null, 2),
+            apiRequestInfo: {
+              method: logObject && logObject.config && logObject.config.method,
+              url: logObject && logObject.config && logObject.config.url,
+              data:
+                logObject &&
+                logObject.config &&
+                logObject.config.data &&
+                JSON.stringify(logObject.config.data, null, 2),
+              query:
+                logObject &&
+                logObject.config &&
+                logObject.config.query &&
+                JSON.stringify(logObject.config.query, null, 2),
+            },
+          })
           logger.error('Error while retrieving permissions', {
             error: err,
             url,
