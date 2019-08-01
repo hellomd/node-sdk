@@ -8,6 +8,7 @@ const baseUrl = process.env.AUTHORIZATION_URL || 'http://authorization'
 const maxRetries = 3
 
 const errors = {
+  unauthenticated: 'Unauthenticated',
   forbidden: 'Forbidden',
   permitUnavailable: 'Could not check permission',
   attachRoleUnavailable: 'Could not attach role',
@@ -149,23 +150,26 @@ const mocks = {
 
 const koa = {
   permit: async (ctx, method, resource) => {
+    if (!ctx.state.user) {
+      // @TODO Throw 403 directly instead of 401? authz requires auth
+      ctx.throw(401, errors.unauthenticated)
+    }
+
+    const { id, isService = false, kind } = ctx.state.user
+
+    if (isService || kind === TOKEN_KIND.SERVICE) {
+      return
+    }
+
+    const refKind = kind
+
     try {
-      const { id, isService = false, kind } = ctx.state.user
-
-      if (isService || kind === TOKEN_KIND.SERVICE) {
-        return
-      }
-
-      const refKind = kind
-
       await api.permit(id, method, resource, refKind, ctx)
     } catch (err) {
       if (err === errors.forbidden) {
         ctx.throw(403, errors.forbidden)
       }
-      ctx.logger.debug('Error from api.permit', {
-        error: err,
-      })
+
       ctx.throw(500, errors.permitUnavailable)
     }
   },
