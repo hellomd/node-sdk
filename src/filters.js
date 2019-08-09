@@ -66,13 +66,18 @@ const dateRange = (
   const dateFrom = ctx.query[`${queryKeyPrefix}From`]
   const dateTo = ctx.query[`${queryKeyPrefix}To`]
 
-  if (!dateFrom || !dateTo) {
+  if (!dateFrom && !dateTo) {
     return {}
   }
 
-  let criteria = {
-    $lte: new Date(dateTo),
-    $gte: new Date(dateFrom),
+  let criteria = {}
+
+  if (dateFrom) {
+    criteria.$gte = new Date(dateFrom)
+  }
+
+  if (dateTo) {
+    criteria.$lte = new Date(dateTo)
   }
 
   if ($not) {

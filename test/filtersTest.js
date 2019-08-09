@@ -328,6 +328,30 @@ describe('filters', () => {
       })
     })
 
+    it('returns empty object when there is no from or to', function() {
+      const ctx = { query: {} }
+      const query = filters.dateRange(ctx, 'foo')
+      expect(query).to.eql({})
+    })
+
+    it('works with just from', function() {
+      const dateFrom = '2019-08-09T00:00:00.000Z'
+      const ctx = { query: { fooFrom: dateFrom } }
+      const query = filters.dateRange(ctx, 'foo')
+      expect(query).to.eql({
+        foo: { $gte: new Date(dateFrom) },
+      })
+    })
+
+    it('works with just to', function() {
+      const dateTo = '2019-08-09T23:59:59.999Z'
+      const ctx = { query: { fooTo: dateTo } }
+      const query = filters.dateRange(ctx, 'foo')
+      expect(query).to.eql({
+        foo: { $lte: new Date(dateTo) },
+      })
+    })
+
     it('returns fulfilled query with db key', function() {
       const dateFrom = '2019-08-09T00:00:00.000Z'
       const dateTo = '2019-08-09T23:59:59.999Z'
