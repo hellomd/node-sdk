@@ -317,6 +317,28 @@ describe('filters', () => {
     })
   })
 
+  describe('dateRange', () => {
+    it('returns fulfilled query', function() {
+      const dateFrom = '2019-08-09T00:00:00.000Z'
+      const dateTo = '2019-08-09T23:59:59.999Z'
+      const ctx = { query: { fooFrom: dateFrom, fooTo: dateTo } }
+      const query = filters.dateRange(ctx, 'foo')
+      expect(query).to.eql({
+        foo: { $gte: new Date(dateFrom), $lte: new Date(dateTo) },
+      })
+    })
+
+    it('returns fulfilled query with db key', function() {
+      const dateFrom = '2019-08-09T00:00:00.000Z'
+      const dateTo = '2019-08-09T23:59:59.999Z'
+      const ctx = { query: { fooFrom: dateFrom, fooTo: dateTo } }
+      const query = filters.dateRange(ctx, 'foo', 'bar')
+      expect(query).to.eql({
+        bar: { $gte: new Date(dateFrom), $lte: new Date(dateTo) },
+      })
+    })
+  })
+
   describe('published', () => {
     beforeEach(() => {
       this.clock = sinon.useFakeTimers()
