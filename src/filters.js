@@ -57,6 +57,35 @@ const prefix = (ctx, queryKey, dbKey = queryKey) =>
 const regExp = (ctx, queryKey, dbKey = queryKey, modifiers = 'i') =>
   eq(ctx, queryKey, dbKey, value => new RegExp(escapeRegexp(value), modifiers))
 
+const dateRange = (
+  ctx,
+  queryKeyPrefix,
+  dbKey = queryKeyPrefix,
+  $not = false,
+) => {
+  const dateFrom = ctx.query[`${queryKeyPrefix}From`]
+  const dateTo = ctx.query[`${queryKeyPrefix}To`]
+
+  if (!dateFrom || !dateTo) {
+    return {}
+  }
+
+  let criteria = {
+    $lte: new Date(dateTo),
+    $gte: new Date(dateFrom),
+  }
+
+  if ($not) {
+    criteria = {
+      $not: criteria,
+    }
+  }
+
+  return {
+    [dbKey]: criteria,
+  }
+}
+
 /**
  * @apiDefine PublishedFilter
  * @apiParam {Boolean} [published] Published filter e.g. /?published=true
@@ -87,6 +116,7 @@ const published = (ctx, queryKey = 'published', dbKey = 'publishedAt') => {
 }
 
 const filters = {
+  dateRange,
   eq,
   in: $in,
   inRegExp,

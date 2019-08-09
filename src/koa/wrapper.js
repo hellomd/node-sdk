@@ -131,7 +131,8 @@ const wrapper = cb => {
         },
         // do not send events on development
         shouldSendCallback: () =>
-          ['production', 'staging'].indexOf(process.env.ENV) !== -1,
+          ['production', 'staging', 'development'].indexOf(process.env.ENV) !==
+          -1,
       })
       .install((error, sentryError, eventId) => {
         if (sentryError) {
