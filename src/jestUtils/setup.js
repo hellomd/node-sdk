@@ -19,7 +19,7 @@ if (isJestRunning) {
     beforeAll(async () => {
       const rabbit = await amqp.connect(AMQP_URL)
       const channel = await rabbit.createChannel()
-      const mongoOpts = { useNewUrlParser: true }
+      const mongoOpts = { useNewUrlParser: true, useUnifiedTopology: true }
       const dbConn = await MongoClient.connect(MONGO_URL, mongoOpts)
       const testQueue = await createTestQueue(channel)
       const testMailerQueue = await createTestMailerQueue(channel)
