@@ -57,27 +57,28 @@ const prefix = (ctx, queryKey, dbKey = queryKey) =>
 const regExp = (ctx, queryKey, dbKey = queryKey, modifiers = 'i') =>
   eq(ctx, queryKey, dbKey, value => new RegExp(escapeRegexp(value), modifiers))
 
-const dateRange = (
+const between = (
   ctx,
   queryKeyPrefix,
   dbKey = queryKeyPrefix,
   $not = false,
+  transform = v => v,
 ) => {
-  const dateFrom = ctx.query[`${queryKeyPrefix}From`]
-  const dateTo = ctx.query[`${queryKeyPrefix}To`]
+  const valueFrom = ctx.query[`${queryKeyPrefix}From`]
+  const valueTo = ctx.query[`${queryKeyPrefix}To`]
 
-  if (!dateFrom && !dateTo) {
+  if (!valueFrom && !valueTo) {
     return {}
   }
 
   let criteria = {}
 
-  if (dateFrom) {
-    criteria.$gte = new Date(dateFrom)
+  if (valueFrom) {
+    criteria.$gte = transform(valueFrom)
   }
 
-  if (dateTo) {
-    criteria.$lte = new Date(dateTo)
+  if (valueTo) {
+    criteria.$lte = transform(valueTo)
   }
 
   if ($not) {
@@ -90,6 +91,9 @@ const dateRange = (
     [dbKey]: criteria,
   }
 }
+
+const dateRange = (ctx, queryKeyPrefix, dbKey = queryKeyPrefix, $not = false) =>
+  between(ctx, queryKeyPrefix, dbKey, $not, v => new Date(v))
 
 /**
  * @apiDefine PublishedFilter
@@ -121,6 +125,7 @@ const published = (ctx, queryKey = 'published', dbKey = 'publishedAt') => {
 }
 
 const filters = {
+  between,
   dateRange,
   eq,
   in: $in,
