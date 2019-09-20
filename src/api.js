@@ -40,7 +40,7 @@ const buildEndpoint = ctx => def => {
     )
     for (let i = 0; i <= maxRetries; i++) {
       try {
-        const { data: results } = await axios({
+        const response = await axios({
           method,
           url,
           data,
@@ -61,7 +61,7 @@ const buildEndpoint = ctx => def => {
           ),
           ...fetchOptions,
         })
-        return transform(results)
+        return transform(response.data, response.headers, response.status)
       } catch (error) {
         const { request, ...logObject } = error.response || error
         if (debug) {
