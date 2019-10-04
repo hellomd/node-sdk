@@ -375,6 +375,46 @@ describe('plainValidate', () => {
       expect(result).to.be.undefined
     })
 
+    it('pass with nested object', () => {
+      const constraints = {
+        bar: {
+          presence: true,
+        },
+        foo: {
+          validateOnlyIf: {
+            condition: (value, options, key, attributes) =>
+              attributes.bar === 'yes',
+            constraints: {
+              abc: { type: 'number', presence: { allowEmpty: false } },
+            },
+            isObject: true,
+          },
+        },
+      }
+      const result = plainValidate({ bar: 'yes', foo: { abc: 1 } }, constraints)
+      expect(result).to.be.undefined
+    })
+
+    it('fails with nested object', () => {
+      const constraints = {
+        bar: {
+          presence: true,
+        },
+        foo: {
+          validateOnlyIf: {
+            condition: (value, options, key, attributes) =>
+              attributes.bar === 'yes',
+            constraints: {
+              abc: { type: 'number', presence: { allowEmpty: false } },
+            },
+            isObject: true,
+          },
+        },
+      }
+      const result = plainValidate({ bar: 'yes' }, constraints)
+      expectError(result)
+    })
+
     it('fails', () => {
       const constraints = {
         bar: {

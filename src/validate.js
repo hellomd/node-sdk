@@ -170,7 +170,10 @@ validate.validators.allowedOnlyIf = function(value, options, key, attributes) {
   if (!options.condition || typeof options.condition !== 'function') {
     throw new Error('You must pass the condition option')
   }
-  if (!!value && !options.condition(value, options, key, attributes)) {
+
+  if (!validate.isDefined(value)) return
+
+  if (!options.condition(value, options, key, attributes)) {
     return options.message || this.message || 'cannot be sent with given values'
   }
 }
@@ -178,22 +181,30 @@ validate.validators.allowedOnlyIf = function(value, options, key, attributes) {
 validate.validators.validateOnlyIf = function(value, options, key, attributes) {
   options = validate.extend({}, this.options, options)
 
-  if (!options.condition || typeof options.condition !== 'function') {
-    throw new Error('You must pass the condition option')
-  }
+  const { condition, isObject } = options
+  let { constraints } = options
 
-  if (!options.constraints) {
+  if (!constraints) {
     throw new Error('You must pass the constraints option')
   }
 
-  if (options.condition(value, options, key, attributes)) {
-    const fn =
-      // if an object and not an array, use normal validate,
-      //  if anything else (including arrays), use single
-      typeof value === 'object' && !Array.isArray(value) && !!value
-        ? validate
-        : validate.single
-    return fn(value, options.constraints)
+  constraints =
+    typeof constraints === 'function'
+      ? constraints(value, options, key, attributes)
+      : constraints
+
+  if (!constraints) {
+    throw new Error(
+      'Result from the constraints function passed as option must be an object',
+    )
+  }
+
+  if (!condition || typeof condition !== 'function') {
+    throw new Error('You must pass the condition option')
+  }
+  if (condition(value, options, key, attributes)) {
+    const fn = isObject ? validate : validate.single
+    return fn(value, constraints)
   }
 }
 
