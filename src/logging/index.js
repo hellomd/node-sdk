@@ -22,6 +22,8 @@ const createLogger = ({ format, ...options }) => {
   ]
   const logger = winston.createLogger({
     transports,
+    // use syslog https://github.com/winstonjs/winston#logging-levels
+    levels: winston.config.syslog.levels,
     ...options,
     level: isTesting ? 'error' : options.level || process.env.LOGGING_LEVEL,
   })
