@@ -15,14 +15,16 @@ if (isJestRunning) {
 
   const { AMQP_URL, MONGO_URL } = process.env
 
-  function setup({ app, collections }) {
+  function setup({ app, collections, rabbitConnect = true }) {
     beforeAll(async () => {
-      const rabbit = await amqp.connect(AMQP_URL)
-      const channel = await rabbit.createChannel()
+      const rabbit = rabbitConnect ? await amqp.connect(AMQP_URL) : null
+      const channel = rabbitConnect ? await rabbit.createChannel() : null
       const mongoOpts = { useNewUrlParser: true, useUnifiedTopology: true }
       const dbConn = await MongoClient.connect(MONGO_URL, mongoOpts)
-      const testQueue = await createTestQueue(channel)
-      const testMailerQueue = await createTestMailerQueue(channel)
+      const testQueue = rabbitConnect ? await createTestQueue(channel) : null
+      const testMailerQueue = rabbitConnect
+        ? await createTestMailerQueue(channel)
+        : null
       const authUserId = '5c754ba9b78dbd0036a766c1'
 
       global.authn = authn
