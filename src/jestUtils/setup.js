@@ -54,8 +54,8 @@ if (isJestRunning) {
     })
 
     afterAll(async () => {
-      await global.dbConn.close()
-      await global.rabbit.close()
+      global.dbConn && (await global.dbConn.close())
+      global.rabbit && (await global.rabbit.close())
     })
 
     beforeEach(() => {
