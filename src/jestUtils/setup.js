@@ -46,8 +46,8 @@ if (isJestRunning) {
     })
 
     afterEach(async () => {
-      await global.testQueue.purge()
-      await global.testMailerQueue.purge()
+      global.testQueue && (await global.testQueue.purge())
+      global.testMailerQueue && (await global.testMailerQueue.purge())
 
       const keys = Object.keys(global.db)
       for (let i = 0; i < keys.length; i++) {
