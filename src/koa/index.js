@@ -1,6 +1,6 @@
 const logging = require('../logging')
 
-const { apmAgent, shouldUseApm } = require('../apmAgent')
+const { apmAgent } = require('../apmAgent')
 
 const { errorListener, errorMiddleware } = require('./errorReporter')
 const { fixIp } = require('./fixIp')

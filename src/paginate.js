@@ -1,9 +1,13 @@
 const R = require('ramda')
 const qs = require('querystring')
 
-const getUrlWithoutQuerystring = (ctx) => ctx.href.replace(ctx.search, '')
+const getUrlWithoutQuerystring = ctx => ctx.href.replace(ctx.search, '')
 
-const extractPaginationOptions = (ctx, defaultPerPage = 20, maxPerPage = 500) => {
+const extractPaginationOptions = (
+  ctx,
+  defaultPerPage = 20,
+  maxPerPage = 500,
+) => {
   const { page: rawPage = 0, perPage: rawPerPage = defaultPerPage } = ctx.query
   const [page, perPage] = [rawPage, rawPerPage].map(n => parseInt(n))
   const limit = R.clamp(1, perPage, maxPerPage)
@@ -22,12 +26,12 @@ const appendLink = (ctx, rel, url) => {
 }
 
 const setLink = (ctx, count) => {
-  const { page, perPage, limit } = extractPaginationOptions(ctx)
-  const lastPage = Math.ceil(count/perPage)
+  const { page, perPage, _limit } = extractPaginationOptions(ctx)
+  const lastPage = Math.ceil(count / perPage)
 
   appendLink(ctx, 'first', createUrl(ctx, 0))
   appendLink(ctx, 'last', createUrl(ctx, lastPage))
-  
+
   page > 0 && appendLink(ctx, 'prev', createUrl(ctx, page - 1))
   page < lastPage && appendLink(ctx, 'next', createUrl(ctx, page + 1))
 }

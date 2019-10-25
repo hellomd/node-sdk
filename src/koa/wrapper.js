@@ -10,8 +10,8 @@ const shouldUseSentry = !!process.env.SENTRY_DSN
 
 const wrapper = cb => {
   global.process.on('unhandledRejection', function(reason, promise) {
-    let currDone = 0
-    let targetDone = +shouldUseApm + +shouldUseSentry
+    // let currDone = 0
+    // let targetDone = +shouldUseApm + +shouldUseSentry
 
     // should we kill the process on unhandled promise rejections?
     // const exitIfDone = () => ++currDone >= targetDone ? global.process.exit(1) : 0;
@@ -47,13 +47,12 @@ const wrapper = cb => {
 
     // now send error to apm
     if (shouldUseApm) {
-      const errorMessage = (reason && reason.message) || reason
       // https://www.elastic.co/guide/en/apm/agent/nodejs/1.x/agent-api.html#apm-capture-error
       apmAgent.captureError(
         reason,
         { unhandledPromiseRejection: true },
         (apmError, eventId) => {
-          ++currDone
+          // ++currDone
           if (apmError) {
             logger.error(
               'Error while reporting unhandled promise rejection to APM',
@@ -140,7 +139,7 @@ const wrapper = cb => {
             'Error while reporting unhandled promise rejection to Sentry',
             {
               error: sentryError,
-              originalError: reason,
+              originalError: error,
               eventId,
             },
           )

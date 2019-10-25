@@ -18,7 +18,7 @@ function httpServer(server, options = {}) {
 
   const state = { isShuttingDown: false }
 
-  async function cleanup(signal) {
+  async function cleanup(_signal) {
     if (!state.isShuttingDown) {
       state.isShuttingDown = true
       try {

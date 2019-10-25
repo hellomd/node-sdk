@@ -7,7 +7,7 @@ const { logger } = require('./logging')
 const { axios } = require('./axios')
 const { isTesting } = require('./isTesting')
 
-const serviceTokenHeader = (ctx, args) => ({
+const serviceTokenHeader = (ctx, _args) => ({
   'Content-Type': 'application/json',
   Authorization: `bearer ${ctx.state.serviceToken}`,
 })
@@ -63,7 +63,7 @@ const buildEndpoint = ctx => def => {
         })
         return transform(response.data, response.headers, response.status)
       } catch (error) {
-        const { request, ...logObject } = error.response || error
+        const { _request, ...logObject } = error.response || error
         if (debug) {
           console.log(
             util.inspect(logObject, {

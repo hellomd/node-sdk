@@ -1,11 +1,9 @@
 const isJestRunning = require('./isJestRunning')
 
 if (isJestRunning) {
-  const path = require('path')
-
   const amqp = require('amqplib')
   const request = require('supertest')
-  const { MongoClient, ObjectId } = require('mongodb')
+  const { MongoClient } = require('mongodb')
 
   const { createTestQueue, createTestMailerQueue } = require('../amqp')
   const authz = require('../authz')
@@ -15,6 +13,7 @@ if (isJestRunning) {
 
   const { AMQP_URL, MONGO_URL } = process.env
 
+  // eslint-disable-next-line no-inner-declarations
   function setup({ app, collections, rabbitConnect = true }) {
     beforeAll(async () => {
       const rabbit = rabbitConnect ? await amqp.connect(AMQP_URL) : null

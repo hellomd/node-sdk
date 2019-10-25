@@ -45,7 +45,7 @@ const api = {
         })
         return true
       } catch (err) {
-        const { request, ...logObject } = err && err.response
+        const { _request, ...logObject } = err && err.response
         if (err.response && err.response.status == 403) {
           throw errors.forbidden
         }
@@ -140,9 +140,7 @@ const mocks = {
     ),
 
   onAttachRole: (refId, role, refKind = 'user') =>
-    axiosMock.onPut(
-      new RegExp(`${baseUrl}\/${refKind}:${refId}\/roles/${role}`),
-    ),
+    axiosMock.onPut(new RegExp(`${baseUrl}/${refKind}:${refId}/roles/${role}`)),
 
   onDetachRole: (refId, role, refKind = 'user') =>
     axiosMock.onDelete(`${baseUrl}/${refKind}:${refId}/roles/${role}`),

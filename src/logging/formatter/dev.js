@@ -1,5 +1,4 @@
 const { format } = require('winston')
-const { MESSAGE } = require('triple-beam')
 const jsonStringify = require('fast-safe-stringify')
 
 const { jsonReplacer } = require('./utils')
@@ -10,7 +9,7 @@ module.exports = () =>
     format.timestamp(),
     format.splat(),
     format.colorize(),
-    format.printf(({ timestamp, level, message, splat, ...info }) => {
+    format.printf(({ timestamp, level, message, splat: _splat, ...info }) => {
       const msg = `${timestamp} ${level}: ${message}`
 
       if (!info) return msg
