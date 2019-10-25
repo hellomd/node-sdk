@@ -19,7 +19,7 @@ jobs:
             - ~/.cache
       - run:
           name: Run lint
-          command: yarn eslint
+          command: yarn lint
       - run:
           name: Run tests
           command: ENV=test yarn test
