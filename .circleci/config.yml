@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/app
     docker:
-      - image: circleci/node:10
+      - image: circleci/node:12
     steps:
       - checkout
       - restore_cache:
@@ -17,6 +17,9 @@ jobs:
           key: v0-usercache-{{ .Branch }}
           paths:
             - ~/.cache
+      - run:
+          name: Run lint
+          command: yarn eslint
       - run:
           name: Run tests
           command: ENV=test yarn test
