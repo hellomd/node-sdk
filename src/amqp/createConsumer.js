@@ -1,11 +1,5 @@
 const { createLoggerWithMetadata } = require('../logging')
 
-const parseJson = content => {
-  try {
-    return JSON.parse(content)
-  } catch (err) {}
-}
-
 module.exports = async ({ ctx = {}, channel, handler, queue }) => {
   const consumer = {
     processingCount: 0,
@@ -27,7 +21,11 @@ module.exports = async ({ ctx = {}, channel, handler, queue }) => {
     consumer.processingCount++
 
     try {
-      await handler.bind(consumer)({ ctx, key, content: parseJson(content) })
+      await handler.bind(consumer)({
+        ctx,
+        key,
+        content: JSON.parse(content || 'null'),
+      })
       channel.ack(msg)
     } catch (error) {
       ctx.logger.error('Error while calling queue event handler', { error })

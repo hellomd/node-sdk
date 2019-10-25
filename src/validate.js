@@ -7,7 +7,7 @@ const defaultRefResourceIdValidator = {
   objectId: { message: 'does not have a valid resource id' },
 }
 
-validate.validators.ref = function(value, options, key, attributes) {
+validate.validators.ref = function(value, options, _key, _attributes) {
   if (!validate.isDefined(value)) return
 
   if (!validate.isString(value)) return 'must be a string'

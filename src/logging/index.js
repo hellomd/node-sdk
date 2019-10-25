@@ -1,7 +1,6 @@
 // This file cannot depend on anything that has instrumenting via elastic-apm-node
 // Otherwise the instrumenting is not going to work, since this file is required before
 //  apm agent is started.
-const R = require('ramda')
 const winston = require('winston')
 
 const { isTesting } = require('../isTesting')
