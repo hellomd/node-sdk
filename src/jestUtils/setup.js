@@ -152,7 +152,6 @@ if (isJestRunning) {
             max: 1,
           })
         : null
-      pgConn && (await pgConn.connect())
 
       // Auth
       const authUserId = '5c754ba9b78dbd0036a766c1'
