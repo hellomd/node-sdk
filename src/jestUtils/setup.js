@@ -25,7 +25,7 @@ if (isJestRunning) {
   const { mapCollections } = require('../mongo')
   const { authn } = require('../testHelpers')
 
-  const DatabaseCleaner = require('database-cleaner')
+  // const DatabaseCleaner = require('database-cleaner')
 
   const {
     AMQP_URL,
@@ -36,6 +36,84 @@ if (isJestRunning) {
     PGUSER,
     PGPASSWORD,
   } = process.env
+
+  // eslint-disable-next-line no-inner-declarations
+  function cleanPostgres(db, callback, config) {
+    var schema = config.postgresql.schema || 'public'
+    var schemaPrefix = '"' + schema + '".'
+
+    console.log('Running select tables')
+    db.query(
+      "SELECT table_name FROM information_schema.tables WHERE table_schema = '" +
+        schema +
+        "' AND table_type = 'BASE TABLE';",
+      function(err, tables) {
+        console.log('Ran select tables', { err, tables })
+        if (err) return callback(err)
+
+        var count = 0
+        var length = tables.rows.length
+        var skippedTables = config.postgresql.skipTables
+        var strategy = config.postgresql.strategy || 'deletion'
+        if (strategy !== 'deletion' && strategy !== 'truncation') {
+          return callback(new Error('Invalid deletion strategy: ' + strategy))
+        }
+
+        if (length === 0) {
+          // The database is empty
+          return callback()
+        }
+
+        if (strategy === 'deletion') {
+          tables.rows.forEach(function(table) {
+            if (skippedTables.indexOf(table['table_name']) === -1) {
+              db.query(
+                'DELETE FROM ' + schemaPrefix + '"' + table['table_name'] + '"',
+                function() {
+                  count++
+
+                  if (count >= length) {
+                    callback()
+                  }
+                },
+              )
+            } else {
+              count++
+              if (count >= length) {
+                callback()
+              }
+            }
+          })
+        } else if (strategy === 'truncation') {
+          var tableExpression = tables.rows
+            .filter(function(table) {
+              return skippedTables.indexOf(table['table_name']) === -1
+            })
+            .map(function(table) {
+              return schemaPrefix + '"' + table['table_name'] + '"'
+            })
+            .join(', ')
+
+          // no tables to truncate
+          if (!tableExpression) {
+            return callback()
+          }
+
+          console.log('Running TRUCANTE')
+          db.query(
+            'TRUNCATE TABLE ' + tableExpression + ' RESTART IDENTITY CASCADE',
+            function(err) {
+              console.log('Ran TRUCANTE', { err })
+              if (err) {
+                return callback(err)
+              }
+              callback()
+            },
+          )
+        }
+      },
+    )
+  }
 
   // eslint-disable-next-line no-inner-declarations
   function setup({
@@ -124,14 +202,22 @@ if (isJestRunning) {
       // global.pgConn && (await global.pgConn.query('ROLLBACK'))
       if (global.pgConn) {
         await new Promise((resolve, reject) => {
-          const databaseCleaner = new DatabaseCleaner('postgres', {
-            postgresql: {
-              strategy: 'truncation',
-              skipTables: [],
+          // const databaseCleaner = new DatabaseCleaner('postgres', {
+          //   postgresql: {
+          //     strategy: 'truncation',
+          //     skipTables: [],
+          //   },
+          // })
+          // databaseCleaner.clean(global.pgConn, error =>
+          cleanPostgres(
+            global.pgConn,
+            error => (error ? reject(error) : resolve()),
+            {
+              postgresql: {
+                strategy: 'truncation',
+                skipTables: [],
+              },
             },
-          }) //type = 'mongodb|redis|couchdb'
-          databaseCleaner.clean(global.pgConn, error =>
-            error ? reject(error) : resolve(),
           )
         })
       }
