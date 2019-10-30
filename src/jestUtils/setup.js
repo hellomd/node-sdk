@@ -139,8 +139,8 @@ if (isJestRunning) {
 
     afterAll(async () => {
       global.mongoDbConn && (await global.mongoDbConn.close())
-      global.pgConn && (await global.pgConn.close())
       global.rabbit && (await global.rabbit.close())
+      global.pgConn && (await global.pgConn.end())
     })
   }
 
