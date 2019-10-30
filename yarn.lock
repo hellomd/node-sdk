@@ -18,6 +18,11 @@
     esutils "^2.0.2"
     js-tokens "^4.0.0"
 
+"@hellomd/eslint-config-default@^0.0.1":
+  version "0.0.1"
+  resolved "https://registry.npmjs.org/@hellomd/eslint-config-default/-/eslint-config-default-0.0.1.tgz#b49fa8f52d161c55309ab38b10f37c7f1781e4b0"
+  integrity sha512-bGXcF6JKb+5PS1H1UUipLCZ5q1rbC3O+J89+Vnrm/dnxvb8utp+ntqR1Pu8avvGk5xVIHNufjaELF2rK2/Dm4g==
+
 "@nodelib/fs.scandir@2.1.3":
   version "2.1.3"
   resolved "https://registry.npmjs.org/@nodelib/fs.scandir/-/fs.scandir-2.1.3.tgz#3a582bdb53804c6ba6d146579c46e52130cf4a3b"

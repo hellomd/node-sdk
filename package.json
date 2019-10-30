@@ -35,6 +35,7 @@
     "winston-transport": "4.3.0"
   },
   "devDependencies": {
+    "@hellomd/eslint-config-default": "^0.0.2",
     "@team-griffin/install-self-peers": "^1.1.1",
     "chai": "^4.2.0",
     "cross-env": "^6.0.0",

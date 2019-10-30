@@ -1,3 +1,3 @@
 module.exports = {
-  extends: './eslint-rules',
+  extends: '@hellomd/eslint-config-default',
 }
