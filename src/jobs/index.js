@@ -2,7 +2,12 @@ if (!process.env.ENV || process.env.ENV === 'local') {
   require('dotenv').config()
 }
 
-const { MongoClient } = require('mongodb')
+let MongoClient = null
+try {
+  const mongodb = require('mongodb')
+  MongoClient = mongodb.MongoClient
+  // eslint-disable-next-line no-empty
+} catch (error) {}
 
 const { apmAgent, shouldUseApm } = require('../apmAgent')
 const { mapCollections } = require('../mongo')
@@ -24,6 +29,7 @@ async function runJob(
   let mongoConn = undefined
 
   if (shouldConnectToMongoDb) {
+    if (!MongoClient) throw new Error('mongodb lib is not installed')
     mongoConn = await MongoClient.connect(
       connectionStringMongoDb || process.env.MONGO_URL,
       {

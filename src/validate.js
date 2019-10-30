@@ -1,7 +1,13 @@
 const moment = require('moment')
 const validate = require('validate.js')
-const { ObjectId } = require('mongodb')
 const R = require('ramda')
+
+let ObjectId = null
+try {
+  const mongodb = require('mongodb')
+  ObjectId = mongodb.ObjectId
+  // eslint-disable-next-line no-empty
+} catch (error) {}
 
 const defaultRefResourceIdValidator = {
   objectId: { message: 'does not have a valid resource id' },
@@ -240,6 +246,8 @@ validate.validators.objectId = function(value, options) {
   if (!validate.isDefined(value)) return
 
   options = validate.extend({}, this.options, options)
+
+  if (!ObjectId) throw new Error('mongodb lib is not installed')
 
   const isValid = ObjectId.isValid(value)
 

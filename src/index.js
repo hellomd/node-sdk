@@ -7,13 +7,12 @@ const amqp = require('./amqp')
 const authn = require('./authn')
 const authz = require('./authz')
 const { axios, axiosMock } = require('./axios')
-const filters = require('./filters')
 const gracefulShutdown = require('./gracefulShutdown')
 const jestUtils = require('./jestUtils')
 const jobs = require('./jobs')
 const koa = require('./koa')
-const logger = require('./logger')
 const logging = require('./logging')
+const postgres = require('./postgres')
 const mongo = require('./mongo')
 const mongoHelpers = require('./mongoHelpers')
 const paginate = require('./paginate')
@@ -34,13 +33,12 @@ module.exports = {
   authz,
   axios,
   axiosMock,
-  filters,
   gracefulShutdown,
   jestUtils,
   jobs,
   koa,
-  logger,
   logging,
+  postgres,
   mongo,
   mongoHelpers,
   paginate,
