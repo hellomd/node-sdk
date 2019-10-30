@@ -1,7 +1,7 @@
 const { expect } = require('chai')
 const sinon = require('sinon')
 
-const filters = require('../src/filters')
+const filters = require('../src/mongo/filters')
 
 describe('filters', () => {
   describe('eq', () => {

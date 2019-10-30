@@ -1,5 +1,12 @@
-const { MongoClient } = require('mongodb')
+let MongoClient = null
+try {
+  const mongodb = require('mongodb')
+  MongoClient = mongodb.MongoClient
+  // eslint-disable-next-line no-empty
+} catch (error) {}
+
 const amqp = require('amqplib')
+
 const createPublisher = require('./amqp/createPublisher')
 const createTestQueue = require('./amqp/createTestQueue')
 const createTestMailerQueue = require('./amqp/createTestMailerQueue')
@@ -41,10 +48,13 @@ const consumerPreset = function() {
 
 const basePreset = function(collections) {
   before(async function() {
-    this.dbConn = await MongoClient.connect(
-      process.env.MONGO_URL,
-      { useNewUrlParser: true },
-    )
+    if (!MongoClient)
+      throw new Error(
+        'mongodb is not installed and is required for using legacy mocha tests',
+      )
+    this.dbConn = await MongoClient.connect(process.env.MONGO_URL, {
+      useNewUrlParser: true,
+    })
     this.db = mapCollections(this.dbConn, collections)
     this.rabbit = await amqp.connect(process.env.AMQP_URL)
   })

@@ -1,5 +1,5 @@
-const { toArray } = require('./utils')
-const { validate } = require('./validate')
+const { toArray } = require('../utils')
+const { validate } = require('../validate')
 
 const convertStringToBoolean = value =>
   typeof value === 'undefined' || ['0', 'false'].includes(value) ? false : true

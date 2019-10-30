@@ -1,7 +1,13 @@
 const crypto = require('crypto')
 
 const moment = require('moment')
-const { ObjectId } = require('mongodb')
+
+let ObjectId = null
+try {
+  const mongodb = require('mongodb')
+  ObjectId = mongodb.ObjectId
+  // eslint-disable-next-line no-empty
+} catch (error) {}
 
 const nullify = o =>
   Object.entries(o).reduce(
@@ -17,7 +23,10 @@ const nullOrDate = v =>
     .utc()
     .toDate()
 
-const nullOrObjectId = v => v && ObjectId(v)
+const nullOrObjectId = v => {
+  if (!ObjectId) throw new Error('mongodb is not installed')
+  return v && ObjectId(v)
+}
 
 const nullOrToString = v => v && v.toString()
 

@@ -1,4 +1,11 @@
-const { ObjectId } = require('mongodb')
+let ObjectId = null
+
+try {
+  const mongodb = require('mongodb')
+  ObjectId = mongodb.ObjectId
+  // eslint-disable-next-line no-empty
+} catch (error) {}
+
 const moment = require('moment')
 
 const isJestRunning = require('./isJestRunning')
@@ -6,7 +13,7 @@ const isJestRunning = require('./isJestRunning')
 if (isJestRunning) {
   expect.extend({
     toBeObjectId(received) {
-      const pass = !!ObjectId.isValid(received)
+      const pass = !!ObjectId && !!ObjectId.isValid(received)
       return {
         message: () =>
           pass
