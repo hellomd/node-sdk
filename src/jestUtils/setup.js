@@ -10,7 +10,7 @@ try {
 
 let PgPool = null
 try {
-  const pg = require('postgres')
+  const pg = require('pg')
   PgPool = pg.Pool
   // eslint-disable-next-line no-empty
 } catch (error) {}
