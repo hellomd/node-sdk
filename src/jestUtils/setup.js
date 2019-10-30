@@ -37,7 +37,7 @@ if (isJestRunning) {
     PGPASSWORD,
   } = process.env
 
-  // eslint-disable-next-line no-inner-declarations
+  // eslint-disable-next-line no-inner-declarations,no-unused-vars
   function cleanPostgres(db, callback, config) {
     var schema = config.postgresql.schema || 'public'
     var schemaPrefix = '"' + schema + '".'
@@ -200,27 +200,27 @@ if (isJestRunning) {
       }
       // Does not work if there are transactions during the test
       // global.pgConn && (await global.pgConn.query('ROLLBACK'))
-      if (global.pgConn) {
-        await new Promise((resolve, reject) => {
-          // const databaseCleaner = new DatabaseCleaner('postgres', {
-          //   postgresql: {
-          //     strategy: 'truncation',
-          //     skipTables: [],
-          //   },
-          // })
-          // databaseCleaner.clean(global.pgConn, error =>
-          cleanPostgres(
-            global.pgConn,
-            error => (error ? reject(error) : resolve()),
-            {
-              postgresql: {
-                strategy: 'truncation',
-                skipTables: [],
-              },
-            },
-          )
-        })
-      }
+      // if (global.pgConn) {
+      //   await new Promise((resolve, reject) => {
+      //     // const databaseCleaner = new DatabaseCleaner('postgres', {
+      //     //   postgresql: {
+      //     //     strategy: 'truncation',
+      //     //     skipTables: [],
+      //     //   },
+      //     // })
+      //     // databaseCleaner.clean(global.pgConn, error =>
+      //     // cleanPostgres(
+      //     //   global.pgConn,
+      //     //   error => (error ? reject(error) : resolve()),
+      //     //   {
+      //     //     postgresql: {
+      //     //       strategy: 'truncation',
+      //     //       skipTables: [],
+      //     //     },
+      //     //   },
+      //     // )
+      //   })
+      // }
     })
 
     afterAll(async () => {
