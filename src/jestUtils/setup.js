@@ -122,7 +122,7 @@ if (isJestRunning) {
       // global.pgConn && (await global.pgConn.query('ROLLBACK'))
       if (global.pgConn) {
         await new Promise((resolve, reject) => {
-          const databaseCleaner = new DatabaseCleaner('postgres', {
+          const databaseCleaner = new DatabaseCleaner('postgresql', {
             postgresql: {
               strategy: 'truncation',
               skipTables: [],
