@@ -17,13 +17,14 @@ try {
 if (isJestRunning) {
   const amqp = require('amqplib')
   const request = require('supertest')
-  const DatabaseCleaner = require('database-cleaner')
 
   const { createTestQueue, createTestMailerQueue } = require('../amqp')
   const authz = require('../authz')
   const { axiosMock } = require('../axios')
   const { mapCollections } = require('../mongo')
   const { authn } = require('../testHelpers')
+
+  const databaseCleaner = require('./databaseCleaner')
 
   const {
     AMQP_URL,
@@ -109,24 +110,11 @@ if (isJestRunning) {
       global.testMailerQueue && (await global.testMailerQueue.purge())
 
       if (global.mongoDb) {
-        const keys = Object.keys(global.mongoDb)
-        for (let i = 0; i < keys.length; i++) {
-          await global.mongoDb[keys[i]].deleteMany({})
-        }
+        await databaseCleaner.mongoDb(global.mongoDb)
       }
 
       if (global.knex) {
-        await new Promise((resolve, reject) => {
-          const databaseCleaner = new DatabaseCleaner('postgresql', {
-            postgresql: {
-              strategy: 'truncation',
-              skipTables: [],
-            },
-          })
-          databaseCleaner.clean(global.knex.client.pool, error =>
-            error ? reject(error) : resolve(),
-          )
-        })
+        await databaseCleaner.postgres(global.knex)
       }
     })
 
