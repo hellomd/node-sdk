@@ -8,10 +8,9 @@ try {
   // eslint-disable-next-line no-empty
 } catch (error) {}
 
-let PgPool = null
+let knexInit = null
 try {
-  const pg = require('pg')
-  PgPool = pg.Pool
+  knexInit = require('knex')
   // eslint-disable-next-line no-empty
 } catch (error) {}
 
@@ -42,7 +41,7 @@ if (isJestRunning) {
     collections,
     hasRabbit = true,
     hasMongoDb = false,
-    hasPostgres = true,
+    hasKnex = true,
   }) {
     beforeAll(async () => {
       // RabbitMQ Related
@@ -61,16 +60,17 @@ if (isJestRunning) {
           })
         : null
 
-      const pgConn = hasPostgres
-        ? PgPool({
-            host: PGHOST,
-            port: PGPORT,
-            database: PGDATABASE,
-            user: PGUSER,
-            password: PGPASSWORD,
-            // we must keep it at 1 to allow for the transactiosn on beforeEach / afterEach to work
-            min: 1,
-            max: 1,
+      const knex = hasKnex
+        ? knexInit({
+            client: 'pg',
+            connection: {
+              host: PGHOST,
+              port: PGPORT,
+              database: PGDATABASE,
+              user: PGUSER,
+              password: PGPASSWORD,
+            },
+            pool: { min: 1, max: 1 },
           })
         : null
 
@@ -90,22 +90,18 @@ if (isJestRunning) {
       global.mongoDbConn = mongoDbConn
       global.mongoDb = mongoDbConn && mapCollections(mongoDbConn, collections)
 
-      global.pgConn = pgConn
-      global.pg = pgConn
+      global.knex = knex
 
       global.onPermit = (method, resource) =>
         authz.onPermit(authUserId, method, resource)
 
-      const appCallback = app({ channel, mongoDbConn, pgConn }).callback()
+      const appCallback = app({ channel, mongoDbConn, knex }).callback()
       global.app = appCallback
       global.request = request(appCallback)
     })
 
     beforeEach(async () => {
       axiosMock.reset()
-
-      // Does not work if there are transactions during the test
-      // global.pgConn && (await global.pgConn.query('START TRANSACTION'))
     })
 
     afterEach(async () => {
@@ -118,9 +114,8 @@ if (isJestRunning) {
           await global.mongoDb[keys[i]].deleteMany({})
         }
       }
-      // Does not work if there are transactions during the test
-      // global.pgConn && (await global.pgConn.query('ROLLBACK'))
-      if (global.pgConn) {
+
+      if (global.knex) {
         await new Promise((resolve, reject) => {
           const databaseCleaner = new DatabaseCleaner('postgresql', {
             postgresql: {
@@ -128,7 +123,7 @@ if (isJestRunning) {
               skipTables: [],
             },
           })
-          databaseCleaner.clean(global.pgConn, error =>
+          databaseCleaner.clean(global.knex.client.pool, error =>
             error ? reject(error) : resolve(),
           )
         })
@@ -138,7 +133,7 @@ if (isJestRunning) {
     afterAll(async () => {
       global.mongoDbConn && (await global.mongoDbConn.close())
       global.rabbit && (await global.rabbit.close())
-      global.pgConn && (await global.pgConn.end())
+      global.knex && (await global.knex.destroy())
     })
   }
 

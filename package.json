@@ -52,9 +52,24 @@
     "supertest": "^4.0.2"
   },
   "peerDependencies": {
+    "knex": "^0.20.1",
     "koa": "^2.4.1",
     "mongodb": "^3.1.10",
     "pg": "^7.12.1"
+  },
+  "peerDependenciesMeta": {
+    "knex": {
+      "optional": true
+    },
+    "koa": {
+      "optional": false
+    },
+    "mongodb": {
+      "optional": true
+    },
+    "pg": {
+      "optional": true
+    }
   },
   "husky": {
     "hooks": {

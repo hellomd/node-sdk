@@ -10,9 +10,9 @@ const { axios, axiosMock } = require('./axios')
 const gracefulShutdown = require('./gracefulShutdown')
 const jestUtils = require('./jestUtils')
 const jobs = require('./jobs')
+const knex = require('./knex')
 const koa = require('./koa')
 const logging = require('./logging')
-const postgres = require('./postgres')
 const mongo = require('./mongo')
 const mongoHelpers = require('./mongoHelpers')
 const paginate = require('./paginate')
@@ -36,9 +36,9 @@ module.exports = {
   gracefulShutdown,
   jestUtils,
   jobs,
+  knex,
   koa,
   logging,
-  postgres,
   mongo,
   mongoHelpers,
   paginate,
