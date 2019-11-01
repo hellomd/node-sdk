@@ -43,6 +43,7 @@ if (isJestRunning) {
     hasRabbit = true,
     hasMongoDb = false,
     hasKnex = true,
+    authUserId = '5c754ba9b78dbd0036a766c1',
   }) {
     beforeAll(async () => {
       // RabbitMQ Related
@@ -76,8 +77,6 @@ if (isJestRunning) {
         : null
 
       // Auth
-      const authUserId = '5c754ba9b78dbd0036a766c1'
-
       global.authn = authn
       global.authz = authz
       global.auth = authn(authUserId)
