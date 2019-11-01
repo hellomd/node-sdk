@@ -1,8 +1,8 @@
 const postgres = async (knex, config = {}) => {
   // Code "copied" from database-cleaner package
   const {
-    schema = 'truncation',
-    strategy = 'public',
+    schema = 'public',
+    strategy = 'truncation',
     skipTables = ['schema_migrations'],
   } = config
 
