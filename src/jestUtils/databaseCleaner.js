@@ -3,7 +3,7 @@ const postgres = async (knex, config = {}) => {
   const {
     schema = 'public',
     strategy = 'truncation',
-    skipTables = ['schema_migrations'],
+    skipTables = ['migrations'],
   } = config
 
   if (strategy !== 'deletion' && strategy !== 'truncation') {
@@ -29,7 +29,7 @@ const postgres = async (knex, config = {}) => {
   } else if (strategy === 'truncation') {
     const tableExpression = result.rows
       .filter(table => {
-        return skipTables.includes(table['table_name'])
+        return !skipTables.includes(table['table_name'])
       })
       .map(table => {
         return `"${schema}"."${table['table_name']}"`
