@@ -30,6 +30,7 @@ const getToken = (
   isService = false,
   appName = process.env.APP_NAME,
   phone,
+  role,
 ) => {
   if (isService && process.env.ENV === 'test') return 'serviceToken'
 
@@ -40,6 +41,7 @@ const getToken = (
         id,
         email,
         phone,
+        role,
         appName,
         isService,
         exp,
