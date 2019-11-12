@@ -23,7 +23,7 @@ const verifyToken = token =>
     })
   })
 
-const getToken = (
+const getToken = ({
   id,
   email,
   expiresIn,
@@ -31,7 +31,7 @@ const getToken = (
   appName = process.env.APP_NAME,
   phone,
   role,
-) => {
+}) => {
   if (isService && process.env.ENV === 'test') return 'serviceToken'
 
   const kind = isService ? TOKEN_KIND.SERVICE : TOKEN_KIND.USER
