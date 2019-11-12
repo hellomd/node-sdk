@@ -65,7 +65,7 @@ const getServiceToken = async (
   id = '5c826a411b0ba36314096f53',
   email = 'services@hellomd.com',
   phone = null,
-) => getToken(id, email, 1, true, phone)
+) => getToken({ id, email, expiresIn: 1, isService: true, phone })
 
 const ctxWithServiceToken = async ctx => ({
   ...ctx,
@@ -76,7 +76,13 @@ const ctxWithServiceToken = async ctx => ({
 
 const serviceTokenMiddleware = async (ctx, next) => {
   const { id = null, email = null, phone = null } = ctx.state.user || {}
-  ctx.state.serviceToken = await getToken(id, email, 1, true, phone)
+  ctx.state.serviceToken = await getToken({
+    id,
+    email,
+    expiresIn: 1,
+    isService: true,
+    phone,
+  })
   await next()
 }
 
