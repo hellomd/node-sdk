@@ -64,6 +64,46 @@ const eq = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
   return null
 }
 
+const operator = (knex, dbKey, op, val) => {
+  return knex.where(dbKey, op, val)
+}
+
+const gt = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
+  if (typeof ctx.query[queryKey] !== 'undefined') {
+    const transformedValue = transform(ctx.query[queryKey])
+
+    return knexBuilder => operator(knexBuilder, dbKey, '>', transformedValue)
+  }
+  return null
+}
+
+const gte = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
+  if (typeof ctx.query[queryKey] !== 'undefined') {
+    const transformedValue = transform(ctx.query[queryKey])
+
+    return knexBuilder => operator(knexBuilder, dbKey, '>=', transformedValue)
+  }
+  return null
+}
+
+const lt = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
+  if (typeof ctx.query[queryKey] !== 'undefined') {
+    const transformedValue = transform(ctx.query[queryKey])
+
+    return knexBuilder => operator(knexBuilder, dbKey, '<', transformedValue)
+  }
+  return null
+}
+
+const lte = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
+  if (typeof ctx.query[queryKey] !== 'undefined') {
+    const transformedValue = transform(ctx.query[queryKey])
+
+    return knexBuilder => operator(knexBuilder, dbKey, '<=', transformedValue)
+  }
+  return null
+}
+
 const bool = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
   const eqFn = eq(ctx, queryKey, dbKey, v =>
     transform(convertStringToBoolean(v)),
@@ -150,6 +190,10 @@ const filters = {
   builder,
   negate,
   eq,
+  gt,
+  gte,
+  lt,
+  lte,
   bool,
   in: $in,
   prefix,

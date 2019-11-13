@@ -381,4 +381,45 @@ describe('knex pg filters', () => {
       expect(sql).to.eql(`select * from "table_name"`)
     })
   })
+
+  describe('complex filters', () => {
+    it('many filters', function() {
+      const ctx = {
+        query: {
+          eq: 'bar',
+          nullEq: null,
+          bool: true,
+          in: ['bar'],
+          prefix: 'bar',
+          inPrefix: ['bar'],
+          notGreaterEqualThan: 0,
+          gt: 1,
+          gte: 2,
+          lt: 3,
+          lte: 4,
+        },
+      }
+
+      const filter = filters.builder([
+        filters.eq(ctx, 'eq'),
+        filters.eq(ctx, 'nullEq'),
+        filters.bool(ctx, 'bool'),
+        filters.in(ctx, 'in'),
+        filters.prefix(ctx, 'prefix'),
+        filters.inPrefix(ctx, 'inPrefix'),
+        filters.negate([filters.gte(ctx, 'notGreaterEqualThan')]),
+        filters.gt(ctx, 'gt'),
+        filters.gte(ctx, 'gte'),
+        filters.lt(ctx, 'lt'),
+        filters.lte(ctx, 'lte'),
+      ])
+      const sql = knex(testTable)
+        .select('*')
+        .where(filter)
+        .toString()
+      expect(sql).to.eql(
+        `select * from "table_name" where ("eq" = 'bar' and "nullEq" is null and "bool" = true and ("in" in ('bar')) and "prefix" like 'bar%' escape '|' and "inPrefix" like any(array('bar%')) escape '|' and not ("notGreaterEqualThan" >= 0) and "gt" > 1 and "gte" >= 2 and "lt" < 3 and "lte" <= 4)`,
+      )
+    })
+  })
 })
