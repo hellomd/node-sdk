@@ -36,7 +36,7 @@ const setLink = (ctx, total, paginationOptions) => {
   page < lastPage && appendLink(ctx, 'next', createUrl(ctx, page + 1))
 }
 
-const setTotaCount = (ctx, total) => {
+const setTotalCount = (ctx, total) => {
   ctx.set('X-Total-Count', total)
 }
 
@@ -50,7 +50,7 @@ const setPaginationResponseFields = (ctx, total, paginationOptions) => {
       : paginationOptions
 
   setLink(ctx, total, paginationOptions)
-  setTotaCount(ctx, total)
+  setTotalCount(ctx, total)
 }
 
 /**
