@@ -209,4 +209,4 @@ for (const filterKey of Object.keys(filters)) {
   filters[filterKey] = validableFilter(filters[filterKey])
 }
 
-module.exports = filters
+module.exports = { filters }
