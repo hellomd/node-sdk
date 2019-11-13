@@ -25,9 +25,9 @@ const appendLink = (ctx, rel, url) => {
   ctx.append('Link', `<${url}>; rel="${rel}"`)
 }
 
-const setLink = (ctx, count) => {
-  const { page, perPage, _limit } = extractPaginationOptions(ctx)
-  const lastPage = Math.ceil(count / perPage)
+const setLink = (ctx, total, paginationOptions) => {
+  const { page, perPage } = paginationOptions || extractPaginationOptions(ctx)
+  const lastPage = Math.ceil(total / perPage)
 
   appendLink(ctx, 'first', createUrl(ctx, 0))
   appendLink(ctx, 'last', createUrl(ctx, lastPage))
@@ -36,8 +36,21 @@ const setLink = (ctx, count) => {
   page < lastPage && appendLink(ctx, 'next', createUrl(ctx, page + 1))
 }
 
-const setTotaCount = (ctx, count) => {
-  ctx.set('X-Total-Count', count)
+const setTotalCount = (ctx, total) => {
+  ctx.set('X-Total-Count', total)
+}
+
+const setPaginationResponseFields = (ctx, total, paginationOptions) => {
+  // extract total from second param in case it's a object
+  //  If it's an object, that means the second param is the paginationOptions param with a total property
+  total = typeof total === 'object' ? total.total : total
+  paginationOptions =
+    typeof total === 'object' && typeof paginationOptions === 'undefined'
+      ? total
+      : paginationOptions
+
+  setLink(ctx, total, paginationOptions)
+  setTotalCount(ctx, total)
 }
 
 /**
@@ -45,12 +58,20 @@ const setTotaCount = (ctx, count) => {
  * @apiParam {Number} [page=0] Page number
  * @apiParam {Number} [perPage=20] Amount of items per page
  */
-const paginate = (ctx, count, defaultPerPage, maxPerPage) => {
-  if (typeof count !== 'undefined') {
-    setLink(ctx, count)
-    setTotaCount(ctx, count, defaultPerPage, maxPerPage)
+const paginate = (ctx, total, defaultPerPage, maxPerPage) => {
+  const paginationOptions = extractPaginationOptions(
+    ctx,
+    defaultPerPage,
+    maxPerPage,
+  )
+  if (typeof total !== 'undefined') {
+    setPaginationResponseFields(ctx, total, paginationOptions)
   }
-  return extractPaginationOptions(ctx, defaultPerPage, maxPerPage)
+  return paginationOptions
 }
 
-module.exports = paginate
+module.exports = {
+  paginate,
+  extractPaginationOptions,
+  setPaginationResponseFields,
+}
