@@ -3,7 +3,7 @@ const sinon = require('sinon')
 
 const filters = require('../src/mongo/filters')
 
-describe('filters', () => {
+describe('mongodb filters', () => {
   describe('eq', () => {
     it('returns fulfilled query', function() {
       const ctx = { query: { foo: 'bar' } }
