@@ -2,7 +2,7 @@ const { expect } = require('chai')
 const sinon = require('sinon')
 const knex = require('knex')({ client: 'pg' })
 
-const filters = require('../src/knex/filters')
+const { filters } = require('../src/knex/filters')
 
 const testTable = 'table_name'
 
