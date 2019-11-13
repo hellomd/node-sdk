@@ -14,12 +14,15 @@ const parseSort = sort => {
 const sort = (ctx, defaultSort) => {
   const { sort = defaultSort } = ctx.query
   if (Array.isArray(sort)) {
-    return sort.reduce((finalObject, currentSort) => ({
-      ...finalObject,
-      ...parseSort(currentSort)
-    }), {})
+    return sort.reduce(
+      (finalObject, currentSort) => ({
+        ...finalObject,
+        ...parseSort(currentSort),
+      }),
+      {},
+    )
   }
   return sort ? parseSort(sort) : {}
 }
 
-module.exports = sort
+module.exports = { sort }

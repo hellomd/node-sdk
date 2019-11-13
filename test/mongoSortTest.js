@@ -1,10 +1,12 @@
 const { expect } = require('chai')
 const Koa = require('koa')
 const request = require('supertest')
-const { createServer } = require('./testHelpers')
-const sort = require('../src/sort')
 
-const createAppWithDefaultSort = (defaultSort) => {
+const { sort } = require('../src/mongo')
+
+const { createServer } = require('./testHelpers')
+
+const createAppWithDefaultSort = defaultSort => {
   const { app, server } = createServer()
   app.use(ctx => {
     ctx.body = sort(ctx, defaultSort)

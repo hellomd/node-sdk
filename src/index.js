@@ -18,7 +18,6 @@ const mongoHelpers = require('./mongoHelpers')
 const paginate = require('./paginate')
 const { validate, plainValidate } = require('./validate')
 const recovery = require('./recovery')
-const sort = require('./sort')
 const utils = require('./utils')
 const testHelpers = require('./testHelpers')
 const testPresets = require('./testPresets')
@@ -44,7 +43,6 @@ module.exports = {
   paginate,
   plainValidate,
   recovery,
-  sort,
   utils,
   testHelpers,
   testPresets,
