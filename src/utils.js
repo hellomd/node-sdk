@@ -58,6 +58,9 @@ const randomString = async (length = 10) =>
     })
   })
 
+const uuidV1Regex = /^[0-9A-F]{8}-[0-9A-F]{4}-1[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i
+const uuidV4Regex = /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i
+
 const sample = arr => arr[randomInt(arr.length - 1)]
 
 const sleep = timeMs => new Promise(resolve => setTimeout(resolve, timeMs))
@@ -98,6 +101,8 @@ module.exports = {
   times,
   randomInt,
   randomString,
+  uuidV1Regex,
+  uuidV4Regex,
   sample,
   sleep,
   toArray,

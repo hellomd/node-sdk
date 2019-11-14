@@ -9,8 +9,10 @@ try {
   // eslint-disable-next-line no-empty
 } catch (error) {}
 
+const { uuidV1Regex, uuidV4Regex } = require('./utils')
+
 const defaultRefResourceIdValidator = {
-  objectId: { message: 'does not have a valid resource id' },
+  uuidV1: { message: 'does not have a valid resource uuid' },
 }
 
 validate.validators.ref = function(value, options, _key, _attributes) {
@@ -223,6 +225,26 @@ validate.validators.uuid = function(value, options) {
   if (!regex.test(value)) {
     return options.message || this.message || 'is not valid uuid'
   }
+}
+
+validate.validators.uuidV1 = function(value, options) {
+  if (!validate.isDefined(value)) return
+
+  options = validate.extend({}, this.options, options)
+
+  const isValid = uuidV1Regex.test(value)
+
+  if (!isValid) return options.message || this.message || 'is not a valid uuid'
+}
+
+validate.validators.uuidV4 = function(value, options) {
+  if (!validate.isDefined(value)) return
+
+  options = validate.extend({}, this.options, options)
+
+  const isValid = uuidV4Regex.test(value)
+
+  if (!isValid) return options.message || this.message || 'is not a valid uuid'
 }
 
 validate.validators.datetimeFormat = function(value, options) {
