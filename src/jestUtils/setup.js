@@ -25,6 +25,7 @@ if (isJestRunning) {
   const { authn } = require('../testHelpers')
 
   const databaseCleaner = require('./databaseCleaner')
+  const { knexTestUtils } = require('./knexTestUtils')
 
   const {
     AMQP_URL,
@@ -91,6 +92,7 @@ if (isJestRunning) {
       global.mongoDb = mongoDbConn && mapCollections(mongoDbConn, collections)
 
       global.knex = knex
+      global.knexTestUtils = knexTestUtils
 
       global.onPermit = (method, resource) =>
         authz.onPermit(authUserId, method, resource)
