@@ -162,7 +162,7 @@ describe('plainValidate', () => {
         },
       }
       const result = plainValidate(
-        { foo: 'a:5bed8593176c0fc8caf0d0b2' },
+        { foo: 'a:2ac91026-0710-11ea-a0fb-4f30736655dc' },
         constraints,
       )
       expect(result).to.be.undefined
@@ -175,7 +175,7 @@ describe('plainValidate', () => {
         },
       }
       const result = plainValidate(
-        { foo: '  :5bed8593176c0fc8caf0d0b2' },
+        { foo: '  :2ac91026-0710-11ea-a0fb-4f30736655dc' },
         constraints,
       )
       expectError(result)
@@ -203,7 +203,7 @@ describe('plainValidate', () => {
       expectError(result)
     })
 
-    it('fails with non objectid resource id because of default id constraint', () => {
+    it('fails with non uuid resource id because of default id constraint', () => {
       const constraints = {
         foo: {
           ref: true,

@@ -9,8 +9,6 @@ try {
   // eslint-disable-next-line no-empty
 } catch (error) {}
 
-const { validate } = require('./validate')
-
 const convertStringToBoolean = value =>
   typeof value === 'undefined' || ['0', 'false'].includes(value) ? false : true
 
@@ -76,7 +74,12 @@ const isLocal = !process.env.ENV || process.env.ENV === 'local'
 const valueOrFunction = (value, ctx, args) =>
   typeof value === 'function' ? value(ctx, args) : value
 
-const validableFilter = fn => (ctx, queryKey, dbKey = queryKey, ...args) => {
+const validableFilter = (validate, fn) => (
+  ctx,
+  queryKey,
+  dbKey = queryKey,
+  ...args
+) => {
   const options = args[args.length - 1]
 
   if (options && options.constraints) {

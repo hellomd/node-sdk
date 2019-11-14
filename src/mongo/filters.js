@@ -6,6 +6,8 @@ const {
   validableFilter,
 } = require('../utils')
 
+const { validate } = require('../validate')
+
 const eq = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
   if (typeof ctx.query[queryKey] !== 'undefined') {
     return {
@@ -126,7 +128,7 @@ const filters = {
 }
 
 for (const filterKey of Object.keys(filters)) {
-  filters[filterKey] = validableFilter(filters[filterKey])
+  filters[filterKey] = validableFilter(validate, filters[filterKey])
 }
 
 module.exports = filters

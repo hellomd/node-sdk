@@ -6,6 +6,8 @@ const {
   validableFilter,
 } = require('../utils')
 
+const { validate } = require('../validate')
+
 const builder = definitions => {
   // knexBuilder is a knex obj
   //  see http://knexjs.org/#Builder-where
@@ -206,7 +208,7 @@ const filters = {
 }
 
 for (const filterKey of Object.keys(filters)) {
-  filters[filterKey] = validableFilter(filters[filterKey])
+  filters[filterKey] = validableFilter(validate, filters[filterKey])
 }
 
 module.exports = { filters }
