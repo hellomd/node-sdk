@@ -45,6 +45,7 @@ if (isJestRunning) {
     hasMongoDb = false,
     hasKnex = true,
     authUserId = '5c754ba9b78dbd0036a766c1',
+    appExtraPropsFn = () => ({}),
   }) {
     beforeAll(async () => {
       // RabbitMQ Related
@@ -97,7 +98,13 @@ if (isJestRunning) {
       global.onPermit = (method, resource) =>
         authz.onPermit(authUserId, method, resource)
 
-      const appCallback = app({ channel, mongoDbConn, knex }).callback()
+      global.appExtraProps = appExtraPropsFn() || {}
+      const appCallback = app({
+        channel,
+        mongoDbConn,
+        knex,
+        ...global.appExtraProps,
+      }).callback()
       global.app = appCallback
       global.request = request(appCallback)
     })
