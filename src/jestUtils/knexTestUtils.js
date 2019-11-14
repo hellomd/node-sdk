@@ -1,13 +1,10 @@
 const knexTestUtils = {
-  async knexRunWithoutFkTriggers(knex, table, fn, columns = []) {
+  // https://stackoverflow.com/a/38113838/710693
+  async knexRunWithoutTriggers(knex, table, fn) {
     return knex.transaction(async trx => {
-      const triggerNames =
-        columns && columns.length
-          ? columns.map(col => `"${table}_${col}_fkey"`).join(',')
-          : 'ALL'
-      await trx.raw(`ALTER TABLE ?? DISABLE TRIGGER ${triggerNames}`, [table])
+      await trx.raw('ALTER TABLE ?? DISABLE TRIGGER ALL', [table])
       const data = await fn(trx)
-      await trx.raw(`ALTER TABLE ?? ENABLE TRIGGER ${triggerNames}`, [table])
+      await trx.raw('ALTER TABLE ?? ENABLE TRIGGER ALL', [table])
       return data
     })
   },
@@ -15,23 +12,18 @@ const knexTestUtils = {
   async insertDataOnTable(table, data, options = {}) {
     const {
       returning = '*',
-      shouldIgnoreFks = true,
-      fkColumnsToIgnore,
+      shouldIgnoreTriggers = true,
       knex = global.knex,
     } = options
 
-    const wrapper = shouldIgnoreFks
-      ? knexTestUtils.knexRunWithoutFkTriggers
+    const wrapper = shouldIgnoreTriggers
+      ? knexTestUtils.knexRunWithoutTriggers
       : async (a, b, fn) => fn(knex)
 
-    return wrapper(
-      knex,
-      table,
-      async trx =>
-        trx(table)
-          .insert(data)
-          .returning(returning),
-      fkColumnsToIgnore,
+    return wrapper(knex, table, async trx =>
+      trx(table)
+        .insert(data)
+        .returning(returning),
     )
   },
 }

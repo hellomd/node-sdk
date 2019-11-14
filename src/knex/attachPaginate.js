@@ -72,7 +72,8 @@ module.exports.attachPaginate = function attachPaginate() {
           .first()
           .transacting(trx)
 
-        const total = countQuery.total
+        // countQuery.total is a BigInt here
+        const total = parseInt(countQuery.total, 10)
 
         pagination = {
           ...pagination,
