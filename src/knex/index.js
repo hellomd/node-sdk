@@ -1,4 +1,4 @@
-const { attachPaginate } = require('./attachPaginateinate')
+const { attachPaginate } = require('./attachPaginate')
 const { filters } = require('./filters')
 const { setupPg } = require('./setupPg')
 const { sort } = require('./sort')
