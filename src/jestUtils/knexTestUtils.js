@@ -9,6 +9,17 @@ const knexTestUtils = {
     })
   },
 
+  addBeforeAfterHooksToIgnoreTriggers() {
+    global.beforeAll &&
+      global.beforeAll(async () => {
+        await global.knex.raw("SET session_replication_role = 'replica'")
+      })
+    global.afterAll &&
+      global.afterAll(async () => {
+        await global.knex.raw("SET session_replication_role = 'origin'")
+      })
+  },
+
   async insertDataOnTable(table, data, options = {}) {
     const {
       returning = '*',

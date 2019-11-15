@@ -11,8 +11,6 @@ try {
 
 const { uuidV1Regex, uuidV4Regex } = require('./utils')
 
-console.log(uuidV1Regex, uuidV4Regex)
-
 const defaultRefResourceIdValidator = {
   uuidV1: { message: 'does not have a valid resource uuid' },
 }
@@ -233,8 +231,6 @@ validate.validators.uuidV1 = function(value, options) {
   if (!validate.isDefined(value)) return
 
   options = validate.extend({}, this.options, options)
-
-  console.log(uuidV1Regex, uuidV4Regex)
 
   const isValid = uuidV1Regex.test(value)
 
