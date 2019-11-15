@@ -27,11 +27,20 @@ const api = {
    * @apiDefine AuthError
    * @apiError 403 Forbidden
    */
-  permit: async (refId, method, resource, refKind = 'user', ctx = {}) => {
+  permit: async (
+    refId,
+    method,
+    resource,
+    refKind = 'user',
+    ctx = {},
+    options = { shouldUseRef: !!process.env.HMD_AUTHZ_USE_REF },
+  ) => {
     const { logger = defaultLogger } = ctx
 
     for (let i = 0; i <= maxRetries; i++) {
-      const url = `${baseUrl}/${refKind}:${refId}/permissions/${method}/${resource}`
+      const url = `${baseUrl}/${
+        options.shouldUseRef ? `${refKind}:${refId}` : refId
+      }/permissions/${method}/${resource}`
 
       try {
         await axios.head(url, {
@@ -82,13 +91,22 @@ const api = {
     }
   },
 
-  attachRole: async (refId, role, token, refKind = 'user', ctx = {}) => {
+  attachRole: async (
+    refId,
+    role,
+    token,
+    refKind = 'user',
+    ctx = {},
+    options = { shouldUseRef: !!process.env.HMD_AUTHZ_USE_REF },
+  ) => {
     const headers = buildServiceTokenHeaders(token)
     for (let i = 0; i <= maxRetries; i++) {
       try {
         await axios({
           method: 'put',
-          url: `${baseUrl}/${refKind}:${refId}/roles/${role}`,
+          url: `${baseUrl}/${
+            options.shouldUseRef ? `${refKind}:${refId}` : refId
+          }/roles/${role}`,
           headers: {
             // add request-id header by default
             ...(!!ctx &&
@@ -107,13 +125,22 @@ const api = {
     }
   },
 
-  detachRole: async (refId, role, token, refKind = 'user', ctx = {}) => {
+  detachRole: async (
+    refId,
+    role,
+    token,
+    refKind = 'user',
+    ctx = {},
+    options = { shouldUseRef: !!process.env.HMD_AUTHZ_USE_REF },
+  ) => {
     const headers = buildServiceTokenHeaders(token)
     for (let i = 0; i <= maxRetries; i++) {
       try {
         await axios({
           method: 'delete',
-          url: `${baseUrl}/${refKind}:${refId}/roles/${role}`,
+          url: `${baseUrl}/${
+            options.shouldUseRef ? `${refKind}:${refId}` : refId
+          }/roles/${role}`,
           headers: {
             // add request-id header by default
             ...(!!ctx &&
@@ -134,16 +161,44 @@ const api = {
 }
 
 const mocks = {
-  onPermit: (refId, method, resource, refKind = 'user') =>
+  onPermit: (
+    refId,
+    method,
+    resource,
+    refKind = 'user',
+    options = { shouldUseRef: !!process.env.HMD_AUTHZ_USE_REF },
+  ) =>
     axiosMock.onHead(
-      `${baseUrl}/${refKind}:${refId}/permissions/${method}/${resource}`,
+      `${baseUrl}/${
+        options.shouldUseRef ? `${refKind}:${refId}` : refId
+      }/permissions/${method}/${resource}`,
     ),
 
-  onAttachRole: (refId, role, refKind = 'user') =>
-    axiosMock.onPut(new RegExp(`${baseUrl}/${refKind}:${refId}/roles/${role}`)),
+  onAttachRole: (
+    refId,
+    role,
+    refKind = 'user',
+    options = { shouldUseRef: !!process.env.HMD_AUTHZ_USE_REF },
+  ) =>
+    axiosMock.onPut(
+      new RegExp(
+        `${baseUrl}/${
+          options.shouldUseRef ? `${refKind}:${refId}` : refId
+        }/roles/${role}`,
+      ),
+    ),
 
-  onDetachRole: (refId, role, refKind = 'user') =>
-    axiosMock.onDelete(`${baseUrl}/${refKind}:${refId}/roles/${role}`),
+  onDetachRole: (
+    refId,
+    role,
+    refKind = 'user',
+    options = { shouldUseRef: !!process.env.HMD_AUTHZ_USE_REF },
+  ) =>
+    axiosMock.onDelete(
+      `${baseUrl}/${
+        options.shouldUseRef ? `${refKind}:${refId}` : refId
+      }/roles/${role}`,
+    ),
 }
 
 const koa = {
