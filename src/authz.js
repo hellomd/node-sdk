@@ -39,7 +39,7 @@ const api = {
 
     for (let i = 0; i <= maxRetries; i++) {
       const url = `${baseUrl}/${
-        options.shouldUseRef ? `${refKind}:${refId}` : refId
+        options.shouldUseRef ? `${refKind}:${refId}` : `users/${refId}`
       }/permissions/${method}/${resource}`
 
       try {
@@ -105,7 +105,7 @@ const api = {
         await axios({
           method: 'put',
           url: `${baseUrl}/${
-            options.shouldUseRef ? `${refKind}:${refId}` : refId
+            options.shouldUseRef ? `${refKind}:${refId}` : `users/${refId}`
           }/roles/${role}`,
           headers: {
             // add request-id header by default
@@ -139,7 +139,7 @@ const api = {
         await axios({
           method: 'delete',
           url: `${baseUrl}/${
-            options.shouldUseRef ? `${refKind}:${refId}` : refId
+            options.shouldUseRef ? `${refKind}:${refId}` : `users/${refId}`
           }/roles/${role}`,
           headers: {
             // add request-id header by default
@@ -170,7 +170,7 @@ const mocks = {
   ) =>
     axiosMock.onHead(
       `${baseUrl}/${
-        options.shouldUseRef ? `${refKind}:${refId}` : refId
+        options.shouldUseRef ? `${refKind}:${refId}` : `users/${refId}`
       }/permissions/${method}/${resource}`,
     ),
 
@@ -183,7 +183,7 @@ const mocks = {
     axiosMock.onPut(
       new RegExp(
         `${baseUrl}/${
-          options.shouldUseRef ? `${refKind}:${refId}` : refId
+          options.shouldUseRef ? `${refKind}:${refId}` : `users/${refId}`
         }/roles/${role}`,
       ),
     ),
@@ -196,7 +196,7 @@ const mocks = {
   ) =>
     axiosMock.onDelete(
       `${baseUrl}/${
-        options.shouldUseRef ? `${refKind}:${refId}` : refId
+        options.shouldUseRef ? `${refKind}:${refId}` : `users/${refId}`
       }/roles/${role}`,
     ),
 }
