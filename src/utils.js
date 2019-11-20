@@ -74,16 +74,21 @@ const isLocal = !process.env.ENV || process.env.ENV === 'local'
 const valueOrFunction = (value, ctx, args) =>
   typeof value === 'function' ? value(ctx, args) : value
 
-const validableFilter = (validate, fn) => (
+const validableFilter = (validate, fn, filterOptions = {}) => (
   ctx,
   queryKey,
   dbKey = queryKey,
   ...args
 ) => {
+  const { isArrayFilter = false } = filterOptions
   const options = args[args.length - 1]
 
   if (options && options.constraints) {
-    validate(ctx, ctx.query, {
+    const obj = isArrayFilter
+      ? { ...ctx.query, [queryKey]: toArray(ctx.query[queryKey]) }
+      : ctx.query
+
+    validate(ctx, obj, {
       [queryKey]: options.constraints,
     })
   }

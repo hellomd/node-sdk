@@ -208,7 +208,9 @@ const filters = {
 }
 
 for (const filterKey of Object.keys(filters)) {
-  filters[filterKey] = validableFilter(validate, filters[filterKey])
+  filters[filterKey] = validableFilter(validate, filters[filterKey], {
+    isArrayFilter: ['inPrefix', 'in'].includes(filterKey),
+  })
 }
 
 module.exports = { filters }
