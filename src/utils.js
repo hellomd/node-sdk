@@ -82,6 +82,7 @@ const validableFilter = (validate, fn, filterOptions = {}) => (
 ) => {
   const { isArrayFilter = false } = filterOptions
   const options = args[args.length - 1]
+  let argsFinal = args
 
   if (options && options.constraints) {
     const obj = isArrayFilter
@@ -91,9 +92,11 @@ const validableFilter = (validate, fn, filterOptions = {}) => (
     validate(ctx, obj, {
       [queryKey]: options.constraints,
     })
+
+    argsFinal = args.slice(0, args.length - 1)
   }
 
-  return fn(ctx, queryKey, dbKey, ...args)
+  return fn(ctx, queryKey, dbKey, ...argsFinal)
 }
 
 module.exports = {
