@@ -16,6 +16,7 @@ const logging = require('./logging')
 const mongo = require('./mongo')
 const mongoHelpers = require('./mongoHelpers')
 const paginate = require('./paginate')
+const pg = require('./pg')
 const { validate, plainValidate } = require('./validate')
 const recovery = require('./recovery')
 const utils = require('./utils')
@@ -41,6 +42,7 @@ module.exports = {
   mongo,
   mongoHelpers,
   paginate,
+  pg,
   plainValidate,
   recovery,
   utils,
