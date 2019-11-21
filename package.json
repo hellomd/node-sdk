@@ -6,7 +6,7 @@
   "author": "Marcello Milhomem Albuquerque <marcello.m.albuquerque@gmail.com>",
   "license": "MIT",
   "bin": {
-    "node-sdk": "./cli/index.js"
+    "node-sdk": "./src/cli/index.js"
   },
   "scripts": {
     "test": "cross-env ENV=test mocha --require test/common",
