@@ -1,8 +1,11 @@
 const path = require('path')
 
-const rootProjectDir = path.resolve(require.main.filename)
 // main generally is src/index.js÷, and migrations generally are located at migrations/
-const defaultMigrationsDir = path.resolve(rootProjectDir, '..', 'migrations')
+const rootProjectDir = path.resolve(path.dirname(require.main.filename))
+const defaultMigrationsDir = path.resolve(
+  path.join(rootProjectDir, '..', 'migrations'),
+)
+
 const defaultConfig = {
   database: process.env.PGDATABASE,
   host: process.env.PGHOST,
