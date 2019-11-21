@@ -32,14 +32,4 @@ const migrate = async ({
   await _migrate(dbConfig, migrationsDir)
 }
 
-const logger = require('signale')
-logger.info('Starting migration...')
-migrate({ dbConfig: defaultConfig, logFn: logger.log })
-  .then(() => {
-    logger.info('Migration finished.')
-  })
-  .catch(error => {
-    logger.error('Error running migration', { error })
-    process.exit(1)
-  })
 module.exports = { migrate }
