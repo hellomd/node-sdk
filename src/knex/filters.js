@@ -2,6 +2,7 @@ const {
   convertStringToBoolean,
   convertStringToNull,
   escapeSqlLikePatternMatching,
+  escapeRegexp,
   toArray,
   validableFilter,
 } = require('../utils')
@@ -55,15 +56,15 @@ const negate = definitions => {
 }
 
 const eq = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
-  if (typeof ctx.query[queryKey] !== 'undefined') {
-    const transformedValue = transform(convertStringToNull(ctx.query[queryKey]))
-
-    return knexBuilder =>
-      transformedValue === null
-        ? knexBuilder.whereNull(dbKey)
-        : knexBuilder.where(dbKey, transformedValue)
+  if (typeof ctx.query[queryKey] === 'undefined') {
+    return null
   }
-  return null
+  const transformedValue = transform(convertStringToNull(ctx.query[queryKey]))
+
+  return knexBuilder =>
+    transformedValue === null
+      ? knexBuilder.whereNull(dbKey)
+      : knexBuilder.where(dbKey, transformedValue)
 }
 
 const operator = (knex, dbKey, op, val) => {
@@ -71,39 +72,39 @@ const operator = (knex, dbKey, op, val) => {
 }
 
 const gt = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
-  if (typeof ctx.query[queryKey] !== 'undefined') {
-    const transformedValue = transform(ctx.query[queryKey])
-
-    return knexBuilder => operator(knexBuilder, dbKey, '>', transformedValue)
+  if (typeof ctx.query[queryKey] === 'undefined') {
+    return null
   }
-  return null
+  const transformedValue = transform(ctx.query[queryKey])
+
+  return knexBuilder => operator(knexBuilder, dbKey, '>', transformedValue)
 }
 
 const gte = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
-  if (typeof ctx.query[queryKey] !== 'undefined') {
-    const transformedValue = transform(ctx.query[queryKey])
-
-    return knexBuilder => operator(knexBuilder, dbKey, '>=', transformedValue)
+  if (typeof ctx.query[queryKey] === 'undefined') {
+    return null
   }
-  return null
+  const transformedValue = transform(ctx.query[queryKey])
+
+  return knexBuilder => operator(knexBuilder, dbKey, '>=', transformedValue)
 }
 
 const lt = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
-  if (typeof ctx.query[queryKey] !== 'undefined') {
-    const transformedValue = transform(ctx.query[queryKey])
-
-    return knexBuilder => operator(knexBuilder, dbKey, '<', transformedValue)
+  if (typeof ctx.query[queryKey] === 'undefined') {
+    return null
   }
-  return null
+  const transformedValue = transform(ctx.query[queryKey])
+
+  return knexBuilder => operator(knexBuilder, dbKey, '<', transformedValue)
 }
 
 const lte = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
-  if (typeof ctx.query[queryKey] !== 'undefined') {
-    const transformedValue = transform(ctx.query[queryKey])
-
-    return knexBuilder => operator(knexBuilder, dbKey, '<=', transformedValue)
+  if (typeof ctx.query[queryKey] === 'undefined') {
+    return null
   }
-  return null
+  const transformedValue = transform(ctx.query[queryKey])
+
+  return knexBuilder => operator(knexBuilder, dbKey, '<=', transformedValue)
 }
 
 const bool = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
@@ -115,77 +116,159 @@ const bool = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
 }
 
 const $in = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
-  if (typeof ctx.query[queryKey] !== 'undefined') {
-    const transformedValues = transform(
-      toArray(convertStringToNull(ctx.query[queryKey])),
-    )
-
-    if (!Array.isArray(transformedValues)) {
-      // ctx.throw(422, 'Invalid filter param', { errors: { [queryKey]: ['Param must be an array'] }})
-      throw new Error(
-        'Invalid transformation, filter value after transform must be array',
-      )
-    }
-
-    const hasNullValue = transformedValues.some(v => v === null)
-    const transformedValuesNonNull = transformedValues.filter(v => v !== null)
-
-    return knexBuilder => {
-      knexBuilder.where(knexBuilderInternal => {
-        knexBuilderInternal.whereIn(dbKey, transformedValuesNonNull)
-
-        if (hasNullValue) knexBuilderInternal.orWhereNull(dbKey)
-      })
-    }
+  if (typeof ctx.query[queryKey] === 'undefined') {
+    return null
   }
-  return null
+  const transformedValues = transform(
+    toArray(convertStringToNull(ctx.query[queryKey])),
+  )
+
+  if (!Array.isArray(transformedValues)) {
+    // ctx.throw(422, 'Invalid filter param', { errors: { [queryKey]: ['Param must be an array'] }})
+    throw new Error(
+      'Invalid transformation, filter value after transform must be array',
+    )
+  }
+
+  const hasNullValue = transformedValues.some(v => v === null)
+  const transformedValuesNonNull = transformedValues.filter(v => v !== null)
+
+  return knexBuilder => {
+    knexBuilder.where(knexBuilderInternal => {
+      knexBuilderInternal.whereIn(dbKey, transformedValuesNonNull)
+
+      if (hasNullValue) knexBuilderInternal.orWhereNull(dbKey)
+    })
+  }
 }
 
 const prefix = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
-  if (typeof ctx.query[queryKey] !== 'undefined') {
-    const escapeChar = '|'
-    const transformedValue = transform(
-      escapeSqlLikePatternMatching(ctx.query[queryKey], escapeChar),
-    )
-    return knexBuilder =>
-      knexBuilder.whereRaw('?? like ? escape ?', [
-        dbKey,
-        `${transformedValue}%`,
-        escapeChar,
-      ])
+  if (typeof ctx.query[queryKey] === 'undefined') {
+    return null
   }
-  return null
+  const escapeChar = '|'
+  const transformedValue = transform(
+    escapeSqlLikePatternMatching(ctx.query[queryKey], escapeChar),
+  )
+  return knexBuilder =>
+    knexBuilder.whereRaw(`?? like ? escape '${escapeChar}'`, [
+      dbKey,
+      `${transformedValue}%`,
+    ])
 }
 
 const inPrefix = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
-  if (typeof ctx.query[queryKey] !== 'undefined') {
-    const escapeChar = '|'
-
-    const transformedValues = transform(toArray(ctx.query[queryKey]))
-
-    if (!Array.isArray(transformedValues)) {
-      // ctx.throw(422, 'Invalid filter param', { errors: { [queryKey]: ['Param must be an array'] }})
-      throw new Error(
-        'Invalid transformation, filter value after transform must be array',
-      )
-    }
-
-    if (!transformedValues.length) return
-
-    const transformedValuesEscaped = transformedValues.map(v =>
-      escapeSqlLikePatternMatching(v, escapeChar),
-    )
-
-    // per https://stackoverflow.com/a/38074246/710693
-    return knexBuilder =>
-      knexBuilder.whereRaw(
-        `?? like any(array(${transformedValuesEscaped
-          .map(_v => '?')
-          .join(',')})) escape ?`,
-        [dbKey, ...transformedValuesEscaped.map(v => `${v}%`), escapeChar],
-      )
+  if (typeof ctx.query[queryKey] === 'undefined') {
+    return null
   }
-  return null
+
+  const escapeChar = '\\'
+
+  const transformedValues = transform(toArray(ctx.query[queryKey]))
+
+  if (!Array.isArray(transformedValues)) {
+    // ctx.throw(422, 'Invalid filter param', { errors: { [queryKey]: ['Param must be an array'] }})
+    throw new Error(
+      'Invalid transformation, filter value after transform must be array',
+    )
+  }
+
+  if (!transformedValues.length) return
+
+  const transformedValuesEscaped = transformedValues.map(v =>
+    escapeSqlLikePatternMatching(v, escapeChar),
+  )
+
+  // per https://stackoverflow.com/a/38074246/710693
+  return knexBuilder =>
+    knexBuilder.whereRaw(
+      `?? like any(array[${transformedValuesEscaped
+        .map(_v => '?')
+        .join(',')}])`,
+      [dbKey, ...transformedValuesEscaped.map(v => `${v}%`)],
+    )
+}
+
+const between = (
+  ctx,
+  queryKeyPrefix,
+  dbKey = queryKeyPrefix,
+  transform = v => v,
+) => {
+  const valueFrom = ctx.query[`${queryKeyPrefix}From`]
+  const valueTo = ctx.query[`${queryKeyPrefix}To`]
+
+  if (typeof valueFrom === 'undefined' && typeof valueTo === 'undefined') {
+    return null
+  }
+
+  const valueFromTransformed = transform(valueFrom)
+  const valueToTransformed = transform(valueTo)
+
+  return knexBuilder =>
+    valueFromTransformed && valueToTransformed
+      ? knexBuilder.whereBetween(dbKey, [
+          valueFromTransformed,
+          valueToTransformed,
+        ])
+      : valueFromTransformed
+      ? knexBuilder.where(dbKey, '>=', valueFromTransformed)
+      : knexBuilder.where(dbKey, '<=', valueToTransformed)
+}
+
+const regExp = (
+  ctx,
+  queryKey,
+  dbKey = queryKey,
+  transform = escapedValue => escapedValue,
+  isCaseSensitive = false,
+) => {
+  if (typeof ctx.query[queryKey] === 'undefined') {
+    return null
+  }
+
+  const transformedValue = transform(escapeRegexp(ctx.query[queryKey]))
+
+  const operator = isCaseSensitive ? '~' : '~*'
+
+  return knexBuilder =>
+    knexBuilder.whereRaw(`?? ${operator} ?`, [dbKey, `${transformedValue}`])
+}
+
+const inRegExp = (
+  ctx,
+  queryKey,
+  dbKey = queryKey,
+  transform = escapedValues => escapedValues,
+  isCaseSensitive = false,
+) => {
+  if (typeof ctx.query[queryKey] === 'undefined') {
+    return null
+  }
+
+  const transformedValues = transform(
+    toArray(ctx.query[queryKey]).map(v => escapeRegexp(v)),
+  )
+
+  if (!Array.isArray(transformedValues)) {
+    // ctx.throw(422, 'Invalid filter param', { errors: { [queryKey]: ['Param must be an array'] }})
+    throw new Error(
+      'Invalid transformation, filter value after transform must be array',
+    )
+  }
+
+  if (!transformedValues.length) return
+
+  const operator = isCaseSensitive ? '~' : '~*'
+
+  // per https://stackoverflow.com/a/38074246/710693
+  return knexBuilder =>
+    knexBuilder.whereRaw(
+      `?? ${operator} any(array[${transformedValues
+        .map(_v => '?')
+        .join(',')}])`,
+      [dbKey, ...transformedValues],
+    )
 }
 
 const filters = {
@@ -200,10 +283,9 @@ const filters = {
   in: $in,
   prefix,
   inPrefix,
-  // between,
-  // dateRange,
-  // inRegExp,
-  // regExp,
+  between,
+  regExp,
+  inRegExp,
   // published,
 }
 

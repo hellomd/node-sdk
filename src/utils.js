@@ -16,8 +16,8 @@ const convertStringToNull = value => (value === 'null' ? null : value)
 
 const escapeRegexp = str => (str + '').replace(/[.?*+^$[\]\\(){}|-]/g, '\\$&')
 const escapeSqlLikePatternMatching = (str, escapeChar = '|') => {
-  const regex = new RegExp(`[${escapeChar}_%]`, 'g')
-  return (str + '').replace(regex, '|$&')
+  const regex = new RegExp(`[\\${escapeChar}_%]`, 'g')
+  return (str + '').replace(regex, `${escapeChar}$&`)
 }
 
 const nullify = o =>

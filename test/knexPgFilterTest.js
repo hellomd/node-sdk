@@ -332,7 +332,7 @@ describe('knex pg filters', () => {
 
   describe('inPrefix', () => {
     it('returns fulfilled query', function() {
-      const ctx = { query: { foo: ["%_|bar'", 'baz'] } }
+      const ctx = { query: { foo: [`%_\\bar"__%%%'`, 'baz'] } }
 
       const filter = filters.builder([filters.inPrefix(ctx, 'foo')])
       const sql = knex(testTable)
@@ -340,7 +340,7 @@ describe('knex pg filters', () => {
         .where(filter)
         .toString()
       expect(sql).to.eql(
-        `select * from "table_name" where ("foo" like any(array('|%|_||bar''%','baz%')) escape '|')`,
+        `select * from "table_name" where ("foo" like any(array[E'\\\\%\\\\_\\\\\\\\bar"\\\\_\\\\_\\\\%\\\\%\\\\%''%','baz%']))`,
       )
     })
 
@@ -353,7 +353,7 @@ describe('knex pg filters', () => {
         .where(filter)
         .toString()
       expect(sql).to.eql(
-        `select * from "table_name" where ("bar" like any(array('bar%')) escape '|')`,
+        `select * from "table_name" where ("bar" like any(array['bar%']))`,
       )
     })
 
@@ -366,7 +366,7 @@ describe('knex pg filters', () => {
         .where(filter)
         .toString()
       expect(sql).to.eql(
-        `select * from "table_name" where ("foo" like any(array('bar%')) escape '|')`,
+        `select * from "table_name" where ("foo" like any(array['bar%']))`,
       )
     })
 
@@ -374,6 +374,251 @@ describe('knex pg filters', () => {
       const ctx = { query: {} }
 
       const filter = filters.builder([filters.inPrefix(ctx, 'foo')])
+      const sql = knex(testTable)
+        .select('*')
+        .where(filter)
+        .toString()
+      expect(sql).to.eql(`select * from "table_name"`)
+    })
+  })
+
+  describe('between', () => {
+    it('returns fulfilled query with both ranges', function() {
+      const ctx = { query: { fooFrom: 1, fooTo: 10 } }
+
+      const filter = filters.builder([filters.between(ctx, 'foo')])
+      const sql = knex(testTable)
+        .select('*')
+        .where(filter)
+        .toString()
+      expect(sql).to.eql(
+        `select * from "table_name" where ("foo" between 1 and 10)`,
+      )
+    })
+
+    it('returns fulfilled query with just from range', function() {
+      const ctx = { query: { fooFrom: 1 } }
+
+      const filter = filters.builder([filters.between(ctx, 'foo')])
+      const sql = knex(testTable)
+        .select('*')
+        .where(filter)
+        .toString()
+      expect(sql).to.eql(`select * from "table_name" where ("foo" >= 1)`)
+    })
+
+    it('returns fulfilled query with just to range', function() {
+      const ctx = { query: { fooTo: 10 } }
+
+      const filter = filters.builder([filters.between(ctx, 'foo')])
+      const sql = knex(testTable)
+        .select('*')
+        .where(filter)
+        .toString()
+      expect(sql).to.eql(`select * from "table_name" where ("foo" <= 10)`)
+    })
+
+    it('returns fulfilled query with both ranges and dbkey', function() {
+      const ctx = { query: { fooFrom: 1, fooTo: 10 } }
+
+      const filter = filters.builder([filters.between(ctx, 'foo', 'bar')])
+      const sql = knex(testTable)
+        .select('*')
+        .where(filter)
+        .toString()
+      expect(sql).to.eql(
+        `select * from "table_name" where ("bar" between 1 and 10)`,
+      )
+    })
+
+    it('returns fulfilled query with both ranges and transform', function() {
+      const ctx = { query: { fooFrom: 1, fooTo: 10 } }
+
+      const filter = filters.builder([
+        filters.between(ctx, 'foo', 'bar', v => v * 2),
+      ])
+      const sql = knex(testTable)
+        .select('*')
+        .where(filter)
+        .toString()
+      expect(sql).to.eql(
+        `select * from "table_name" where ("bar" between 2 and 20)`,
+      )
+    })
+
+    it('returns empty object when ctx.query has no query key', function() {
+      const ctx = { query: {} }
+
+      const filter = filters.builder([filters.between(ctx, 'foo')])
+      const sql = knex(testTable)
+        .select('*')
+        .where(filter)
+        .toString()
+      expect(sql).to.eql(`select * from "table_name"`)
+    })
+  })
+
+  describe('regExp', () => {
+    it('returns fulfilled query', function() {
+      const ctx = { query: { foo: 'bar' } }
+
+      const filter = filters.builder([filters.regExp(ctx, 'foo')])
+      const sql = knex(testTable)
+        .select('*')
+        .where(filter)
+        .toString()
+      expect(sql).to.eql(`select * from "table_name" where ("foo" ~* 'bar')`)
+    })
+
+    it('returns fulfilled query escaping regex chars', function() {
+      const ctx = { query: { foo: 'bar|.*' } }
+
+      const filter = filters.builder([filters.regExp(ctx, 'foo')])
+      const sql = knex(testTable)
+        .select('*')
+        .where(filter)
+        .toString()
+      expect(sql).to.eql(
+        `select * from "table_name" where ("foo" ~* E'bar\\\\|\\\\.\\\\*')`,
+      )
+    })
+
+    it('returns fulfilled query case sensitive', function() {
+      const ctx = { query: { foo: 'bar' } }
+
+      const filter = filters.builder([
+        filters.regExp(ctx, 'foo', 'foo', v => v, true),
+      ])
+      const sql = knex(testTable)
+        .select('*')
+        .where(filter)
+        .toString()
+      expect(sql).to.eql(`select * from "table_name" where ("foo" ~ 'bar')`)
+    })
+
+    it('returns fulfilled query with dbkey', function() {
+      const ctx = { query: { foo: 'bar' } }
+
+      const filter = filters.builder([filters.regExp(ctx, 'foo', 'bar')])
+      const sql = knex(testTable)
+        .select('*')
+        .where(filter)
+        .toString()
+      expect(sql).to.eql(`select * from "table_name" where ("bar" ~* 'bar')`)
+    })
+
+    it('returns fulfilled query with transform', function() {
+      const ctx = { query: { foo: 'bar' } }
+
+      const filter = filters.builder([
+        filters.regExp(ctx, 'foo', 'foo', v => `^${v}`),
+      ])
+      const sql = knex(testTable)
+        .select('*')
+        .where(filter)
+        .toString()
+      expect(sql).to.eql(`select * from "table_name" where ("foo" ~* '^bar')`)
+    })
+
+    it('returns empty object when ctx.query has no query key', function() {
+      const ctx = { query: {} }
+
+      const filter = filters.builder([filters.regExp(ctx, 'foo')])
+      const sql = knex(testTable)
+        .select('*')
+        .where(filter)
+        .toString()
+      expect(sql).to.eql(`select * from "table_name"`)
+    })
+  })
+
+  describe('inRegExp', () => {
+    it('returns fulfilled query', function() {
+      const ctx = { query: { foo: ['bar', 'baz'] } }
+
+      const filter = filters.builder([filters.inRegExp(ctx, 'foo')])
+      const sql = knex(testTable)
+        .select('*')
+        .where(filter)
+        .toString()
+      expect(sql).to.eql(
+        `select * from "table_name" where ("foo" ~* any(array['bar','baz']))`,
+      )
+    })
+
+    it('returns fulfilled query escaping regex chars', function() {
+      const ctx = { query: { foo: 'bar|.*' } }
+
+      const filter = filters.builder([filters.inRegExp(ctx, 'foo')])
+      const sql = knex(testTable)
+        .select('*')
+        .where(filter)
+        .toString()
+      expect(sql).to.eql(
+        `select * from "table_name" where ("foo" ~* any(array[E'bar\\\\|\\\\.\\\\*']))`,
+      )
+    })
+
+    it('returns fulfilled query case sensitive', function() {
+      const ctx = { query: { foo: ['bar', 'baz'] } }
+
+      const filter = filters.builder([
+        filters.inRegExp(ctx, 'foo', 'foo', v => v, true),
+      ])
+      const sql = knex(testTable)
+        .select('*')
+        .where(filter)
+        .toString()
+      expect(sql).to.eql(
+        `select * from "table_name" where ("foo" ~ any(array['bar','baz']))`,
+      )
+    })
+
+    it('returns fulfilled query with dbkey', function() {
+      const ctx = { query: { foo: ['bar', 'baz'] } }
+
+      const filter = filters.builder([filters.inRegExp(ctx, 'foo', 'bar')])
+      const sql = knex(testTable)
+        .select('*')
+        .where(filter)
+        .toString()
+      expect(sql).to.eql(
+        `select * from "table_name" where ("bar" ~* any(array['bar','baz']))`,
+      )
+    })
+
+    it('returns fulfilled query with transform', function() {
+      const ctx = { query: { foo: ['bar', 'baz'] } }
+
+      const filter = filters.builder([
+        filters.inRegExp(ctx, 'foo', 'foo', arr => arr.map(v => `^${v}`)),
+      ])
+      const sql = knex(testTable)
+        .select('*')
+        .where(filter)
+        .toString()
+      expect(sql).to.eql(
+        `select * from "table_name" where ("foo" ~* any(array['^bar','^baz']))`,
+      )
+    })
+
+    it('transform into array', function() {
+      const ctx = { query: { foo: 'bar' } }
+
+      const filter = filters.builder([filters.inRegExp(ctx, 'foo', 'bar')])
+      const sql = knex(testTable)
+        .select('*')
+        .where(filter)
+        .toString()
+      expect(sql).to.eql(
+        `select * from "table_name" where ("bar" ~* any(array['bar']))`,
+      )
+    })
+
+    it('returns empty object when ctx.query has no query key', function() {
+      const ctx = { query: {} }
+
+      const filter = filters.builder([filters.regExp(ctx, 'foo')])
       const sql = knex(testTable)
         .select('*')
         .where(filter)
@@ -418,7 +663,7 @@ describe('knex pg filters', () => {
         .where(filter)
         .toString()
       expect(sql).to.eql(
-        `select * from "table_name" where ("eq" = 'bar' and "nullEq" is null and "bool" = true and ("in" in ('bar')) and "prefix" like 'bar%' escape '|' and "inPrefix" like any(array('bar%')) escape '|' and not ("notGreaterEqualThan" >= 0) and "gt" > 1 and "gte" >= 2 and "lt" < 3 and "lte" <= 4)`,
+        `select * from "table_name" where ("eq" = 'bar' and "nullEq" is null and "bool" = true and ("in" in ('bar')) and "prefix" like 'bar%' escape '|' and "inPrefix" like any(array['bar%']) and not ("notGreaterEqualThan" >= 0) and "gt" > 1 and "gte" >= 2 and "lt" < 3 and "lte" <= 4)`,
       )
     })
   })
