@@ -67,6 +67,7 @@ if (isJestRunning) {
       const knex = hasKnex
         ? knexInit({
             client: 'pg',
+            asyncStackTraces: true,
             connection: {
               host: PGHOST,
               port: PGPORT,
