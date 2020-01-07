@@ -126,7 +126,8 @@ const wrapper = cb => {
         environment: process.env.ENV || 'development',
         tags: {
           git_commit: process.env.COMMIT_SHA1,
-          project: `${process.env.PROJECT_NAME}`,
+          project: process.env.PROJECT_NAME,
+          cluster_region: process.env.CLUSTER_REGION,
         },
         // do not send events on development
         shouldSendCallback: () =>
