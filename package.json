@@ -21,9 +21,9 @@
   },
   "dependencies": {
     "amqplib": "0.5.5",
-    "axios": "0.19.0",
+    "axios": "0.19.2",
     "axios-mock-adapter": "1.17.0",
-    "elastic-apm-node": "3.1.0",
+    "elastic-apm-node": "3.3.0",
     "es6-promisify": "6.0.2",
     "jsonwebtoken": "8.5.1",
     "koa-requestid": "2.1.0",
@@ -34,7 +34,7 @@
     "validate.js": "0.13.1",
     "winston": "3.2.1",
     "winston-transport": "4.3.0",
-    "yargs": "^15.0.2"
+    "yargs": "^15.1.0"
   },
   "devDependencies": {
     "@hellomd/eslint-config-default": "^0.0.7",
@@ -43,15 +43,15 @@
     "chai-as-promised": "7.1.1",
     "cross-env": "^6.0.3",
     "dotenv": "^8.2.0",
-    "eslint": "^6.6.0",
-    "eslint-config-prettier": "^6.5.0",
-    "eslint-plugin-jest": "^23.0.3",
-    "husky": "^3.0.9",
-    "lint-staged": "^9.4.3",
-    "mocha": "^6.2.2",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.9.0",
+    "eslint-plugin-jest": "^23.6.0",
+    "husky": "^4.2.0",
+    "lint-staged": "^10.0.2",
+    "mocha": "^7.0.0",
     "prettier": "^1.19.1",
-    "sinon": "^7.5.0",
-    "sinon-chai": "^3.3.0",
+    "sinon": "^8.1.1",
+    "sinon-chai": "^3.4.0",
     "supertest": "^4.0.2"
   },
   "peerDependencies": {
@@ -82,12 +82,10 @@
   },
   "lint-staged": {
     "*.{js,css,json,md}": [
-      "prettier --write",
-      "git add"
+      "prettier --write"
     ],
     "*.js": [
-      "eslint --fix",
-      "git add"
+      "eslint --fix"
     ]
   }
 }
