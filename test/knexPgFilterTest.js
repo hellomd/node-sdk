@@ -667,4 +667,44 @@ describe('knex pg filters', () => {
       )
     })
   })
+
+  describe('multipleColumnsFilter', () => {
+    it('returns fulfilled query', function() {
+      const ctx = { query: { foo: 'bar' } }
+
+      const filter = filters.builder([
+        filters.multipleColumnsFilter(ctx, 'foo', [
+          {
+            column: 'username',
+            filter: filters.prefix,
+          },
+          {
+            column: 'email',
+            filter: filters.eq,
+          },
+        ]),
+      ])
+      const sql = knex(testTable)
+        .select('*')
+        .where(filter)
+        .toString()
+
+      expect(sql).to.eql(
+        `select * from "table_name" where ((("username" like 'bar%' escape '|') or ("email" = 'bar')))`,
+      )
+    })
+
+    it('returns empty object when ctx.query has no query key', function() {
+      const ctx = { query: {} }
+
+      const filter = filters.builder([
+        filters.multipleColumnsFilter(ctx, 'foo'),
+      ])
+      const sql = knex(testTable)
+        .select('*')
+        .where(filter)
+        .toString()
+      expect(sql).to.eql(`select * from "table_name"`)
+    })
+  })
 })

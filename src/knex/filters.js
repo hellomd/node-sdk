@@ -271,7 +271,7 @@ const inRegExp = (
     )
 }
 
-const filters = {
+let filters = {
   builder,
   negate,
   eq,
@@ -293,6 +293,45 @@ for (const filterKey of Object.keys(filters)) {
   filters[filterKey] = validableFilter(validate, filters[filterKey], {
     isArrayFilter: ['inPrefix', 'in'].includes(filterKey),
   })
+}
+
+const multipleColumnsFilter = (ctx, queryKey, filtersDefinitions) => {
+  if (typeof ctx.query[queryKey] === 'undefined') {
+    return null
+  }
+
+  if (!Array.isArray(filtersDefinitions)) {
+    throw new Error(
+      'Argument filtersDefinition passed to multipleColumnsFilter must be an array',
+    )
+  }
+
+  if (
+    !filtersDefinitions.every(def => {
+      return (
+        typeof def.column === 'string' &&
+        typeof def.filter === 'function' &&
+        Object.values(filters).includes(def.filter) &&
+        (!def.extraArgs || Array.isArray(def.extraArgs))
+      )
+    })
+  ) {
+    throw new Error(
+      'Argument filters definition passed to multipleColumnsFilter has invalid properties',
+    )
+  }
+  return knexBuilder =>
+    knexBuilder.where(b => {
+      for (const filterDefinition of filtersDefinitions) {
+        const { column, filter, extraArgs = [] } = filterDefinition
+        b.orWhere(b => filter(ctx, queryKey, column, ...extraArgs)(b))
+      }
+    })
+}
+
+filters = {
+  ...filters,
+  multipleColumnsFilter,
 }
 
 module.exports = { filters }
