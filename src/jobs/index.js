@@ -9,6 +9,12 @@ try {
   // eslint-disable-next-line no-empty
 } catch (error) {}
 
+let knexInit = null
+try {
+  knexInit = require('knex')
+  // eslint-disable-next-line no-empty
+} catch (error) {}
+
 const { apmAgent, shouldUseApm } = require('../apmAgent')
 const { mapCollections } = require('../mongo')
 const { createLoggerWithMetadata } = require('../logging')
@@ -19,7 +25,8 @@ async function runJob(
   cb,
   {
     name = process.env.JOB_NAME,
-    shouldConnectToMongoDb = true,
+    shouldConnectToMongoDb = false,
+    shouldConnectToPg = true,
     connectionStringMongoDb,
     collections,
   } = {},
@@ -48,6 +55,23 @@ async function runJob(
     }
   }
 
+  let knex = undefined
+  if (shouldConnectToPg) {
+    knex = knexInit({
+      client: 'pg',
+      connection: {
+        host: process.env.PGHOST,
+        port: process.env.PGPORT,
+        database: process.env.PGDATABASE,
+        user: process.env.PGUSER,
+        password: process.env.PGPASSWORD,
+      },
+      // defaults to 2, 10
+      pool: { min: 1, max: 2 },
+      log: createLoggerWithMetadata({ kind: 'knex' }),
+    })
+  }
+
   const jobName = name || 'unnamed-job'
 
   const logger = createLoggerWithMetadata({
@@ -66,9 +90,16 @@ async function runJob(
     })
     hasErrored = true
   } finally {
-    logger.info(`Disconnecting from MongoDB on job ${jobName}`)
-    !!mongoConn && (await mongoConn.close())
-    logger.info(`Disconnected from MongoDB on job ${jobName}`)
+    if (shouldConnectToMongoDb) {
+      logger.info(`Disconnecting from MongoDB on job ${jobName}`)
+      !!mongoConn && (await mongoConn.close())
+      logger.info(`Disconnected from MongoDB on job ${jobName}`)
+    }
+    if (shouldConnectToPg) {
+      logger.info(`Disconnecting from Postgres on job ${jobName}`)
+      !!knex && (await knex.destroy())
+      logger.info(`Disconnected from Postgres on job ${jobName}`)
+    }
   }
 
   if (trans) {
