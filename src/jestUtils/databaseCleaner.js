@@ -3,7 +3,11 @@ const postgres = async (knex, config = {}) => {
   const {
     schema = 'public',
     strategy = 'truncation',
-    skipTables = ['migrations'],
+    skipTables = [
+      'migrations',
+      // postgis tables
+      'spatial_ref_sys',
+    ],
   } = config
 
   if (strategy !== 'deletion' && strategy !== 'truncation') {
