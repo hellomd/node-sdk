@@ -82,7 +82,7 @@ async function runJob(
 
   try {
     logger.info(`Running job ${jobName}`)
-    await cb({ mongoConn, mongoDb, logger })
+    await cb({ knex, mongoConn, mongoDb, logger })
     logger.info(`Finished running job ${jobName}`)
   } catch (error) {
     logger.error(`Got error while running job ${jobName}`, {
