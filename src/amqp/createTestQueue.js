@@ -1,6 +1,6 @@
 const createQueue = require('./createQueue')
 
-module.exports = channel =>
+module.exports = async channel =>
   createQueue({
     routingKey: '#',
     exchangeKey: 'events',
