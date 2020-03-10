@@ -129,6 +129,7 @@ if (isJestRunning) {
 
     afterAll(async () => {
       global.mongoDbConn && (await global.mongoDbConn.close())
+      global.channel && (await global.channel.close())
       global.rabbit && (await global.rabbit.close())
       global.knex && (await global.knex.destroy())
     })
