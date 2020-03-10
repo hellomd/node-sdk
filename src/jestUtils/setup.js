@@ -115,8 +115,12 @@ if (isJestRunning) {
     })
 
     afterEach(async () => {
-      global.testQueue && (await global.testQueue.purge())
-      global.testMailerQueue && (await global.testMailerQueue.purge())
+      try {
+        global.testQueue && (await global.testQueue.purge())
+        global.testMailerQueue && (await global.testMailerQueue.purge())
+      } catch (error) {
+        console.error('Error while trying to purge queues', { error })
+      }
 
       if (global.mongoDb) {
         await databaseCleaner.mongoDb(global.mongoDb)
