@@ -56,6 +56,19 @@ const randomString = async (length = 10) =>
     })
   })
 
+const randomArrayItem = array => {
+  return array[randomInt(array.length)]
+}
+
+const shuffleArray = array => {
+  const newArray = [...array]
+  for (let i = newArray.length - 1; i > 0; i--) {
+    const j = randomInt(i + 1)
+    ;[newArray[i], newArray[j]] = [newArray[j], newArray[i]]
+  }
+  return newArray
+}
+
 const uuidV1Regex = /^[0-9A-F]{8}-[0-9A-F]{4}-1[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i
 const uuidV4Regex = /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i
 
@@ -86,7 +99,13 @@ const validableFilter = (validate, fn, filterOptions = {}) => (
 
   if (options && options.constraints) {
     const obj = isArrayFilter
-      ? { ...ctx.query, [queryKey]: toArray(ctx.query[queryKey]) }
+      ? {
+          ...ctx.query,
+          [queryKey]:
+            typeof ctx.query[queryKey] !== 'undefined'
+              ? toArray(ctx.query[queryKey])
+              : ctx.query[queryKey],
+        }
       : ctx.query
 
     validate(ctx, obj, {
@@ -112,6 +131,8 @@ module.exports = {
   times,
   randomInt,
   randomString,
+  randomArrayItem,
+  shuffleArray,
   uuidV1Regex,
   uuidV4Regex,
   sample,
