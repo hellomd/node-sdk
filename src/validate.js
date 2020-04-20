@@ -9,7 +9,12 @@ try {
   // eslint-disable-next-line no-empty
 } catch (error) {}
 
-const { uuidV1Regex, uuidV4Regex } = require('./utils')
+const {
+  uuidRegex,
+  uuidRegexNonStrict,
+  uuidV1Regex,
+  uuidV4Regex,
+} = require('./utils')
 
 const defaultRefResourceIdValidator = {
   uuidV1: { message: 'does not have a valid resource uuid' },
@@ -217,11 +222,17 @@ validate.validators.validateOnlyIf = function(value, options, key, attributes) {
 }
 
 validate.validators.uuid = function(value, options) {
-  options = validate.extend({}, this.options, options)
+  options = validate.extend(
+    {
+      strict: true,
+    },
+    this.options,
+    options,
+  )
 
   if (!validate.isDefined(value)) return
 
-  const regex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+  const regex = options.strict ? uuidRegex : uuidRegexNonStrict
   if (!regex.test(value)) {
     return options.message || this.message || 'is not valid uuid'
   }
