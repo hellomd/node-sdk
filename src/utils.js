@@ -69,6 +69,7 @@ const shuffleArray = array => {
   return newArray
 }
 
+const uuidRegex = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i
 const uuidV1Regex = /^[0-9A-F]{8}-[0-9A-F]{4}-1[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i
 const uuidV4Regex = /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i
 
@@ -133,6 +134,7 @@ module.exports = {
   randomString,
   randomArrayItem,
   shuffleArray,
+  uuidRegex,
   uuidV1Regex,
   uuidV4Regex,
   sample,
