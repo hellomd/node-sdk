@@ -8,7 +8,12 @@ try {
 
 const moment = require('moment')
 
-const { uuidV1Regex, uuidV4Regex } = require('../utils')
+const {
+  uuidRegex,
+  uuidRegexNonStrict,
+  uuidV1Regex,
+  uuidV4Regex,
+} = require('../utils')
 
 const isJestRunning = require('./isJestRunning')
 
@@ -21,6 +26,26 @@ if (isJestRunning) {
           pass
             ? `expected ${received} not to be a valid ObjectId`
             : `expected ${received} to be a valid ObjectId`,
+        pass,
+      }
+    },
+    toBeUuid(received) {
+      const pass = !!received && uuidRegex.test(received)
+      return {
+        message: () =>
+          pass
+            ? `expected ${received} not to be a valid uuid`
+            : `expected ${received} to be a valid uuid`,
+        pass,
+      }
+    },
+    toBeUuidNonStrict(received) {
+      const pass = !!received && uuidRegexNonStrict.test(received)
+      return {
+        message: () =>
+          pass
+            ? `expected ${received} not to be a valid uuid - non strict`
+            : `expected ${received} to be a valid uuid - non strict`,
         pass,
       }
     },
