@@ -59,6 +59,9 @@ async function runJob(
   if (shouldConnectToPg) {
     knex = knexInit({
       client: 'pg',
+      asyncStackTraces:
+        process.env.HMD_KNEX_ASYNCSTACKTRACE === 'true' ||
+        ['development', 'local', undefined].includes(process.env.ENV),
       connection: {
         host: process.env.PGHOST,
         port: process.env.PGPORT,

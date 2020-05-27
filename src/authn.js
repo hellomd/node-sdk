@@ -62,8 +62,8 @@ const getAnonymousToken = id => {
 }
 
 const getServiceToken = async (
-  id = '5c826a411b0ba36314096f53',
-  email = 'services@hellomd.com',
+  id = process.env.NODE_SDK_AUTHN_SVC_TOKEN_ID || '5c826a411b0ba36314096f53',
+  email = process.env.NODE_SDK_AUTHN_SVC_TOKEN_EMAIL || 'services@hellomd.com',
   phone = null,
 ) => getToken({ id, email, expiresIn: 1, isService: true, phone })
 
