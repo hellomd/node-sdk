@@ -55,9 +55,9 @@
     "supertest": "^4.0.2"
   },
   "peerDependencies": {
-    "knex": "^0.20.1",
+    "knex": "~0.21.1 || ~0.20.1",
     "koa": "^2.4.1",
-    "mongodb": "^3.1.10",
+    "mongodb": "^3.5.8 || ^3.1.10",
     "pg": "^8.2.1 || ^7.12.1",
     "postgres-migrations": "^4.0.3 || ^3.0.2"
   },
