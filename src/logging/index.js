@@ -138,6 +138,7 @@ const koaMiddleware = (options = {}) => async (ctx, next) => {
 module.exports = {
   createLogger,
   createLoggerWithMetadata,
+  devFormatter,
   hellomdFormatter,
   isStructuredLoggingEnabled,
   koaMiddleware,
