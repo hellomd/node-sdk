@@ -74,6 +74,13 @@ const ctxWithServiceToken = async ctx => ({
   },
 })
 
+const ctxWithUserServiceToken = async (ctx, user) => ({
+  ...ctx,
+  state: {
+    serviceToken: await getServiceToken(user.id, user.email, user.phone),
+  },
+})
+
 const serviceTokenMiddleware = async (ctx, next) => {
   const { id = null, email = null, phone = null } = ctx.state.user || {}
   ctx.state.serviceToken = await getToken({
@@ -88,6 +95,7 @@ const serviceTokenMiddleware = async (ctx, next) => {
 
 module.exports = {
   ctxWithServiceToken,
+  ctxWithUserServiceToken,
   getToken,
   getAnonymousToken,
   getServiceToken,
