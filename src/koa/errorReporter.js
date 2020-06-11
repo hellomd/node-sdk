@@ -38,9 +38,14 @@ function logRequestWithError(error, ctx) {
     } ${error.body || error}\n${error.stack}`
 
     const shouldLogHttpError =
-      !isTesting || (!error.status || error.status >= 500)
+      !isTesting || !error.status || error.status >= 500
 
-    shouldLogHttpError && logger.error(errorMsg)
+    const httpErrorLevel =
+      process.env.LOGGING_LEVEL_HTTP_ERRORS ||
+      process.env.LOGGING_LEVEL_HTTP_ERRORS_TESTS ||
+      'error'
+
+    shouldLogHttpError && logger[httpErrorLevel](errorMsg)
   }
 }
 
