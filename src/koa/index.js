@@ -8,7 +8,7 @@ const { requestId } = require('./requestId')
 const { wrapper } = require('./wrapper')
 
 // Helpful middleware, that initializes other middlewares
-const addMiddlewares = app => {
+const addMiddlewares = (app, options = { logging: {} }) => {
   // make apm available on context
   app.use(async (ctx, next) => {
     ctx.apmAgent = apmAgent
@@ -24,7 +24,7 @@ const addMiddlewares = app => {
   app.use(errorMiddleware())
 
   // logging middleware comes now, so ctx.logger is made available
-  app.use(logging.koaMiddleware())
+  app.use(logging.koaMiddleware(options && options.logging))
 }
 
 const updateContextMiddleware = () => async (ctx, next) => {

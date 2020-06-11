@@ -94,9 +94,11 @@ const structuredLoggingMiddleware = async (options, ctx, next) => {
 
 const devLoggingMiddleware = async (options, ctx, next) => {
   // probably not the best idea, one logger per request
-  const logger = createLogger({
-    format: devFormatter(),
-  })
+  const logger =
+    options.logger ||
+    createLogger({
+      format: devFormatter(),
+    })
   ctx.logger = logger
 
   const msg = `${ctx.method} ${ctx.path}`
