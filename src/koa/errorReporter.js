@@ -124,6 +124,13 @@ const errorMiddleware = () => async (ctx, next) => {
     switch (error.status) {
       // validation error
       case 422:
+        ctx.logger.warning('API Validation Error', {
+          validationErrors: JSON.stringify(
+            error.errors || error.message,
+            null,
+            2,
+          ),
+        })
         ctx.body = error.errors || error.message
         ctx.status = 422
         break
