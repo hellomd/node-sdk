@@ -120,6 +120,12 @@ const validableFilter = (validate, fn, filterOptions = {}) => (
   return fn(ctx, queryKey, dbKey, ...argsFinal)
 }
 
+const trim = (s, c) => {
+  if (c === ']') c = '\\]'
+  if (c === '\\') c = '\\\\'
+  return s.replace(new RegExp('^[' + c + ']+|[' + c + ']+$', 'g'), '')
+}
+
 module.exports = {
   convertStringToBoolean,
   convertStringToNull,
@@ -148,4 +154,5 @@ module.exports = {
   isLocal,
   validableFilter,
   valueOrFunction,
+  trim,
 }
