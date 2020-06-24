@@ -21,11 +21,13 @@ const mockEndpoint = ctx => def => {
   return args => {
     const url = typeof urlFn === 'function' ? urlFn(ctx, args) : urlFn
     const data = typeof dataFn === 'function' ? dataFn(ctx, args) : dataFn
-    const headers = Object.assign(
+    const headers =
+      typeof headerFns === 'function' ? headerFns(ctx, args) : headerFns
+    const finalHeaders = Object.assign(
       { Accept: 'application/json, text/plain, */*' },
-      headerFns.reduce((prev, curr) => Object.assign(prev, curr(ctx)), {}),
+      headers.reduce((prev, curr) => Object.assign(prev, curr(ctx)), {}),
     )
-    return axiosMock[methodMap[method]](url, data, headers)
+    return axiosMock[methodMap[method]](url, data, finalHeaders)
   }
 }
 

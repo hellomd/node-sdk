@@ -26,7 +26,6 @@ const buildEndpoint = ctx => def => {
   const {
     method = 'GET',
     transform = x => x,
-    headers = [serviceTokenHeader],
     maxRetries = 3,
     errors = {},
     debug = false,
@@ -35,9 +34,12 @@ const buildEndpoint = ctx => def => {
   } = def
 
   return async args => {
-    const [url, data, query] = ['url', 'data', 'query'].map(param =>
-      valueOrFunction(def[param], ctx, args),
-    )
+    const [url, data, query, headers = [serviceTokenHeader]] = [
+      'url',
+      'data',
+      'query',
+      'headers',
+    ].map(param => valueOrFunction(def[param], ctx, args))
     for (let i = 0; i <= maxRetries; i++) {
       try {
         const response = await axios({

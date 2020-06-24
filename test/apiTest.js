@@ -236,6 +236,32 @@ describe('api', () => {
       return expect(api.get()).to.eventually.be.fulfilled
     })
 
+    it('headers as function', async function() {
+      const customHeaderA = ctx => ({ 'X-Custom-A': 'Custom A' })
+      const customHeaderB = ctx => ({ 'X-Custom-B': 'Custom B' })
+
+      const definition = {
+        get: {
+          url: '/users',
+          headers: (ctx, { headers }) => [customHeaderA, ...headers],
+        },
+      }
+      const api = buildApi(definition)(ctx)
+      const apiMock = mockApi(ctx)(definition)
+
+      apiMock
+        .get({ headers: [customHeaderB] })
+        .reply(({ headers }) =>
+          headers['X-Custom-A'] === 'Custom A' &&
+          headers['X-Custom-B'] === 'Custom B'
+            ? [200]
+            : [404],
+        )
+
+      return expect(api.get({ headers: [customHeaderB] })).to.eventually.be
+        .fulfilled
+    })
+
     it('uses endpoint definition option instead of global passed one', async function() {
       const definition = {
         get: { url: '/users', shouldReturnOriginalRequestError: false },
