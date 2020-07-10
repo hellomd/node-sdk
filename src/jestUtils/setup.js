@@ -45,6 +45,7 @@ if (isJestRunning) {
     hasMongoDb = false,
     hasKnex = true,
     authUserId = '5c754ba9b78dbd0036a766c1',
+    dbSettings = {},
     appExtraPropsFn = () => ({}),
   }) {
     beforeAll(async () => {
@@ -127,7 +128,15 @@ if (isJestRunning) {
       }
 
       if (global.knex) {
-        await databaseCleaner.postgres(global.knex)
+        const { databaseCleanerSkipTables = [] } = dbSettings
+        await databaseCleaner.postgres(global.knex, {
+          skipTables: [
+            'migrations',
+            // postgis tables
+            'spatial_ref_sys',
+            ...databaseCleanerSkipTables,
+          ],
+        })
       }
     })
 
