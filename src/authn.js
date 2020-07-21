@@ -30,6 +30,7 @@ const getToken = ({
   isService = false,
   appName = process.env.APP_NAME,
   phone,
+  username,
   roles,
 }) => {
   if (isService && process.env.ENV === 'test') return 'serviceToken'
@@ -41,6 +42,7 @@ const getToken = ({
         id,
         email,
         phone,
+        username,
         roles,
         appName,
         isService,
@@ -65,7 +67,8 @@ const getServiceToken = async (
   id = process.env.NODE_SDK_AUTHN_SVC_TOKEN_ID || '5c826a411b0ba36314096f53',
   email = process.env.NODE_SDK_AUTHN_SVC_TOKEN_EMAIL || 'services@hellomd.com',
   phone = null,
-) => getToken({ id, email, expiresIn: 1, isService: true, phone })
+  username = process.env.NODE_SDK_AUTHN_SVC_TOKEN_USERNAME || 'service',
+) => getToken({ id, email, expiresIn: 1, isService: true, phone, username })
 
 const ctxWithServiceToken = async ctx => ({
   ...ctx,
