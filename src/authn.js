@@ -31,6 +31,7 @@ const getToken = ({
   appName = process.env.APP_NAME,
   phone,
   username,
+  avatarUrl,
   roles,
 }) => {
   if (isService && process.env.ENV === 'test') return 'serviceToken'
@@ -43,6 +44,7 @@ const getToken = ({
         email,
         phone,
         username,
+        avatarUrl,
         roles,
         appName,
         isService,
