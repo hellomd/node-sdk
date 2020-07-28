@@ -131,6 +131,9 @@ const koaMiddleware = (options = {}) => async (ctx, next) => {
   }
 }
 
+const isLogLevelGreaterThanOrEqual = (logger, level) =>
+  logger.levels[logger.level] >= logger.levels[level]
+
 module.exports = {
   createLogger,
   createLoggerWithMetadata,
@@ -139,4 +142,5 @@ module.exports = {
   isStructuredLoggingEnabled,
   koaMiddleware,
   logger: defaultLogger,
+  isLogLevelGreaterThanOrEqual,
 }
