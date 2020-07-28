@@ -134,6 +134,17 @@ const koaMiddleware = (options = {}) => async (ctx, next) => {
 const isLogLevelGreaterThanOrEqual = (logger, level) =>
   logger.levels[logger.level] >= logger.levels[level]
 
+const logOnlyIfLevel = (logger, level, msg, metadataObjOrMetadataFn) => {
+  if (isLogLevelGreaterThanOrEqual(logger, level)) {
+    logger[level](
+      msg,
+      typeof metadataObjOrMetadataFn === 'function'
+        ? metadataObjOrMetadataFn()
+        : metadataObjOrMetadataFn,
+    )
+  }
+}
+
 module.exports = {
   createLogger,
   createLoggerWithMetadata,
@@ -143,4 +154,5 @@ module.exports = {
   koaMiddleware,
   logger: defaultLogger,
   isLogLevelGreaterThanOrEqual,
+  logOnlyIfLevel,
 }
