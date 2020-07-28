@@ -27,16 +27,6 @@ if (isJestRunning) {
   const databaseCleaner = require('./databaseCleaner')
   const { knexTestUtils } = require('./knexTestUtils')
 
-  const {
-    AMQP_URL,
-    MONGO_URL,
-    PGHOST,
-    PGPORT,
-    PGDATABASE,
-    PGUSER,
-    PGPASSWORD,
-  } = process.env
-
   // eslint-disable-next-line no-inner-declarations
   function setup({
     app,
@@ -49,6 +39,16 @@ if (isJestRunning) {
     appExtraPropsFn = () => ({}),
   }) {
     beforeAll(async () => {
+      const {
+        AMQP_URL,
+        MONGO_URL,
+        PGHOST,
+        PGPORT,
+        PGDATABASE,
+        PGUSER,
+        PGPASSWORD,
+      } = process.env
+
       // RabbitMQ Related
       const rabbit = hasRabbit ? await amqp.connect(AMQP_URL) : null
       const channel = hasRabbit ? await rabbit.createChannel() : null
@@ -69,7 +69,7 @@ if (isJestRunning) {
         ? knexInit({
             client: 'pg',
             asyncStackTraces: true,
-            connection: {
+            connection: (dbSettings && dbSettings.connection) || {
               host: PGHOST,
               port: PGPORT,
               database: PGDATABASE,
