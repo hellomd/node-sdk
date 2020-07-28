@@ -88,8 +88,6 @@ const structuredLoggingMiddleware = async (options, ctx, next) => {
     kind: 'http.request',
     timestamp: ctx.requestDateTime,
   })
-
-  ctx.logger = null
 }
 
 const devLoggingMiddleware = async (options, ctx, next) => {
@@ -120,8 +118,6 @@ const devLoggingMiddleware = async (options, ctx, next) => {
   )} | ${duration}ms | ${ctx.status}`
 
   logger.info(finalMsg)
-
-  ctx.logger = null
 }
 
 const koaMiddleware = (options = {}) => async (ctx, next) => {

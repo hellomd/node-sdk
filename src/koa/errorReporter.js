@@ -58,6 +58,7 @@ async function errorListener(error, ctx) {
         ctx.state.user && {
           id: ctx.state.user.id,
           email: ctx.state.user.email,
+          username: ctx.state.user.username,
         }) ||
       null
 
@@ -92,7 +93,7 @@ async function errorListener(error, ctx) {
         error,
         {
           user,
-          tags: {
+          labels: {
             requestId: ctx.get('x-request-id'),
             transactionId: ctx.get('x-transaction-id'),
           },

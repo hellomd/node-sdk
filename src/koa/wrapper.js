@@ -8,8 +8,8 @@ const shouldUseSentry = !!process.env.SENTRY_DSN
 
 // @TODO Migrate sentry to newest sdk https://docs.sentry.io/error-reporting/quickstart/?platform=node
 
-const wrapper = cb => {
-  global.process.on('unhandledRejection', function(reason, promise) {
+const wrapper = (cb) => {
+  global.process.on('unhandledRejection', function (reason, promise) {
     // let currDone = 0
     // let targetDone = +shouldUseApm + +shouldUseSentry
 
@@ -26,7 +26,7 @@ const wrapper = cb => {
       context.extra = context.extra || {}
       context.extra.unhandledPromiseRejection = true
 
-      raven.captureException(reason, context, function(sentryError, eventId) {
+      raven.captureException(reason, context, function (sentryError, eventId) {
         if (sentryError) {
           logger.error(
             'Error while reporting unhandled promise rejection to Sentry',
@@ -82,7 +82,7 @@ const wrapper = cb => {
     exitIfDone()
   })
 
-  process.on('warning', warning => {
+  process.on('warning', (warning) => {
     logger.warning(warning.message, { warning })
   })
 
@@ -92,10 +92,10 @@ const wrapper = cb => {
     // Code copied from:
     //  https://github.com/elastic/apm-agent-nodejs/blob/50dbeecd593aaa3935db3de47ebb3da7dc6d0033/lib/agent.js#L350-L357
     shouldUseApm &&
-      process.on('uncaughtException', error => {
+      process.on('uncaughtException', (error) => {
         apmAgent.captureError(
           error,
-          { uncaughtException: true },
+          { labels: { uncaughtException: true }, uncaughtException: true },
           (apmError, eventId) => {
             if (apmError) {
               logger.error('Error while reporting uncaught exception to APM', {
@@ -153,7 +153,7 @@ const wrapper = cb => {
         if (shouldUseApm) {
           apmAgent.captureError(
             error,
-            { uncaughtException: true },
+            { labels: { uncaughtException: true }, uncaughtException: true },
             (apmError, apmEventId) => {
               if (apmError) {
                 logger.error(
