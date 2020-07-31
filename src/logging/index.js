@@ -31,19 +31,23 @@ const createLogger = ({ format, ...options }) => {
   return logger
 }
 
-const createLoggerWithMetadata = (metadata, options = {}) =>
+const createLoggerWithMetadata = (
+  metadata,
+  options = {},
+  defaultFormatterOptions = {},
+) =>
   isStructuredLoggingEnabled
     ? createLogger({
         ...options,
         format: winston.format.combine(
           winston.format.timestamp(),
           winston.format.splat(),
-          hellomdFormatter({ metadata }),
+          hellomdFormatter({ metadata, ...defaultFormatterOptions }),
         ),
       })
     : createLogger({
         ...options,
-        format: devFormatter(),
+        format: devFormatter({ metadata, ...defaultFormatterOptions }),
       })
 
 const defaultLogger = createLoggerWithMetadata()
@@ -61,13 +65,7 @@ const structuredLoggingMiddleware = async (options, ctx, next) => {
   const user = await getUserFromCtxOrHeaderIfAny(ctx)
 
   // probably not the best idea, one logger per request
-  const logger = createLogger({
-    format: winston.format.combine(
-      winston.format.timestamp(),
-      winston.format.splat(),
-      hellomdFormatter({ koaCtx: ctx, user }),
-    ),
-  })
+  const logger = createLoggerWithMetadata({}, {}, { koaCtx: ctx, user })
   ctx.logger = logger
 
   // errors are logged on the error reporter
@@ -92,11 +90,7 @@ const structuredLoggingMiddleware = async (options, ctx, next) => {
 
 const devLoggingMiddleware = async (options, ctx, next) => {
   // probably not the best idea, one logger per request
-  const logger =
-    options.logger ||
-    createLogger({
-      format: devFormatter(),
-    })
+  const logger = options.logger || createLoggerWithMetadata()
   ctx.logger = logger
 
   const msg = `${ctx.method} ${ctx.path}`
@@ -155,4 +149,5 @@ module.exports = {
   logger: defaultLogger,
   isLogLevelGreaterThanOrEqual,
   logOnlyIfLevel,
+  getUserFromCtxOrHeaderIfAny,
 }
