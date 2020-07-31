@@ -142,6 +142,13 @@ const errorMiddleware = () => async (ctx, next) => {
           ? 'Internal Server Error'
           : error.message
         ctx.status = error.status
+        if (error.headers) {
+          for (const [headerName, headerValue] of Object.entries(
+            error.headers,
+          )) {
+            ctx.set(headerName, headerValue)
+          }
+        }
         ctx.app.emit('error', error, ctx)
     }
   }
