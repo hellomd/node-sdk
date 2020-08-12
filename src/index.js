@@ -1,5 +1,7 @@
 // order here is important, this must come first than everything else
 const { apmAgent, shouldUseApm } = require('./apmAgent')
+// now sentry
+const sentry = require('./sentry')
 
 const api = require('./api')
 const apiMock = require('./apiMock')
@@ -46,6 +48,7 @@ module.exports = {
   plainValidate,
   recovery,
   utils,
+  sentry,
   testHelpers,
   testPresets,
   validate,

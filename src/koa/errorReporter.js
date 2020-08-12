@@ -1,13 +1,10 @@
-const raven = require('raven')
-
 const { shouldUseApm } = require('../apmAgent')
+const { Sentry, shouldUseSentry } = require('../sentry')
 const { isTesting } = require('../isTesting')
 const {
   logger: defaultLogger,
   isStructuredLoggingEnabled,
 } = require('../logging')
-
-const shouldUseSentry = !!process.env.SENTRY_DSN
 
 function logRequestWithError(error, ctx) {
   const logger = ctx.logger || defaultLogger
@@ -63,29 +60,13 @@ async function errorListener(error, ctx) {
       null
 
     shouldUseSentry &&
-      raven.captureException(
-        error,
-        {
-          request: ctx.request,
-          user,
-          tags: {
-            requestId: ctx.get('x-request-id'),
-            transactionId: ctx.get('x-transaction-id'),
-          },
-        },
-        (sentryError, eventId) => {
-          if (sentryError) {
-            logger.error('Error while reporting request error to Sentry', {
-              error: sentryError,
-              originalError: error,
-            })
-          } else {
-            logger.info('Reported request error to Sentry', {
-              eventId,
-            })
-          }
-        },
-      )
+      Sentry.captureException(error, (scope) => {
+        scope.setUser(user)
+        scope.setTags({
+          requestId: ctx.get('x-request-id'),
+          transactionId: ctx.get('x-transaction-id'),
+        })
+      })
 
     shouldUseApm &&
       ctx.apmAgent &&
