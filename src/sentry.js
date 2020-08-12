@@ -92,6 +92,12 @@ Sentry.init({
   },
 })
 
+Sentry.setTags({
+  project: process.env.PROJECT_NAME,
+  clusterRegion: process.env.CLUSTER_REGION,
+  projectResource: process.env.PROJECT_RESOURCE,
+})
+
 module.exports = {
   Sentry,
   shouldUseSentry,
