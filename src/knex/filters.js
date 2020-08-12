@@ -306,11 +306,15 @@ const multipleColumnsFilter = (ctx, queryKey, filtersDefinitions) => {
     )
   }
 
+  const ourOwnFilters = Object.values(filters)
+
   if (
     !filtersDefinitions.every((def) => {
+      const isCustomFilter = !ourOwnFilters.includes(def.filter)
+
       return (
-        typeof def.column === 'string' &&
         typeof def.filter === 'function' &&
+        (isCustomFilter || typeof def.column === 'string') &&
         (!def.extraArgs || Array.isArray(def.extraArgs))
       )
     })
@@ -320,8 +324,6 @@ const multipleColumnsFilter = (ctx, queryKey, filtersDefinitions) => {
     )
   }
 
-  const ourOwnFilters = Object.values(filters)
-
   return (knexBuilder) =>
     knexBuilder.where((b) => {
       for (const filterDefinition of filtersDefinitions) {
@@ -329,7 +331,7 @@ const multipleColumnsFilter = (ctx, queryKey, filtersDefinitions) => {
         const isCustomFilter = !ourOwnFilters.includes(filter)
         b.orWhere((b) =>
           isCustomFilter
-            ? filter(b)
+            ? filter(b, ...extraArgs)
             : filter(ctx, queryKey, column, ...extraArgs)(b),
         )
       }
