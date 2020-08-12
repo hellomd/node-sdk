@@ -56,6 +56,13 @@ Sentry.init({
     typeof process.env.SENTRY_MAX_BREADCRUMBS !== 'undefined'
       ? parseInt(process.env.SENTRY_MAX_BREADCRUMBS, 10)
       : 15,
+  beforeBreadcrumb(breadcrumb) {
+    return breadcrumb.category === 'http' &&
+      typeof breadcrumb.data?.url === 'string' &&
+      breadcrumb.data.url.indexOf('apm-server') !== -1
+      ? null
+      : breadcrumb
+  },
   release: `${process.env.PROJECT_NAME}@${process.env.COMMIT_SHA1}`,
   // we use elastic apm
   tracesSampleRate: 0,
