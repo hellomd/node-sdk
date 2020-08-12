@@ -9,6 +9,41 @@ const shouldUseSentry =
     ? process.env.SENTRY_ENABLED === 'true'
     : ['development', 'production'].includes(process.env.ENV)
 
+const SENTRY_FATAL_ERROR_EXIT_TIMEOUT_MS =
+  typeof process.env.SENTRY_FATAL_ERROR_EXIT_TIMEOUT_MS !== 'undefined'
+    ? parseInt(process.env.SENTRY_FATAL_ERROR_EXIT_TIMEOUT_MS, 10)
+    : 3000
+
+// copied from
+// https://github.com/getsentry/sentry-javascript/blob/7956bd84fac447005682192a04e29aaa95172554/packages/node/src/handlers.ts#L430-L453
+const logAndExit = (error) => {
+  logger.error('Sentry caught a fatal error', {
+    error,
+  })
+
+  const client = Sentry.getCurrentHub().getClient()
+
+  if (client === undefined) {
+    logger.warning('No NodeClient was defined, we are exiting the process now.')
+    global.process.exit(1)
+    return
+  }
+
+  client
+    .close(SENTRY_FATAL_ERROR_EXIT_TIMEOUT_MS)
+    .then((result) => {
+      if (!result) {
+        logger.warning(
+          'We reached the timeout for emptying the request buffer, still exiting now!',
+        )
+      }
+      global.process.exit(1)
+    })
+    .then(null, (e) => {
+      logger.error('Error while closing Sentry client', { error: e })
+    })
+}
+
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
   enabled: shouldUseSentry,
@@ -48,14 +83,11 @@ Sentry.init({
             })
           }
 
-          process.nextTick(() => global.process.exit(1))
+          logAndExit(error)
         },
       )
     } else {
-      logger.error('Sentry caught a fatal error', {
-        error,
-      })
-      process.nextTick(() => global.process.exit(1))
+      logAndExit(error)
     }
   },
 })

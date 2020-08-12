@@ -59,12 +59,14 @@ async function errorListener(error, ctx) {
         }) ||
       null
 
+    const requestId = (ctx.state && ctx.state.id) || 'unassigned'
+
     shouldUseSentry &&
       Sentry.captureException(error, (scope) => {
         scope.setUser(user)
         scope.setTags({
-          requestId: ctx.get('x-request-id'),
-          transactionId: ctx.get('x-transaction-id'),
+          isKoaError: true,
+          requestId,
         })
       })
 
@@ -75,8 +77,8 @@ async function errorListener(error, ctx) {
         {
           user,
           labels: {
-            requestId: ctx.get('x-request-id'),
-            transactionId: ctx.get('x-transaction-id'),
+            isKoaError: true,
+            requestId,
           },
         },
         (apmError, eventId) => {
