@@ -9,10 +9,10 @@ const {
 
 const { validate } = require('../validate')
 
-const builder = definitions => {
+const builder = (definitions) => {
   // knexBuilder is a knex obj
   //  see http://knexjs.org/#Builder-where
-  return knexBuilder => {
+  return (knexBuilder) => {
     for (const definition of definitions) {
       if (!definition) continue
 
@@ -31,15 +31,15 @@ const builder = definitions => {
   }
 }
 
-const negate = definitions => {
+const negate = (definitions) => {
   // knexBuilder is a knex obj
   //  see http://knexjs.org/#Builder-where
-  return knexBuilder => {
+  return (knexBuilder) => {
     for (const definition of definitions) {
       if (!definition) continue
 
       if (typeof definition === 'function') {
-        knexBuilder.whereNot(knexBuilderInternal =>
+        knexBuilder.whereNot((knexBuilderInternal) =>
           definition(knexBuilderInternal),
         )
       } else if (!Array.isArray(definition) && typeof definition === 'object') {
@@ -55,13 +55,13 @@ const negate = definitions => {
   }
 }
 
-const eq = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
+const eq = (ctx, queryKey, dbKey = queryKey, transform = (v) => v) => {
   if (typeof ctx.query[queryKey] === 'undefined') {
     return null
   }
   const transformedValue = transform(convertStringToNull(ctx.query[queryKey]))
 
-  return knexBuilder =>
+  return (knexBuilder) =>
     transformedValue === null
       ? knexBuilder.whereNull(dbKey)
       : knexBuilder.where(dbKey, transformedValue)
@@ -71,51 +71,51 @@ const operator = (knex, dbKey, op, val) => {
   return knex.where(dbKey, op, val)
 }
 
-const gt = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
+const gt = (ctx, queryKey, dbKey = queryKey, transform = (v) => v) => {
   if (typeof ctx.query[queryKey] === 'undefined') {
     return null
   }
   const transformedValue = transform(ctx.query[queryKey])
 
-  return knexBuilder => operator(knexBuilder, dbKey, '>', transformedValue)
+  return (knexBuilder) => operator(knexBuilder, dbKey, '>', transformedValue)
 }
 
-const gte = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
+const gte = (ctx, queryKey, dbKey = queryKey, transform = (v) => v) => {
   if (typeof ctx.query[queryKey] === 'undefined') {
     return null
   }
   const transformedValue = transform(ctx.query[queryKey])
 
-  return knexBuilder => operator(knexBuilder, dbKey, '>=', transformedValue)
+  return (knexBuilder) => operator(knexBuilder, dbKey, '>=', transformedValue)
 }
 
-const lt = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
+const lt = (ctx, queryKey, dbKey = queryKey, transform = (v) => v) => {
   if (typeof ctx.query[queryKey] === 'undefined') {
     return null
   }
   const transformedValue = transform(ctx.query[queryKey])
 
-  return knexBuilder => operator(knexBuilder, dbKey, '<', transformedValue)
+  return (knexBuilder) => operator(knexBuilder, dbKey, '<', transformedValue)
 }
 
-const lte = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
+const lte = (ctx, queryKey, dbKey = queryKey, transform = (v) => v) => {
   if (typeof ctx.query[queryKey] === 'undefined') {
     return null
   }
   const transformedValue = transform(ctx.query[queryKey])
 
-  return knexBuilder => operator(knexBuilder, dbKey, '<=', transformedValue)
+  return (knexBuilder) => operator(knexBuilder, dbKey, '<=', transformedValue)
 }
 
-const bool = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
-  const eqFn = eq(ctx, queryKey, dbKey, v =>
+const bool = (ctx, queryKey, dbKey = queryKey, transform = (v) => v) => {
+  const eqFn = eq(ctx, queryKey, dbKey, (v) =>
     transform(convertStringToBoolean(v)),
   )
 
   return eqFn
 }
 
-const $in = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
+const $in = (ctx, queryKey, dbKey = queryKey, transform = (v) => v) => {
   if (typeof ctx.query[queryKey] === 'undefined') {
     return null
   }
@@ -130,11 +130,11 @@ const $in = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
     )
   }
 
-  const hasNullValue = transformedValues.some(v => v === null)
-  const transformedValuesNonNull = transformedValues.filter(v => v !== null)
+  const hasNullValue = transformedValues.some((v) => v === null)
+  const transformedValuesNonNull = transformedValues.filter((v) => v !== null)
 
-  return knexBuilder => {
-    knexBuilder.where(knexBuilderInternal => {
+  return (knexBuilder) => {
+    knexBuilder.where((knexBuilderInternal) => {
       knexBuilderInternal.whereIn(dbKey, transformedValuesNonNull)
 
       if (hasNullValue) knexBuilderInternal.orWhereNull(dbKey)
@@ -142,7 +142,7 @@ const $in = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
   }
 }
 
-const prefix = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
+const prefix = (ctx, queryKey, dbKey = queryKey, transform = (v) => v) => {
   if (typeof ctx.query[queryKey] === 'undefined') {
     return null
   }
@@ -150,14 +150,14 @@ const prefix = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
   const transformedValue = transform(
     escapeSqlLikePatternMatching(ctx.query[queryKey], escapeChar),
   )
-  return knexBuilder =>
+  return (knexBuilder) =>
     knexBuilder.whereRaw(`?? like ? escape '${escapeChar}'`, [
       dbKey,
       `${transformedValue}%`,
     ])
 }
 
-const inPrefix = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
+const inPrefix = (ctx, queryKey, dbKey = queryKey, transform = (v) => v) => {
   if (typeof ctx.query[queryKey] === 'undefined') {
     return null
   }
@@ -175,17 +175,17 @@ const inPrefix = (ctx, queryKey, dbKey = queryKey, transform = v => v) => {
 
   if (!transformedValues.length) return
 
-  const transformedValuesEscaped = transformedValues.map(v =>
+  const transformedValuesEscaped = transformedValues.map((v) =>
     escapeSqlLikePatternMatching(v, escapeChar),
   )
 
   // per https://stackoverflow.com/a/38074246/710693
-  return knexBuilder =>
+  return (knexBuilder) =>
     knexBuilder.whereRaw(
       `?? like any(array[${transformedValuesEscaped
-        .map(_v => '?')
+        .map((_v) => '?')
         .join(',')}])`,
-      [dbKey, ...transformedValuesEscaped.map(v => `${v}%`)],
+      [dbKey, ...transformedValuesEscaped.map((v) => `${v}%`)],
     )
 }
 
@@ -193,7 +193,7 @@ const between = (
   ctx,
   queryKeyPrefix,
   dbKey = queryKeyPrefix,
-  transform = v => v,
+  transform = (v) => v,
 ) => {
   const valueFrom = ctx.query[`${queryKeyPrefix}From`]
   const valueTo = ctx.query[`${queryKeyPrefix}To`]
@@ -205,7 +205,7 @@ const between = (
   const valueFromTransformed = transform(valueFrom)
   const valueToTransformed = transform(valueTo)
 
-  return knexBuilder =>
+  return (knexBuilder) =>
     valueFromTransformed && valueToTransformed
       ? knexBuilder.whereBetween(dbKey, [
           valueFromTransformed,
@@ -220,7 +220,7 @@ const regExp = (
   ctx,
   queryKey,
   dbKey = queryKey,
-  transform = escapedValue => escapedValue,
+  transform = (escapedValue) => escapedValue,
   isCaseSensitive = false,
 ) => {
   if (typeof ctx.query[queryKey] === 'undefined') {
@@ -231,7 +231,7 @@ const regExp = (
 
   const operator = isCaseSensitive ? '~' : '~*'
 
-  return knexBuilder =>
+  return (knexBuilder) =>
     knexBuilder.whereRaw(`?? ${operator} ?`, [dbKey, `${transformedValue}`])
 }
 
@@ -239,7 +239,7 @@ const inRegExp = (
   ctx,
   queryKey,
   dbKey = queryKey,
-  transform = escapedValues => escapedValues,
+  transform = (escapedValues) => escapedValues,
   isCaseSensitive = false,
 ) => {
   if (typeof ctx.query[queryKey] === 'undefined') {
@@ -247,7 +247,7 @@ const inRegExp = (
   }
 
   const transformedValues = transform(
-    toArray(ctx.query[queryKey]).map(v => escapeRegexp(v)),
+    toArray(ctx.query[queryKey]).map((v) => escapeRegexp(v)),
   )
 
   if (!Array.isArray(transformedValues)) {
@@ -262,10 +262,10 @@ const inRegExp = (
   const operator = isCaseSensitive ? '~' : '~*'
 
   // per https://stackoverflow.com/a/38074246/710693
-  return knexBuilder =>
+  return (knexBuilder) =>
     knexBuilder.whereRaw(
       `?? ${operator} any(array[${transformedValues
-        .map(_v => '?')
+        .map((_v) => '?')
         .join(',')}])`,
       [dbKey, ...transformedValues],
     )
@@ -307,11 +307,10 @@ const multipleColumnsFilter = (ctx, queryKey, filtersDefinitions) => {
   }
 
   if (
-    !filtersDefinitions.every(def => {
+    !filtersDefinitions.every((def) => {
       return (
         typeof def.column === 'string' &&
         typeof def.filter === 'function' &&
-        Object.values(filters).includes(def.filter) &&
         (!def.extraArgs || Array.isArray(def.extraArgs))
       )
     })
@@ -320,11 +319,19 @@ const multipleColumnsFilter = (ctx, queryKey, filtersDefinitions) => {
       'Argument filters definition passed to multipleColumnsFilter has invalid properties',
     )
   }
-  return knexBuilder =>
-    knexBuilder.where(b => {
+
+  const ourOwnFilters = Object.values(filters)
+
+  return (knexBuilder) =>
+    knexBuilder.where((b) => {
       for (const filterDefinition of filtersDefinitions) {
         const { column, filter, extraArgs = [] } = filterDefinition
-        b.orWhere(b => filter(ctx, queryKey, column, ...extraArgs)(b))
+        const isCustomFilter = !ourOwnFilters.includes(filter)
+        b.orWhere((b) =>
+          isCustomFilter
+            ? filter(b)
+            : filter(ctx, queryKey, column, ...extraArgs)(b),
+        )
       }
     })
 }
