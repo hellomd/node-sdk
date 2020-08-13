@@ -58,7 +58,8 @@ Sentry.init({
       : 15,
   beforeBreadcrumb(breadcrumb) {
     return breadcrumb.category === 'http' &&
-      typeof breadcrumb.data?.url === 'string' &&
+      breadcrumb.data &&
+      typeof breadcrumb.data.url === 'string' &&
       breadcrumb.data.url.indexOf('apm-server') !== -1
       ? null
       : breadcrumb
