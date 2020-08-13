@@ -64,6 +64,8 @@ Sentry.init({
       : breadcrumb
   },
   release: `${process.env.PROJECT_NAME}@${process.env.COMMIT_SHA1}`,
+  // this defaults to 250
+  maxValueLength: 1200,
   // we use elastic apm
   tracesSampleRate: 0,
   integrations(integrations) {
